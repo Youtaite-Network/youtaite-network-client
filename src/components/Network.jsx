@@ -28,42 +28,28 @@ class Network extends React.Component {
   createNetwork(dataset) {
     let w = 1000;
     let h = 600;
-    //Initialize a simple force layout, using the nodes and edges in dataset
-    var force = d3.forceSimulation(dataset.nodes)
+
+    // initialize force layout
+    let force = d3.forceSimulation(dataset.nodes)
       .force("charge", d3.forceManyBody())
       .force("link", d3.forceLink(dataset.edges).id(d => d.id).distance(200))
       .force("center", d3.forceCenter().x(w/2).y(h/2));
 
-    //Create SVG element
-    var svg = d3.select("div.network")
+    // create svg
+    let svg = d3.select("div.network")
       .append("svg")
       .attr("width", w)
       .attr("height", h);
     
-    //Create edges as lines
-    var edges = svg.selectAll("line")
+    // create edges
+    let edges = svg.selectAll("line")
       .data(dataset.edges)
       .enter()
       .append("line")
-      .style("stroke", "#ccc")
+      .style("stroke", "firebrick")
       .style("stroke-width", 1);
 
-    //Create nodes
-    // var nodes = svg.selectAll("image")
-    //   .data(dataset.nodes)
-    //   .enter()
-    //   // .append("rect")
-    //   // .attr('width', 250)
-    //   // .attr('height', 145)
-    //   // .attr('stroke', 'red')
-    //   // .attr('fill', 'rgba(0,0,0,0)')
-    //   .append('image')
-    //   .attr('width', 240)
-    //   .attr('height', 135)
-    //   .attr('href', d => d.thumbnail)
-    //   .call(drag(force));
-
-  // Enter any new nodes.
+    // create nodes
     let nodes = svg.selectAll('g')
       .data(dataset.nodes)
       .enter()
@@ -71,15 +57,21 @@ class Network extends React.Component {
       .classed('node', true)
       .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
       .call(drag(force))
-    nodes.append('rect')
-      .attr('width', 154)
-      .attr('height', 91)
-      .attr('x', -77)
-      .attr('y', -45.5)
-      .attr('stroke', 'firebrick')
+    nodes.append('clipPath')
+      .attr('id', function(d) {
+        return 'clip-path-' + d.id
+      })
+      .append('rect')
+      .attr('width', 144)
+      .attr('height', 81)
+      .attr('x', -72)
+      .attr('y', -40.5)
       .attr('fill', 'white')
-      .attr('rx', 10)
+      .attr('rx', 5)
     nodes.append('image')
+      .attr('clip-path', function(d) {
+        return 'url(#clip-path-' + d.id
+      })
       .attr('xlink:href', function(d) { return d.thumbnail;})
       .attr('height', 81)
       .attr('x', function() {
@@ -89,7 +81,7 @@ class Network extends React.Component {
         return -d3.select(this).node().getBBox().height/2
       })
     
-    //Every time the simulation "ticks", this will be called
+    // draw edges & nodes with correct placements at each tick
     force.on("tick", function() {
       edges.attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
@@ -101,7 +93,7 @@ class Network extends React.Component {
       })
     });
 
-    //Define drag event functions
+    // define drag function
     function drag(force) {
       function dragStarted(e, d) {
         if (!e.active) force.alphaTarget(.3).restart();
