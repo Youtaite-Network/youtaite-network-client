@@ -11,3 +11,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+image {
+  transition: all .15s ease-in-out;
+}
+
+rect {
+  transition: all .15s ease-in-out;
+}
+
+line {
+  transition: all .15s ease-in-out;
+}
