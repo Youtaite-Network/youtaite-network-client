@@ -31,23 +31,36 @@ class Network extends React.Component {
 
     // initialize force layout
     let force = d3.forceSimulation(dataset.nodes)
-      .force("charge", d3.forceManyBody())
-      .force("link", d3.forceLink(dataset.edges).id(d => d.id).distance(200))
+      .force("charge", d3.forceManyBody().strength(-1500))
+      .force("link", d3.forceLink(dataset.edges).id(d => d.id).distance(30))
       .force("center", d3.forceCenter().x(w/2).y(h/2));
 
     // create svg
     let svg = d3.select("div.network")
       .append("svg")
       .attr("width", w)
-      .attr("height", h);
+      .attr("height", h)
+      .style('border', '1px solid lightgrey')
+
+    // create title label in top left
+    svg.append('text')
+      .attr('id', 'title-text')
+      .attr('x', 15)
+      .attr('y', 26)
+      .attr('font-size', 18)
+      .attr('font-weight', 'bold')
     
     // create edges
     let edges = svg.selectAll("line")
       .data(dataset.edges)
       .enter()
       .append("line")
-      .style("stroke", "firebrick")
-      .style("stroke-width", 1);
+      .attr('id', function(d) {
+        return 'edge-' + d.source.id + '-' + d.target.id
+      })
+      .classed('edge', true)
+      .attr("stroke", "lightgrey")
+      .attr("stroke-width", .5);
 
     // create nodes
     let nodes = svg.selectAll('g')
@@ -55,32 +68,95 @@ class Network extends React.Component {
       .enter()
       .append('g')
       .classed('node', true)
+      .attr('id', function(d) {
+        return 'g-' + d.id
+      })
       .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+      .on('mouseover', function(evt, d) {
+        let filtered_edges = dataset.edges.filter(function(edge) {
+          return edge.source.id === d.id || edge.target.id === d.id
+        })
+        let filtered_node_ids = []
+        filtered_edges.forEach(function(edge) {
+          svg.select('#edge-' + edge.source.id + '-' + edge.target.id)
+            .attr('stroke', 'orange')
+            .attr('stroke-width', 2)
+          filtered_node_ids.push(edge.source.id)
+          filtered_node_ids.push(edge.target.id)
+        })
+        filtered_node_ids = [...new Set(filtered_node_ids)] // remove dupes
+        filtered_node_ids.forEach(function(node_id) {
+          svg.select('#rect-' + node_id)
+            .attr('stroke', 'orange')
+            .attr('stroke-width', 1.5)
+            .attr('transform', 'scale(1.25,1.25)')
+          svg.select('#img-' + node_id)
+            .attr('transform', 'scale(1.25,1.25)')
+        })
+        svg.select('#title-text')
+          .text(d.title)
+      })
+      .on('mouseout', function(e, d) {
+        svg.selectAll('rect.node-rect')
+          .attr('stroke', 'lightgrey')
+          .attr('stroke-width', .5)
+          .attr('transform', 'scale(1,1)')
+        svg.selectAll('line.edge')
+          .attr('stroke-width', .5)
+          .attr('stroke', 'lightgrey')
+        svg.selectAll('image.node-img')
+          .attr('transform', 'scale(1,1)')
+        svg.select('#title-text')
+          .text('')
+      })
+      .on('click', function(e, d) {
+        if (e.metaKey) {
+          window.open('https://youtube.com/watch?v=' + d.yt_id, 'mywindow').focus()
+        }
+      })
       .call(drag(force))
     nodes.append('clipPath')
       .attr('id', function(d) {
         return 'clip-path-' + d.id
       })
+      .classed('node-clip-path', true)
       .append('rect')
-      .attr('width', 144)
-      .attr('height', 81)
-      .attr('x', -72)
-      .attr('y', -40.5)
-      .attr('fill', 'white')
+      .attr('width', 72)
+      .attr('height', 40.5)
+      .attr('x', -36)
+      .attr('y', -20.25)
       .attr('rx', 5)
+      .attr('fill', 'white')
     nodes.append('image')
+      .attr('id', function(d) {
+        return 'img-' + d.id
+      })
+      .classed('node-img', true)
       .attr('clip-path', function(d) {
         return 'url(#clip-path-' + d.id
       })
       .attr('xlink:href', function(d) { return d.thumbnail;})
-      .attr('height', 81)
+      .attr('height', 40.5)
       .attr('x', function() {
         return -d3.select(this).node().getBBox().width/2
       })
       .attr('y', function() {
         return -d3.select(this).node().getBBox().height/2
       })
-    
+    nodes.append('rect')
+      .attr('id', function(d) {
+        return 'rect-' + d.id
+      })
+      .classed('node-rect', true)
+      .attr('width', 72)
+      .attr('height', 40.5)
+      .attr('x', -36)
+      .attr('y', -20.25)
+      .attr('rx', 5)
+      .attr('fill', 'none')
+      .attr('stroke', 'lightgrey')
+      .attr('stroke-width', .5)
+
     // draw edges & nodes with correct placements at each tick
     force.on("tick", function() {
       edges.attr("x1", function(d) { return d.source.x; })
@@ -120,7 +196,8 @@ class Network extends React.Component {
 
   render() {
     return (
-      <div className="network" style={{border: '1px solid gray'}}>
+      <div className="network">
+        <p>cmd/ctrl-click to open the video in a new tab</p>
       </div>
     );
   }
