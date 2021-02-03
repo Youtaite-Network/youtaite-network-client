@@ -3,10 +3,11 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Image from 'react-bootstrap/Image'
 import Card from 'react-bootstrap/Card'
-import Linkify from 'react-linkify';
+import Linkify from 'react-linkify'
 import axios from 'axios'
+import Autosuggest from 'react-autosuggest'
 
-let desc = `不思議だね 今の気持ち    空から降ってきたみたい
+const desc = `不思議だね 今の気持ち    空から降ってきたみたい
 
 ♪♪♪♪♪♪♪♪♪
 
@@ -146,6 +147,18 @@ Gay Muse Soundcloud:
 Gay Muse Official
 Gay Muse Solo Live`
 
+// When suggestion is clicked, Autosuggest needs to populate the input
+// based on the clicked suggestion. Teach Autosuggest how to calculate the
+// input value for every given suggestion.
+const getSuggestionValue = suggestion => suggestion.misc_id;
+
+// Use your imagination to render suggestions.
+const renderSuggestion = suggestion => (
+  <div>
+    {suggestion.misc_id}
+  </div>
+);
+
 class Submit extends React.Component {
   constructor(props) {
     super(props)
@@ -154,33 +167,39 @@ class Submit extends React.Component {
       analyzed: false,
       title: '',
       thumbnail: '',
-      description: [],
-      personOptions: [],
+      description: '',
+      people: [],
+      roles: [
+        'art',
+        'guide',
+        'lyrics',
+        'misc',
+        'mix',
+        'organize',
+        'translate',
+        'video',
+        'vocal',
+      ],
+      rolesInputValue: '',
+      suggestions: [],
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleLinkChange = this.handleLinkChange.bind(this)
     this.handleRolesChange = this.handleRolesChange.bind(this)
     this.handleRolesKeyUp = this.handleRolesKeyUp.bind(this)
     this.switchToSubmitForm = this.switchToSubmitForm.bind(this)
+    this.onSuggestionSelected = this.onSuggestionSelected.bind(this)
+    this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this)
+    this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this)
+    this.onSuggestionHighlighted = this.onSuggestionHighlighted.bind(this)
   }
 
   componentDidMount() {
     axios('https://youtaite-network-api.herokuapp.com/people')
       .then(response => {
-        this.setState({
-          personOptions: response.data.push({name: 'Add new person'}),
-          roleOptions: [
-            'art',
-            'guide',
-            'lyrics',
-            'misc',
-            'mix',
-            'organize',
-            'translate',
-            'video',
-            'vocal',
-          ],
-        })
+        let people = response.data
+        people.push({misc_id: 'Add new person'})
+        this.people = people
       })
       .catch(error => console.log(error))
   }
@@ -201,30 +220,67 @@ class Submit extends React.Component {
     this.setState({
       analyzed: true,
       title: 'Title placeholder',
-      description: this.convertToMultiline(desc),
+      description: desc,
     })
     // display title, desc
     // insert new form inputs
   }
 
-  convertToMultiline(text) {
-    let multiline = []
-    text.split("\n").forEach(line => {
-      multiline.push(line)
-      multiline.push(<br/>)
+  handleRolesChange(e, {newValue}) {
+    this.setState({
+      rolesInputValue: newValue,
     })
-    return multiline
-  }
-
-  handleRolesChange(e) {
-    console.log(e)
   }
 
   handleRolesKeyUp(e) {
     console.log(e)
   }
 
+  // Teach Autosuggest how to calculate suggestions for any given input value.
+  getSuggestions(value) {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+
+    return inputLength === 0 ? [] : this.people.filter(person =>
+      person.misc_id.toLowerCase().slice(0, inputLength) === inputValue
+    );
+  };
+
+  // Autosuggest will call this function every time you need to update suggestions.
+  // You already implemented this logic above, so just use it.
+  onSuggestionsFetchRequested({ value }) {
+    this.setState({
+      suggestions: this.getSuggestions(value)
+    });
+  };
+
+  // Autosuggest will call this function every time you need to clear suggestions.
+  onSuggestionsClearRequested() {
+    this.setState({
+      suggestions: []
+    });
+  };
+
+  onSuggestionSelected(e) {
+    console.log(e)
+  }
+
+  onSuggestionHighlighted({suggestion}) {
+    console.log(suggestion)
+  }
+
   render() {
+
+    const { rolesInputValue, suggestions } = this.state;
+
+    // Autosuggest will pass through all these props to the input.
+    const inputProps = {
+      placeholder: 'Type a programming language',
+      value: rolesInputValue,
+      onChange: this.handleRolesChange,
+      className: 'form-control',
+    };
+
     return (<div className='container mt-3'>
       <h2>Submit a Collab</h2>
       <Form onSubmit={this.handleSubmit}>
@@ -247,28 +303,37 @@ class Submit extends React.Component {
           <Form.Group className="clearfix" id="collab-info">
             <a href={this.state.link}><h3>{this.state.title}</h3></a>
             <div 
-              class="float-left mr-3 responsive-iframe-container" 
-              style={{width: '40%', 'padding-top': (40*9/16) + '%'}}>
+              className="float-left mr-3 responsive-iframe-container" 
+              style={{width: '40%', paddingTop: (40*9/16) + '%'}}>
               <iframe 
                 className="responsive-iframe"
                 width="560" height="315" 
                 src="https://www.youtube.com/embed/ORVH8rl6WFo" 
-                frameborder="0" 
+                frameBorder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen></iframe>
+                allowFullScreen></iframe>
             </div>
-            <Linkify className="d-inline" style={{'white-space': 'pre-wrap'}}>
-              {this.state.description}
-            </Linkify>
+            <VideoDescription text={this.state.description}></VideoDescription>
           </Form.Group>
           <Card className="fixed-bottom container bg-light p-3 mb-2" border="secondary">
             <Form.Group className="" controlId="form-roles">
               <Form.Label>Enter name, tab or enter, enter role, rinse & repeat!</Form.Label>
-              <Form.Control
-                type="roles"
-                value={this.state.roles}
-                onChange={this.handleRolesChange}
-                onKeyUp={this.handleRolesKeyUp}/>
+              {/* <Form.Control */}
+              {/*   type="roles" */}
+              {/*   value={this.state.roles} */}
+              {/*   onChange={this.handleRolesChange} */}
+              {/*   onKeyUp={this.handleRolesKeyUp}/> */}
+              <Autosuggest
+                suggestions={suggestions}
+                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                getSuggestionValue={getSuggestionValue}
+                renderSuggestion={renderSuggestion}
+                inputProps={inputProps}
+                // onSuggestionSelected={this.onSuggestionSelected}
+                // onSuggestionHighlighted={this.onSuggestionHighlighted}
+                // highlightFirstSuggestion={true}
+              />
             </Form.Group>
             <Button variant="primary" type="submit">
               Submit All
@@ -278,6 +343,20 @@ class Submit extends React.Component {
       </Form>
     </div>);
   }
+}
+
+function VideoDescription(props) {
+  const text = props.text
+  let listItems = []
+  text.split("\n").forEach((line, i) => {
+    listItems.push(<span key={`span-${i.toString()}`}>{line}</span>)
+    listItems.push(<br key={`br-${i.toString()}`}/>)
+  })
+  return (
+    <Linkify className="d-inline">
+      {listItems}
+    </Linkify>
+  )
 }
 
 export default Submit
