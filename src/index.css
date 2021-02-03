@@ -13,13 +13,13 @@ code {
 }
 
 image {
-  transition: all .15s ease-in-out;
+  transition: all .12s ease-in-out;
 }
 
 rect {
-  transition: all .15s ease-in-out;
+  transition: all .12s ease-in-out;
 }
 
 line {
-  transition: all .15s ease-in-out;
+  transition: all .12s ease-in-out;
 }

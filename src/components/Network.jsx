@@ -28,6 +28,8 @@ class Network extends React.Component {
   createNetwork(dataset) {
     let w = 1000;
     let h = 600;
+    let node_w = 72
+    let node_h = 40.5
 
     // initialize force layout
     let force = d3.forceSimulation(dataset.nodes)
@@ -121,10 +123,10 @@ class Network extends React.Component {
       })
       .classed('node-clip-path', true)
       .append('rect')
-      .attr('width', 72)
-      .attr('height', 40.5)
-      .attr('x', -36)
-      .attr('y', -20.25)
+      .attr('width', node_w)
+      .attr('height', node_h)
+      .attr('x', -node_w/2)
+      .attr('y', -node_h/2)
       .attr('rx', 5)
       .attr('fill', 'white')
     nodes.append('image')
@@ -136,22 +138,19 @@ class Network extends React.Component {
         return 'url(#clip-path-' + d.id
       })
       .attr('xlink:href', function(d) { return d.thumbnail;})
-      .attr('height', 40.5)
-      .attr('x', function() {
-        return -d3.select(this).node().getBBox().width/2
-      })
-      .attr('y', function() {
-        return -d3.select(this).node().getBBox().height/2
-      })
+      .attr('width', node_w)
+      .attr('height', node_h)
+      .attr('x', -node_w/2)
+      .attr('y', -node_h/2)
     nodes.append('rect')
       .attr('id', function(d) {
         return 'rect-' + d.id
       })
       .classed('node-rect', true)
-      .attr('width', 72)
-      .attr('height', 40.5)
-      .attr('x', -36)
-      .attr('y', -20.25)
+      .attr('width', node_w)
+      .attr('height', node_h)
+      .attr('x', -node_w/2)
+      .attr('y', -node_h/2)
       .attr('rx', 5)
       .attr('fill', 'none')
       .attr('stroke', 'lightgrey')
