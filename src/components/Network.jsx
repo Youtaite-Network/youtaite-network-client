@@ -97,6 +97,7 @@ class Network extends React.Component {
         })
         svg.select('#title-text')
           .text(d.title)
+          .style('opacity', 1)
       })
       .on('mouseout', function(e, d) {
         svg.selectAll('rect.node-rect')
@@ -109,7 +110,7 @@ class Network extends React.Component {
         svg.selectAll('image.node-img')
           .attr('transform', 'scale(1,1)')
         svg.select('#title-text')
-          .text('')
+          .style('opacity', 0)
       })
       .on('click', function(e, d) {
         if (e.metaKey) {

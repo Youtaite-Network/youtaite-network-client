@@ -23,3 +23,7 @@ rect {
 line {
   transition: all .12s ease-in-out;
 }
+
+text {
+  transition: opacity .15s ease-in-out;
+}
