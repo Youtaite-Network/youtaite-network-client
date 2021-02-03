@@ -5,6 +5,8 @@ import {
   Route,
 } from "react-router-dom";
 import Home from './components/Home';
+import Submit from './components/Submit';
+import About from './components/About'
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav'
 
@@ -19,7 +21,7 @@ export default function App() {
             <Nav className="mr-auto">
               <Nav.Link href="/home">Home</Nav.Link>
               <Nav.Link href="/submit">Submit</Nav.Link>
-              <Nav.Link href="/about">About</Nav.Link>
+              <Nav.Link href="/about">What's this?</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Navbar>
@@ -40,12 +42,4 @@ export default function App() {
       </div>
     </Router>
   );
-}
-
-function About() {
-  return <h2>About</h2>;
-}
-
-function Submit() {
-  return <h2>Submit</h2>;
 }
