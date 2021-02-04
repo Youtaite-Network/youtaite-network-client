@@ -1,5 +1,6 @@
 import React from "react";
 import GoogleLogin from 'react-google-login'
+import axios from 'axios'
 
 class GoogleLoginWrapper extends React.Component {
   constructor(props) {
@@ -12,6 +13,18 @@ class GoogleLoginWrapper extends React.Component {
 
   onSuccess(user) {
     console.log(user)
+    let idtoken = user.getAuthResponse().id_token
+    console.log(idtoken)
+    axios.post('https://youtaite-network-api.herokuapp.com/googlesignin', 
+      { idtoken }, // data
+      { 'Content-Type': 'application.x-www-form-urlencoded'}) // headers
+      .then(response => {
+        console.log(response)
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.log(error)
+      })
   }
 
   onFailure(error) {
