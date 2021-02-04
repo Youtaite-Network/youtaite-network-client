@@ -335,6 +335,7 @@ class Submit extends React.Component {
                 className="float-right mr-3 responsive-iframe-container" 
                 style={{width: '40%', paddingTop: (40*9/16) + '%'}}>
                 <iframe 
+                  title="yt-embed"
                   className="responsive-iframe"
                   width="560" height="315" 
                   src={this.state.embedLink} 

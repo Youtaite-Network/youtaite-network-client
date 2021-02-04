@@ -11,10 +11,6 @@ import GoogleLoginWrapper from './components/GoogleLoginWrapper'
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav'
 
-const responseGoogle = (response) => {
-  console.log(response);
-}
-
 export default function App() {
   return (
     <Router>
