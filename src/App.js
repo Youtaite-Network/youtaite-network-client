@@ -7,8 +7,13 @@ import {
 import Home from './components/Home';
 import Submit from './components/Submit';
 import About from './components/About'
+import GoogleLoginWrapper from './components/GoogleLoginWrapper'
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav'
+
+const responseGoogle = (response) => {
+  console.log(response);
+}
 
 export default function App() {
   return (
@@ -23,6 +28,7 @@ export default function App() {
               <Nav.Link href="/submit">Submit</Nav.Link>
               <Nav.Link href="/about">What's this?</Nav.Link>
             </Nav>
+            <GoogleLoginWrapper></GoogleLoginWrapper>
           </Navbar.Collapse>
         </Navbar>
 

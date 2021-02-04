@@ -28,6 +28,7 @@ sketch
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+build/
 
 # if you are NOT using Zero-installs, then:
 # comment the following lines
@@ -37,3 +38,5 @@ sketch
 # .pnp.*
 
 # End of https://www.toptal.com/developers/gitignore/api/yarn,react
+# Local Netlify folder
+.netlify

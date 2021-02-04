@@ -7,151 +7,7 @@ import Col from 'react-bootstrap/Col'
 import Linkify from 'react-linkify'
 import axios from 'axios'
 import Autosuggest from 'react-autosuggest'
-
-const desc = `不思議だね 今の気持ち    空から降ってきたみたい
-
-♪♪♪♪♪♪♪♪♪
-
-Snow Halation, µ's first big hit and the first staple of the Love Live franchise, came out 10 years ago! To celebrate a decade of this amazing song, 23 people came together to pay tribute to Snow Halation! We hope you enjoy this huge cover and that this song is as special to you as it is to us!
-µ'sic Forever~!\n
-
-♪ CREDITS ♪
-
-Vocals:
-NINA (StarlightLily)
-Bluebell
-https://www.youtube.com/user/SGBluebe...​
-https://twitter.com/SGBluebell​
-Charity
-https://www.youtube.com/channel/UCu-k...​
-https://twitter.com/duckhime​ 
-Eroc
-https://www.twitter.com/MyNamesNotRic_​
-Juudenki
-https://www.youtube.com/JuudenkiJDK​
-http://www.twitter.com/JuudenkiJDK​
-Kelsey
-https://www.youtube.com/channel/UCAA4...​
-https://twitter.com/hoover_kelsey​
-Lu
-https://www.youtube.com/illuim​
-http://www.twitter.com/ymnatweet​
-Lunarveil
-https://www.youtube.com/c/lunarveil​
-http://www.twitter.com/lunarveil​
-magic
-https://youtube.com/channel/UCsWGFTZ5...​
-https://twitter.com/magicheresy​
-Mathew
-https://www.youtube.com/c/SepiaDaysMusic​
-https://www.twitter.com/MathewSepiaDays​
-miyukii
-https://www.youtube.com/c/miyukii​
-Moment
-https://m.youtube.com/channel/UCjKfDP...​
-https://twitter.com/mmomentlive?lang=en​
-Rice
-https://youtube.com/user/The11timbit​
-https://www.twitter.com/rice_covers​
-Riika Riika Rii
-https://youtube.com/user/Inlinverst​
-https://twitter.con/RiikaRiikaRii​
-Sai
-https://youtube.com/c/Saicecream​
-https://twitter.com/sai_pyon?s=21​
-TrueCrayon
-https://youtube.com/channel/UCAdBWXIk...​
-https://mobile.twitter.com/thetruestc...​
-Wooly
-https://youtube.com/channel/UCoDeGl8J...​
-http://www.twitter.com/loliwooly​
-xillball
-https://www.youtube.com/c/xillball/fe...​
-https://twitter.com/xillball​
-Zaya
-https://twitter.com/ladynalenthi​
-https://youtube.com/nalenthi​
-リリサ 
-https://www.youtube.com/c/sproutseason​
-https://twitter.com/sproutseasons​
-ゆたかた
-https://youtube.com/channel/UCbmHCgjX...​
-https://twitter.com/eri_kurezu?s=09​
-열.
-https://youtube.com/YEOLTHEK​
-https://twitter.com/YEOLTHEK​
-
-Mix:
-Mars
-https://twitter.com/Hinokamimars​
-
-Art:
-Riika Riika Rii
-NINA
-
-Video:
-Moment
-Zaya
-NINA
-
-Harmony arrangement:
-NINA
-
-Timing:
-NINA
-
-Tuning:
-TrueCrayon
-NINA
-
-Original song:
-Snow Halation
-
-Original singers: 
-μ's
-Honoka Kousaka (CV: Emi Nitta)
-Kotori Minami (CV: Aya Uchida)
-Umi Sonoda (CV: Suzuko Mimori)
-Rin Hoshizora (CV: Riho Iida)
-Hanayo Koizumi (CV: Yurika Kubo)
-Maki Nishikino (CV: Pile)
-Nozomi Tojo (CV: Aina Kusuda)
-Nico Yazawa (CV: Sora Tokui)
-Eli Ayase (CV: Yoshino Nanjo)
-
-Written by:
-Aki Hata
-
-Composed by:
-Takahiro Yamada
-
-Arranged by:
-Ryousuke Nakanishi
-
-Release date:
-2010
-
-
-
-♪ MY SOCIAL MEDIA ♪
-
-Twitter: 
-@27_orange_lily
-
-Instagram: 
-@27_orange_lily
-
-Tumblr: 
-starlightlily-art
-
-Gay Muse Soundcloud: 
-Gay Muse Official
-Gay Muse Solo Live`
-
-// When suggestion is clicked, Autosuggest needs to populate the input
-// based on the clicked suggestion. Teach Autosuggest how to calculate the
-// input value for every given suggestion.
-const getSuggestionValue = suggestion => suggestion.name;
+import getVideoId from 'get-video-id'
 
 // Use your imagination to render suggestions.
 const renderPersonSuggestion = suggestion => (
@@ -178,6 +34,7 @@ class Submit extends React.Component {
     super(props)
     this.state = {
       link: '',
+      embedLink: '',
       analyzed: false,
       title: '',
       thumbnail: '',
@@ -201,19 +58,26 @@ class Submit extends React.Component {
       roleInputValue: '',
       roleSuggestions: [],
     }
+    // refs
     this.roleInput = React.createRef()
     this.personInput = React.createRef()
+    // general event handlers
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleLinkChange = this.handleLinkChange.bind(this)
     this.switchToSubmitForm = this.switchToSubmitForm.bind(this)
+    this.getSuggestionValue = this.getSuggestionValue.bind(this)
+    // person input event handlers
     this.handlePersonChange = this.handlePersonChange.bind(this)
     this.onPersonSuggestionSelected = this.onPersonSuggestionSelected.bind(this)
     this.onPersonSuggestionsFetchRequested = this.onPersonSuggestionsFetchRequested.bind(this)
     this.onPersonSuggestionsClearRequested = this.onPersonSuggestionsClearRequested.bind(this)
+    this.handlePersonKeyDown = this.handlePersonKeyDown.bind(this)
+    // role input event handlers
     this.handleRoleChange = this.handleRoleChange.bind(this)
     this.onRoleSuggestionSelected = this.onRoleSuggestionSelected.bind(this)
     this.onRoleSuggestionsFetchRequested = this.onRoleSuggestionsFetchRequested.bind(this)
     this.onRoleSuggestionsClearRequested = this.onRoleSuggestionsClearRequested.bind(this)
+    this.handleRoleKeyDown = this.handleRoleKeyDown.bind(this)
   }
 
   componentDidMount() {
@@ -231,6 +95,9 @@ class Submit extends React.Component {
   handleSubmit(e) {
     e.preventDefault()
     console.log(e)
+    if(window.confirm('Submit all roles?')) {
+      console.log(this.state.selected)
+    }
   }
 
   handleLinkChange(e) {
@@ -238,16 +105,32 @@ class Submit extends React.Component {
   }
 
   switchToSubmitForm(e) {
-    console.log(e)
-    // call youtaite-network-api.herokuapp.com to get:
-    // Title, Description
-    this.setState({
-      analyzed: true,
-      title: 'Title placeholder',
-      description: desc,
-    })
-    // display title, desc
-    // insert new form inputs
+    // get youtube video ID
+    let {id, service} = getVideoId(this.state.link)
+    if (service !== 'youtube') {
+      console.error('Could not parse URL. Make sure it is a valid Youtube URL and not a shortened/redirect URL (eg, bitly)')
+      return
+    }
+    // call youtaite-network-api.herokuapp.com to get title & description from ID
+    axios('https://youtaite-network-api.herokuapp.com/collabs/info/' + id)
+      .then(response => {
+        let {title, description} = response.data
+        this.setState({
+          analyzed: true,
+          title,
+          description,
+          embedLink: `https://www.youtube.com/embed/${id}`
+        })
+      })
+      .catch(error => console.log(error))
+      .then(() => this.personInput.current.focus())
+  }
+
+  // When suggestion is clicked, Autosuggest needs to populate the input
+  // based on the clicked suggestion. Teach Autosuggest how to calculate the
+  // input value for every given suggestion.
+  getSuggestionValue(suggestion){
+    return suggestion.name
   }
 
   handlePersonChange(e, {newValue}) {
@@ -350,31 +233,47 @@ class Submit extends React.Component {
     })
   }
 
+  handlePersonKeyDown(e) {
+    if (e.key === 'Enter' && e.metaKey === true) {
+      this.roleInput.current.focus()
+    }
+  }
+
+  handleRoleKeyDown(e) {
+    if (e.key === 'Enter' && e.metaKey === true) {
+      this.personInput.current.focus()
+    }
+  }
+
   render() {
 
     const { personInputValue, personSuggestions, roleInputValue, roleSuggestions } = this.state;
 
     // Autosuggest will pass through all these props to the input.
     const personInputProps = {
-      placeholder: 'Type an alias',
+      placeholder: 'Yuki',
       value: personInputValue,
       onChange: this.handlePersonChange,
+      onKeyDown: this.handlePersonKeyDown,
       className: 'form-control',
       id: 'person-input',
       ref: this.personInput,
     };
 
     const roleInputProps = {
-      placeholder: 'Type a role',
+      placeholder: 'organize',
       value: roleInputValue,
       onChange: this.handleRoleChange,
+      onKeyDown: this.handleRoleKeyDown,
       className: 'form-control',
       id: 'role-input',
       ref: this.roleInput,
+      readOnly: this.state.mostRecentPersonId < 0,
     }
 
     return (<div className='container mt-3'>
       <h2>Submit a Collab</h2>
+      <p>Hi there! Feel free to play around with this, but beware it is not fully functional yet and doesn't actually submit anything to the database, haha.</p>
       <Form onSubmit={this.handleSubmit}>
         <Form.Group controlId="link-form">
           <Form.Group controlId="form-yt-link">
@@ -394,7 +293,7 @@ class Submit extends React.Component {
           <hr></hr>
           <SelectedBox items={this.state.selected} mostRecent={this.state.mostRecentPersonId}></SelectedBox>
           <Card className="sticky-top mb-3" bg="light">
-            <Card.Header>Type alias, press enter, type role(s), press enter, rinse & repeat!</Card.Header>
+            <Card.Header>{'Press enter or click to select an option. Cmd/ctrl-enter switches between the two inputs.'}</Card.Header>
             <Card.Body>
               <Form.Row className='mb-2'>
                 <Col>
@@ -402,10 +301,11 @@ class Submit extends React.Component {
                     suggestions={personSuggestions}
                     onSuggestionsFetchRequested={this.onPersonSuggestionsFetchRequested}
                     onSuggestionsClearRequested={this.onPersonSuggestionsClearRequested}
-                    getSuggestionValue={getSuggestionValue}
+                    getSuggestionValue={this.getSuggestionValue}
                     renderSuggestion={renderPersonSuggestion}
                     inputProps={personInputProps}
                     onSuggestionSelected={this.onPersonSuggestionSelected}
+                    focusInputOnSuggestionClick={false}
                     highlightFirstSuggestion={true}
                   />
                 </Col>
@@ -414,7 +314,7 @@ class Submit extends React.Component {
                     suggestions={roleSuggestions}
                     onSuggestionsFetchRequested={this.onRoleSuggestionsFetchRequested}
                     onSuggestionsClearRequested={this.onRoleSuggestionsClearRequested}
-                    getSuggestionValue={getSuggestionValue}
+                    getSuggestionValue={this.getSuggestionValue}
                     renderSuggestion={renderRoleSuggestion}
                     inputProps={roleInputProps}
                     onSuggestionSelected={this.onRoleSuggestionSelected}
@@ -422,27 +322,29 @@ class Submit extends React.Component {
                   />
                 </Col>
               </Form.Row>
-              <Button variant="primary" type="submit" className="w-100">
+              <Button variant="primary" type="button" onClick={this.handleSubmit} className="w-100">
                 Submit All
               </Button>
             </Card.Body>
           </Card>
           <hr></hr>
-          <Form.Group className="clearfix" id="collab-info">
-            <a href={this.state.link}><h3>{this.state.title}</h3></a>
-            <div 
-              className="float-right mr-3 responsive-iframe-container" 
-              style={{width: '40%', paddingTop: (40*9/16) + '%'}}>
-              <iframe 
-                className="responsive-iframe"
-                width="560" height="315" 
-                src="https://www.youtube.com/embed/ORVH8rl6WFo" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen></iframe>
-            </div>
-            <VideoDescription text={this.state.description}></VideoDescription>
-          </Form.Group>
+          <Card className="clearfix" id="collab-info">
+            <Card.Header><a href={this.state.link}>{this.state.title}</a></Card.Header>
+            <Card.Body>
+              <div 
+                className="float-right mr-3 responsive-iframe-container" 
+                style={{width: '40%', paddingTop: (40*9/16) + '%'}}>
+                <iframe 
+                  className="responsive-iframe"
+                  width="560" height="315" 
+                  src={this.state.embedLink} 
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen></iframe>
+              </div>
+              <VideoDescription text={this.state.description}></VideoDescription>
+            </Card.Body>
+          </Card>
         </div>
       </Form>
     </div>);
