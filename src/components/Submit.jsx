@@ -3,6 +3,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Image from 'react-bootstrap/Image'
 import Card from 'react-bootstrap/Card'
+import Col from 'react-bootstrap/Col'
 import Linkify from 'react-linkify'
 import axios from 'axios'
 import Autosuggest from 'react-autosuggest'
@@ -150,14 +151,27 @@ Gay Muse Solo Live`
 // When suggestion is clicked, Autosuggest needs to populate the input
 // based on the clicked suggestion. Teach Autosuggest how to calculate the
 // input value for every given suggestion.
-const getSuggestionValue = suggestion => suggestion.misc_id;
+const getSuggestionValue = suggestion => suggestion.name;
 
 // Use your imagination to render suggestions.
-const renderSuggestion = suggestion => (
-  <div>
-    {suggestion.misc_id}
+const renderPersonSuggestion = suggestion => (
+  <div className="row flex-row align-items-center flex-nowrap p-1 m-0">
+    <div>
+      <Image className="mr-1" width="40px" height="40px" roundedCircle src={suggestion.thumbnail} />
+    </div>
+    <div className="ml-1 text-truncate"><strong>
+      {suggestion.name}
+    </strong></div>
   </div>
 );
+
+const renderRoleSuggestion = suggestion => (
+  <div className="row flex-row align-items-center flex-nowrap p-1 m-0">
+    <div className="ml-1 text-truncate"><strong>
+      {suggestion.name}
+    </strong></div>
+  </div>
+)
 
 class Submit extends React.Component {
   constructor(props) {
@@ -169,37 +183,47 @@ class Submit extends React.Component {
       thumbnail: '',
       description: '',
       people: [],
+      selected: [],
       roles: [
-        'art',
-        'guide',
-        'lyrics',
-        'misc',
-        'mix',
-        'organize',
-        'translate',
-        'video',
-        'vocal',
+        {name: 'art'},
+        {name: 'guide'},
+        {name: 'lyrics'},
+        {name: 'mix'},
+        {name: 'organize'},
+        {name: 'translate'},
+        {name: 'video'},
+        {name: 'vocal'},
+        {name: 'misc'},
       ],
-      rolesInputValue: '',
-      suggestions: [],
+      personInputValue: '',
+      personSuggestions: [],
+      mostRecentPersonId: -1,
+      roleInputValue: '',
+      roleSuggestions: [],
     }
+    this.roleInput = React.createRef()
+    this.personInput = React.createRef()
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleLinkChange = this.handleLinkChange.bind(this)
-    this.handleRolesChange = this.handleRolesChange.bind(this)
-    this.handleRolesKeyUp = this.handleRolesKeyUp.bind(this)
     this.switchToSubmitForm = this.switchToSubmitForm.bind(this)
-    this.onSuggestionSelected = this.onSuggestionSelected.bind(this)
-    this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this)
-    this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this)
-    this.onSuggestionHighlighted = this.onSuggestionHighlighted.bind(this)
+    this.handlePersonChange = this.handlePersonChange.bind(this)
+    this.onPersonSuggestionSelected = this.onPersonSuggestionSelected.bind(this)
+    this.onPersonSuggestionsFetchRequested = this.onPersonSuggestionsFetchRequested.bind(this)
+    this.onPersonSuggestionsClearRequested = this.onPersonSuggestionsClearRequested.bind(this)
+    this.handleRoleChange = this.handleRoleChange.bind(this)
+    this.onRoleSuggestionSelected = this.onRoleSuggestionSelected.bind(this)
+    this.onRoleSuggestionsFetchRequested = this.onRoleSuggestionsFetchRequested.bind(this)
+    this.onRoleSuggestionsClearRequested = this.onRoleSuggestionsClearRequested.bind(this)
   }
 
   componentDidMount() {
     axios('https://youtaite-network-api.herokuapp.com/people')
       .then(response => {
         let people = response.data
-        people.push({misc_id: 'Add new person'})
-        this.people = people
+        people.push({name: 'Add new person', misc_id: ''})
+        this.setState({
+          people,
+        })
       })
       .catch(error => console.log(error))
   }
@@ -226,60 +250,128 @@ class Submit extends React.Component {
     // insert new form inputs
   }
 
-  handleRolesChange(e, {newValue}) {
+  handlePersonChange(e, {newValue}) {
     this.setState({
-      rolesInputValue: newValue,
+      personInputValue: newValue,
     })
   }
 
-  handleRolesKeyUp(e) {
-    console.log(e)
+  handleRoleChange(e, {newValue}) {
+    this.setState({
+      roleInputValue: newValue,
+    })
   }
 
   // Teach Autosuggest how to calculate suggestions for any given input value.
-  getSuggestions(value) {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
-
-    return inputLength === 0 ? [] : this.people.filter(person =>
-      person.misc_id.toLowerCase().slice(0, inputLength) === inputValue
-    );
-  };
+  getPersonSuggestions(value) {
+    const inputValue = value.trim().toLowerCase()
+    const inputLength = inputValue.length
+    return inputLength === 0 ? [] : this.state.people.filter(person =>
+      person.name.toLowerCase().slice(0, inputLength) === inputValue
+    )
+  }
 
   // Autosuggest will call this function every time you need to update suggestions.
   // You already implemented this logic above, so just use it.
-  onSuggestionsFetchRequested({ value }) {
+  onPersonSuggestionsFetchRequested({ value }) {
     this.setState({
-      suggestions: this.getSuggestions(value)
+      personSuggestions: this.getPersonSuggestions(value)
     });
   };
 
   // Autosuggest will call this function every time you need to clear suggestions.
-  onSuggestionsClearRequested() {
+  onPersonSuggestionsClearRequested() {
     this.setState({
-      suggestions: []
+      personSuggestions: []
     });
   };
 
-  onSuggestionSelected(e) {
-    console.log(e)
+  onPersonSuggestionSelected(e, { suggestion }) {
+    this.setState(function(prevState) {
+      let newSelected = null
+      if (prevState.selected.find(person => person.id === suggestion.id)) {
+        newSelected = prevState.selected
+      } else {
+        newSelected = prevState.selected.concat([suggestion])
+      }
+      return {
+        personInputValue: '',
+        selected: newSelected,
+        mostRecentPersonId: suggestion.id,
+      }
+    })
+    this.roleInput.current.focus()
   }
 
-  onSuggestionHighlighted({suggestion}) {
-    console.log(suggestion)
+  getRoleSuggestions(value) {
+    const inputValue = value.trim().toLowerCase()
+    const inputLength = inputValue.length
+    let mostRecent = this.state.selected.find(person => person.id === this.state.mostRecentPersonId)
+    let availableRoles = this.state.roles
+    if (mostRecent.roles) {
+      availableRoles = this.state.roles.filter(role => !mostRecent.roles.includes(role.name))
+    }
+    return inputLength === 0 ? [] : availableRoles.filter(role =>
+      role.name.toLowerCase().slice(0, inputLength) === inputValue
+    )
+  }
+
+  // Autosuggest will call this function every time you need to update suggestions.
+  // You already implemented this logic above, so just use it.
+  onRoleSuggestionsFetchRequested({ value }) {
+    this.setState({
+      roleSuggestions: this.getRoleSuggestions(value)
+    });
+  };
+
+  // Autosuggest will call this function every time you need to clear suggestions.
+  onRoleSuggestionsClearRequested() {
+    this.setState({
+      roleSuggestions: []
+    });
+  };
+
+  onRoleSuggestionSelected(e, { suggestion }) {
+    this.setState(function(prevState) {
+      let index = prevState.selected.findIndex(person => prevState.mostRecentPersonId === person.id)
+      let roles = []
+      if (prevState.selected[index].roles) {
+        // make copy of array to modify
+        roles = [...prevState.selected[index].roles]
+      }
+      roles.push(suggestion.name)
+      let mostRecent = {...prevState.selected[index], roles}
+      return {
+        roleInputValue: '',
+        selected: prevState.selected.slice(0, index)
+          .concat([mostRecent])
+          .concat(prevState.selected.slice(index + 1))
+      }
+    })
   }
 
   render() {
 
-    const { rolesInputValue, suggestions } = this.state;
+    const { personInputValue, personSuggestions, roleInputValue, roleSuggestions } = this.state;
 
     // Autosuggest will pass through all these props to the input.
-    const inputProps = {
-      placeholder: 'Type a programming language',
-      value: rolesInputValue,
-      onChange: this.handleRolesChange,
+    const personInputProps = {
+      placeholder: 'Type an alias',
+      value: personInputValue,
+      onChange: this.handlePersonChange,
       className: 'form-control',
+      id: 'person-input',
+      ref: this.personInput,
     };
+
+    const roleInputProps = {
+      placeholder: 'Type a role',
+      value: roleInputValue,
+      onChange: this.handleRoleChange,
+      className: 'form-control',
+      id: 'role-input',
+      ref: this.roleInput,
+    }
 
     return (<div className='container mt-3'>
       <h2>Submit a Collab</h2>
@@ -300,10 +392,46 @@ class Submit extends React.Component {
         </Form.Group>
         <div id="submit-form" style={{display: this.state.analyzed ? 'block' : 'none'}}>
           <hr></hr>
+          <SelectedBox items={this.state.selected} mostRecent={this.state.mostRecentPersonId}></SelectedBox>
+          <Card className="sticky-top mb-3" bg="light">
+            <Card.Header>Type alias, press enter, type role(s), press enter, rinse & repeat!</Card.Header>
+            <Card.Body>
+              <Form.Row className='mb-2'>
+                <Col>
+                  <Autosuggest
+                    suggestions={personSuggestions}
+                    onSuggestionsFetchRequested={this.onPersonSuggestionsFetchRequested}
+                    onSuggestionsClearRequested={this.onPersonSuggestionsClearRequested}
+                    getSuggestionValue={getSuggestionValue}
+                    renderSuggestion={renderPersonSuggestion}
+                    inputProps={personInputProps}
+                    onSuggestionSelected={this.onPersonSuggestionSelected}
+                    highlightFirstSuggestion={true}
+                  />
+                </Col>
+                <Col>
+                  <Autosuggest
+                    suggestions={roleSuggestions}
+                    onSuggestionsFetchRequested={this.onRoleSuggestionsFetchRequested}
+                    onSuggestionsClearRequested={this.onRoleSuggestionsClearRequested}
+                    getSuggestionValue={getSuggestionValue}
+                    renderSuggestion={renderRoleSuggestion}
+                    inputProps={roleInputProps}
+                    onSuggestionSelected={this.onRoleSuggestionSelected}
+                    highlightFirstSuggestion={true}
+                  />
+                </Col>
+              </Form.Row>
+              <Button variant="primary" type="submit" className="w-100">
+                Submit All
+              </Button>
+            </Card.Body>
+          </Card>
+          <hr></hr>
           <Form.Group className="clearfix" id="collab-info">
             <a href={this.state.link}><h3>{this.state.title}</h3></a>
             <div 
-              className="float-left mr-3 responsive-iframe-container" 
+              className="float-right mr-3 responsive-iframe-container" 
               style={{width: '40%', paddingTop: (40*9/16) + '%'}}>
               <iframe 
                 className="responsive-iframe"
@@ -315,30 +443,6 @@ class Submit extends React.Component {
             </div>
             <VideoDescription text={this.state.description}></VideoDescription>
           </Form.Group>
-          <Card className="fixed-bottom container bg-light p-3 mb-2" border="secondary">
-            <Form.Group className="" controlId="form-roles">
-              <Form.Label>Enter name, tab or enter, enter role, rinse & repeat!</Form.Label>
-              {/* <Form.Control */}
-              {/*   type="roles" */}
-              {/*   value={this.state.roles} */}
-              {/*   onChange={this.handleRolesChange} */}
-              {/*   onKeyUp={this.handleRolesKeyUp}/> */}
-              <Autosuggest
-                suggestions={suggestions}
-                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-                getSuggestionValue={getSuggestionValue}
-                renderSuggestion={renderSuggestion}
-                inputProps={inputProps}
-                // onSuggestionSelected={this.onSuggestionSelected}
-                // onSuggestionHighlighted={this.onSuggestionHighlighted}
-                // highlightFirstSuggestion={true}
-              />
-            </Form.Group>
-            <Button variant="primary" type="submit">
-              Submit All
-            </Button>
-          </Card>
         </div>
       </Form>
     </div>);
@@ -347,15 +451,55 @@ class Submit extends React.Component {
 
 function VideoDescription(props) {
   const text = props.text
-  let listItems = []
+  let itemsArray = []
   text.split("\n").forEach((line, i) => {
-    listItems.push(<span key={`span-${i.toString()}`}>{line}</span>)
-    listItems.push(<br key={`br-${i.toString()}`}/>)
+    itemsArray.push(<span key={`span-${i.toString()}`}>{line}</span>)
+    itemsArray.push(<br key={`br-${i.toString()}`}/>)
   })
   return (
     <Linkify className="d-inline">
-      {listItems}
+      {itemsArray}
     </Linkify>
+  )
+}
+
+function SelectedBox(props) {
+  const items = props.items
+  const mostRecent = props.mostRecent
+  let itemsArray = []
+  items.forEach((item, i) => {
+    let border = 'null'
+    if (item.id === mostRecent) {
+      border = 'danger'
+    }
+    itemsArray.push(
+      <Card className="row flex-row align-items-center flex-nowrap p-1 m-1" 
+        bg="light" text="dark" border={border} key={`selected-${i}`}>
+        <div>
+          <Image className="mr-1" width="40px" height="40px" roundedCircle src={item.thumbnail} />
+        </div>
+        <div className="mx-1 d-flex flex-column text-truncate">
+          <strong>
+            {item.name}
+          </strong>
+          <span>
+            <i>
+              {item.roles ? item.roles.join(',') : 'no roles yet.'}
+            </i>
+          </span>
+        </div>
+      </Card>
+    )
+  })
+  return (
+    <Card bg="light" className={'mb-3 ' + (items.length > 0 ? '' : 'd-none')}>
+      <Card.Header>Selected people:</Card.Header>
+      <Card.Body>
+        <div className="d-flex flex-wrap">
+          {itemsArray}
+        </div>
+      </Card.Body>
+    </Card>
   )
 }
 
