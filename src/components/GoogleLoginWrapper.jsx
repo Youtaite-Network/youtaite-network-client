@@ -1,6 +1,7 @@
 import React from "react";
 import GoogleLogin from 'react-google-login'
 import axios from 'axios'
+import Cookies from 'js-cookie'
 
 class GoogleLoginWrapper extends React.Component {
   constructor(props) {
@@ -12,15 +13,16 @@ class GoogleLoginWrapper extends React.Component {
   }
 
   onSuccess(user) {
-    console.log(user)
     let idtoken = user.getAuthResponse().id_token
-    console.log(idtoken)
+    const params = new URLSearchParams()
+    params.append('idtoken', idtoken)
     axios.post('https://youtaite-network-api.herokuapp.com/googlesignin', 
-      { idtoken }, // data
-      { 'Content-Type': 'application.x-www-form-urlencoded'}) // headers
+      params, // data
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }}) // headers
       .then(response => {
-        console.log(response)
-        console.log(response.data)
+        Cookies.set('access-token', response.headers['access-token'], {
+          expires: new Date(response.headers['expiry'])
+        })
       })
       .catch(error => {
         console.log(error)
@@ -28,7 +30,7 @@ class GoogleLoginWrapper extends React.Component {
   }
 
   onFailure(error) {
-    console.log(error.details)
+    console.log(error)
   }
 
   render() {

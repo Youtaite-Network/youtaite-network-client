@@ -8,8 +8,9 @@ import Linkify from 'react-linkify'
 import axios from 'axios'
 import Autosuggest from 'react-autosuggest'
 import getVideoId from 'get-video-id'
+import Cookies from 'js-cookie'
 
-// Use your imagination to render suggestions.
+// Autosuggest: rendering person suggestions
 const renderPersonSuggestion = suggestion => (
   <div className="row flex-row align-items-center flex-nowrap p-1 m-0">
     <div>
@@ -21,6 +22,7 @@ const renderPersonSuggestion = suggestion => (
   </div>
 );
 
+// Autosuggest: rendering role suggestions
 const renderRoleSuggestion = suggestion => (
   <div className="row flex-row align-items-center flex-nowrap p-1 m-0">
     <div className="ml-1 text-truncate"><strong>
@@ -34,7 +36,7 @@ class Submit extends React.Component {
     super(props)
     this.state = {
       link: '',
-      embedLink: '',
+      ytId: '',
       analyzed: false,
       title: '',
       thumbnail: '',
@@ -94,9 +96,24 @@ class Submit extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault()
-    console.log(e)
     if(window.confirm('Submit all roles?')) {
-      console.log(this.state.selected)
+      axios.post('https://youtaite-network-api.herokuapp.com/submit', {
+        people: this.state.selected,
+        yt_id: this.state.ytId,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Cookies.get('access-token')}`
+        },
+      })
+        .then(response => {
+          Cookies.set('access-token', response.headers['access-token'], {
+            expires: new Date(response.headers['expiry'])
+          })
+        })
+        .catch(error => {
+          console.log(error)
+        })
     }
   }
 
@@ -106,29 +123,40 @@ class Submit extends React.Component {
 
   switchToSubmitForm(e) {
     // get youtube video ID
-    let {id, service} = getVideoId(this.state.link)
+    let id = this.state.link
+    let service = 'youtube'
+    if (!(id.match(/[\w\d-_]{11}/g)[0] === id)) {
+      ({id, service} = getVideoId(this.state.link))
+    }
     if (service !== 'youtube') {
       console.error('Could not parse URL. Make sure it is a valid Youtube URL and not a shortened/redirect URL (eg, bitly)')
       return
     }
     // call youtaite-network-api.herokuapp.com to get title & description from ID
-    axios('https://youtaite-network-api.herokuapp.com/collabs/info/' + id)
+    axios(`https://youtaite-network-api.herokuapp.com/collabs/info/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Cookies.get('access-token')}`
+      }
+    })
       .then(response => {
+        // set cookies
+        Cookies.set('access-token', response.headers['access-token'], {
+          expires: new Date(response.headers['expiry'])
+        })
         let {title, description} = response.data
         this.setState({
           analyzed: true,
           title,
           description,
-          embedLink: `https://www.youtube.com/embed/${id}`
+          ytId: id,
         })
       })
       .catch(error => console.log(error))
       .then(() => this.personInput.current.focus())
   }
 
-  // When suggestion is clicked, Autosuggest needs to populate the input
-  // based on the clicked suggestion. Teach Autosuggest how to calculate the
-  // input value for every given suggestion.
+  // Autosuggest: how to convert a suggestion to text
   getSuggestionValue(suggestion){
     return suggestion.name
   }
@@ -145,7 +173,7 @@ class Submit extends React.Component {
     })
   }
 
-  // Teach Autosuggest how to calculate suggestions for any given input value.
+  // Autosuggest: calculate person suggestions for any given input value
   getPersonSuggestions(value) {
     const inputValue = value.trim().toLowerCase()
     const inputLength = inputValue.length
@@ -154,21 +182,21 @@ class Submit extends React.Component {
     )
   }
 
-  // Autosuggest will call this function every time you need to update suggestions.
-  // You already implemented this logic above, so just use it.
+  // Autosuggest: update person suggestions
   onPersonSuggestionsFetchRequested({ value }) {
     this.setState({
       personSuggestions: this.getPersonSuggestions(value)
     });
   };
 
-  // Autosuggest will call this function every time you need to clear suggestions.
+  // Autosuggest: clear person suggestions
   onPersonSuggestionsClearRequested() {
     this.setState({
       personSuggestions: []
     });
   };
 
+  // Autosuggest: what to do when person suggestion is selected
   onPersonSuggestionSelected(e, { suggestion }) {
     this.setState(function(prevState) {
       let newSelected = null
@@ -186,6 +214,7 @@ class Submit extends React.Component {
     this.roleInput.current.focus()
   }
 
+  // Auosuggest: calculate role suggestions based on input
   getRoleSuggestions(value) {
     const inputValue = value.trim().toLowerCase()
     const inputLength = inputValue.length
@@ -199,21 +228,21 @@ class Submit extends React.Component {
     )
   }
 
-  // Autosuggest will call this function every time you need to update suggestions.
-  // You already implemented this logic above, so just use it.
+  // Autosuggest: update role suggestions
   onRoleSuggestionsFetchRequested({ value }) {
     this.setState({
       roleSuggestions: this.getRoleSuggestions(value)
     });
   };
 
-  // Autosuggest will call this function every time you need to clear suggestions.
+  // Autosuggest: clear role suggestions
   onRoleSuggestionsClearRequested() {
     this.setState({
       roleSuggestions: []
     });
   };
 
+  // Autosuggest: what to do when role suggestion is selected
   onRoleSuggestionSelected(e, { suggestion }) {
     this.setState(function(prevState) {
       let index = prevState.selected.findIndex(person => prevState.mostRecentPersonId === person.id)
@@ -233,12 +262,14 @@ class Submit extends React.Component {
     })
   }
 
+  // event handler: switch to roleInput when cmd/ctrl-enter is pressed in personInput
   handlePersonKeyDown(e) {
     if (e.key === 'Enter' && e.metaKey === true) {
       this.roleInput.current.focus()
     }
   }
 
+  // event handler: switch to personInput when cmd/ctrl-enter is pressed in roleInput
   handleRoleKeyDown(e) {
     if (e.key === 'Enter' && e.metaKey === true) {
       this.personInput.current.focus()
@@ -249,7 +280,7 @@ class Submit extends React.Component {
 
     const { personInputValue, personSuggestions, roleInputValue, roleSuggestions } = this.state;
 
-    // Autosuggest will pass through all these props to the input.
+    // Autosuggest: input props for personInput
     const personInputProps = {
       placeholder: 'Yuki',
       value: personInputValue,
@@ -259,7 +290,7 @@ class Submit extends React.Component {
       id: 'person-input',
       ref: this.personInput,
     };
-
+    // Autosuggest: input props for roleInput
     const roleInputProps = {
       placeholder: 'organize',
       value: roleInputValue,
@@ -273,7 +304,6 @@ class Submit extends React.Component {
 
     return (<div className='container mt-3'>
       <h2>Submit a Collab</h2>
-      <p>Hi there! Feel free to play around with this, but beware it is not fully functional yet and doesn't actually submit anything to the database, haha.</p>
       <Form onSubmit={this.handleSubmit}>
         <Form.Group controlId="link-form">
           <Form.Group controlId="form-yt-link">
@@ -338,7 +368,7 @@ class Submit extends React.Component {
                   title="yt-embed"
                   className="responsive-iframe"
                   width="560" height="315" 
-                  src={this.state.embedLink} 
+                  src={`https://youtube.com/embed/${this.state.ytId}`} 
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowFullScreen></iframe>
