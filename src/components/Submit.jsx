@@ -9,6 +9,7 @@ import axios from 'axios'
 import Autosuggest from 'react-autosuggest'
 import getVideoId from 'get-video-id'
 import Cookies from 'js-cookie'
+import AddNewPersonDialog from './AddNewPersonDialog'
 
 // Autosuggest: rendering person suggestions
 const renderPersonSuggestion = suggestion => (
@@ -56,9 +57,10 @@ class Submit extends React.Component {
       ],
       personInputValue: '',
       personSuggestions: [],
-      mostRecentPersonId: -1,
+      mostRecentPersonMiscId: '',
       roleInputValue: '',
       roleSuggestions: [],
+      showAddPersonDialog: false,
     }
     // refs
     this.roleInput = React.createRef()
@@ -74,6 +76,7 @@ class Submit extends React.Component {
     this.onPersonSuggestionsFetchRequested = this.onPersonSuggestionsFetchRequested.bind(this)
     this.onPersonSuggestionsClearRequested = this.onPersonSuggestionsClearRequested.bind(this)
     this.handlePersonKeyDown = this.handlePersonKeyDown.bind(this)
+    this.addNewPersonToSelected = this.addNewPersonToSelected.bind(this)
     // role input event handlers
     this.handleRoleChange = this.handleRoleChange.bind(this)
     this.onRoleSuggestionSelected = this.onRoleSuggestionSelected.bind(this)
@@ -85,10 +88,8 @@ class Submit extends React.Component {
   componentDidMount() {
     axios('https://youtaite-network-api.herokuapp.com/people')
       .then(response => {
-        let people = response.data
-        people.push({name: 'Add new person', misc_id: ''})
         this.setState({
-          people,
+          people: response.data,
         })
       })
       .catch(error => console.log(error))
@@ -125,7 +126,7 @@ class Submit extends React.Component {
     // get youtube video ID
     let id = this.state.link
     let service = 'youtube'
-    if (!(id.match(/[\w\d-_]{11}/g)[0] === id)) {
+    if (id.match(/[\w\d-_]{11}/g)[0] !== id) {
       ({id, service} = getVideoId(this.state.link))
     }
     if (service !== 'youtube') {
@@ -177,9 +178,13 @@ class Submit extends React.Component {
   getPersonSuggestions(value) {
     const inputValue = value.trim().toLowerCase()
     const inputLength = inputValue.length
-    return inputLength === 0 ? [] : this.state.people.filter(person =>
+    let suggestions = inputLength === 0 ? [] : this.state.people.filter(person =>
       person.name.toLowerCase().slice(0, inputLength) === inputValue
     )
+    if (suggestions.length < 6) {
+      suggestions.push({name: 'Add new person', misc_id: 'add new'})
+    }
+    return suggestions.splice(0, 6)
   }
 
   // Autosuggest: update person suggestions
@@ -198,19 +203,27 @@ class Submit extends React.Component {
 
   // Autosuggest: what to do when person suggestion is selected
   onPersonSuggestionSelected(e, { suggestion }) {
-    this.setState(function(prevState) {
-      let newSelected = null
-      if (prevState.selected.find(person => person.id === suggestion.id)) {
-        newSelected = prevState.selected
-      } else {
-        newSelected = prevState.selected.concat([suggestion])
-      }
-      return {
-        personInputValue: '',
-        selected: newSelected,
-        mostRecentPersonId: suggestion.id,
-      }
-    })
+    if (suggestion.misc_id === 'add new') {
+      // add new person
+      this.setState({
+        showAddPersonDialog: true,
+      })
+    } else { 
+      // person already exists in suggestion list
+      this.setState(function(prevState) {
+        let newSelected = null
+        if (prevState.selected.find(person => person.id === suggestion.id)) {
+          newSelected = prevState.selected
+        } else {
+          newSelected = prevState.selected.concat([suggestion])
+        }
+        return {
+          personInputValue: '',
+          selected: newSelected,
+          mostRecentPersonMiscId: suggestion.misc_id,
+        }
+      })
+    }
     this.roleInput.current.focus()
   }
 
@@ -218,14 +231,18 @@ class Submit extends React.Component {
   getRoleSuggestions(value) {
     const inputValue = value.trim().toLowerCase()
     const inputLength = inputValue.length
-    let mostRecent = this.state.selected.find(person => person.id === this.state.mostRecentPersonId)
+    let mostRecent = this.state.selected.find(person => person.misc_id === this.state.mostRecentPersonMiscId)
     let availableRoles = this.state.roles
     if (mostRecent.roles) {
       availableRoles = this.state.roles.filter(role => !mostRecent.roles.includes(role.name))
     }
-    return inputLength === 0 ? [] : availableRoles.filter(role =>
+    let suggestions = inputLength === 0 ? [] : availableRoles.filter(role =>
       role.name.toLowerCase().slice(0, inputLength) === inputValue
     )
+    if (suggestions.length < 6 && !suggestions.includes('misc')) {
+      suggestions.push('misc')
+    }
+    return suggestions.splice(0, 6)
   }
 
   // Autosuggest: update role suggestions
@@ -245,7 +262,7 @@ class Submit extends React.Component {
   // Autosuggest: what to do when role suggestion is selected
   onRoleSuggestionSelected(e, { suggestion }) {
     this.setState(function(prevState) {
-      let index = prevState.selected.findIndex(person => prevState.mostRecentPersonId === person.id)
+      let index = prevState.selected.findIndex(person => prevState.mostRecentPersonMiscId === person.misc_id)
       let roles = []
       if (prevState.selected[index].roles) {
         // make copy of array to modify
@@ -276,6 +293,17 @@ class Submit extends React.Component {
     }
   }
 
+  addNewPersonToSelected(person) {
+    this.setState(prevState => {
+      return {
+        selected: prevState.selected.concat([person]),
+        mostRecentPersonMiscId: person.misc_id,
+        showAddPersonDialog: false,
+        personInputValue: '',
+      }
+    })
+  }
+
   render() {
 
     const { personInputValue, personSuggestions, roleInputValue, roleSuggestions } = this.state;
@@ -299,86 +327,92 @@ class Submit extends React.Component {
       className: 'form-control',
       id: 'role-input',
       ref: this.roleInput,
-      readOnly: this.state.mostRecentPersonId < 0,
+      readOnly: this.state.selected.length === 0,
     }
 
-    return (<div className='container mt-3'>
-      <h2>Submit a Collab</h2>
-      <Form onSubmit={this.handleSubmit}>
-        <Form.Group controlId="link-form">
-          <Form.Group controlId="form-yt-link">
-            <Form.Label>YouTube link</Form.Label>
-            <Form.Control 
-              type="yt_link" 
-              placeholder="https://youtube.com/watch?v=XXXXXX" 
-              value={this.state.link} 
-              onChange={this.handleLinkChange}
-            />
-          </Form.Group>
-          <Button variant="primary" type="button" onClick={this.switchToSubmitForm}>
-            Analyze Link
-          </Button>
-        </Form.Group>
-        <div id="submit-form" style={{display: this.state.analyzed ? 'block' : 'none'}}>
-          <hr></hr>
-          <SelectedBox items={this.state.selected} mostRecent={this.state.mostRecentPersonId}></SelectedBox>
-          <Card className="sticky-top mb-3" bg="light">
-            <Card.Header>{'Press enter or click to select an option. Cmd/ctrl-enter switches between the two inputs.'}</Card.Header>
-            <Card.Body>
-              <Form.Row className='mb-2'>
-                <Col>
-                  <Autosuggest
-                    suggestions={personSuggestions}
-                    onSuggestionsFetchRequested={this.onPersonSuggestionsFetchRequested}
-                    onSuggestionsClearRequested={this.onPersonSuggestionsClearRequested}
-                    getSuggestionValue={this.getSuggestionValue}
-                    renderSuggestion={renderPersonSuggestion}
-                    inputProps={personInputProps}
-                    onSuggestionSelected={this.onPersonSuggestionSelected}
-                    focusInputOnSuggestionClick={false}
-                    highlightFirstSuggestion={true}
-                  />
-                </Col>
-                <Col>
-                  <Autosuggest
-                    suggestions={roleSuggestions}
-                    onSuggestionsFetchRequested={this.onRoleSuggestionsFetchRequested}
-                    onSuggestionsClearRequested={this.onRoleSuggestionsClearRequested}
-                    getSuggestionValue={this.getSuggestionValue}
-                    renderSuggestion={renderRoleSuggestion}
-                    inputProps={roleInputProps}
-                    onSuggestionSelected={this.onRoleSuggestionSelected}
-                    highlightFirstSuggestion={true}
-                  />
-                </Col>
-              </Form.Row>
-              <Button variant="primary" type="button" onClick={this.handleSubmit} className="w-100">
-                Submit All
+    return (
+      <>
+        <div className='container mt-3'>
+          <h2>Submit a Collab</h2>
+          <Form onSubmit={this.handleSubmit}>
+            <Form.Group controlId="link-form">
+              <Form.Group controlId="form-yt-link">
+                <Form.Label>YouTube link</Form.Label>
+                <Form.Control 
+                  type="yt_link" 
+                  placeholder="https://youtube.com/watch?v=XXXXXX" 
+                  value={this.state.link} 
+                  onChange={this.handleLinkChange}
+                />
+              </Form.Group>
+              <Button variant="primary" type="button" onClick={this.switchToSubmitForm}>
+                Analyze Link
               </Button>
-            </Card.Body>
-          </Card>
-          <hr></hr>
-          <Card className="clearfix" id="collab-info">
-            <Card.Header><a href={this.state.link}>{this.state.title}</a></Card.Header>
-            <Card.Body>
-              <div 
-                className="float-right mr-3 responsive-iframe-container" 
-                style={{width: '40%', paddingTop: (40*9/16) + '%'}}>
-                <iframe 
-                  title="yt-embed"
-                  className="responsive-iframe"
-                  width="560" height="315" 
-                  src={`https://youtube.com/embed/${this.state.ytId}`} 
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen></iframe>
-              </div>
-              <VideoDescription text={this.state.description}></VideoDescription>
-            </Card.Body>
-          </Card>
+            </Form.Group>
+            <div id="submit-form" style={{display: this.state.analyzed ? 'block' : 'none'}}>
+              <hr></hr>
+              <SelectedBox items={this.state.selected} mostRecent={this.state.mostRecentPersonMiscId}></SelectedBox>
+              <Card className="sticky-top mb-3" bg="light">
+                <Card.Header>{'Press enter or click to select an option. Cmd/ctrl-enter switches between the two inputs.'}</Card.Header>
+                <Card.Body>
+                  <Form.Row className='mb-2'>
+                    <Col>
+                      <Autosuggest
+                        suggestions={personSuggestions}
+                        onSuggestionsFetchRequested={this.onPersonSuggestionsFetchRequested}
+                        onSuggestionsClearRequested={this.onPersonSuggestionsClearRequested}
+                        getSuggestionValue={this.getSuggestionValue}
+                        renderSuggestion={renderPersonSuggestion}
+                        inputProps={personInputProps}
+                        onSuggestionSelected={this.onPersonSuggestionSelected}
+                        focusInputOnSuggestionClick={false}
+                        highlightFirstSuggestion={true}
+                      />
+                    </Col>
+                    <Col>
+                      <Autosuggest
+                        suggestions={roleSuggestions}
+                        onSuggestionsFetchRequested={this.onRoleSuggestionsFetchRequested}
+                        onSuggestionsClearRequested={this.onRoleSuggestionsClearRequested}
+                        getSuggestionValue={this.getSuggestionValue}
+                        renderSuggestion={renderRoleSuggestion}
+                        inputProps={roleInputProps}
+                        onSuggestionSelected={this.onRoleSuggestionSelected}
+                        highlightFirstSuggestion={true}
+                      />
+                    </Col>
+                  </Form.Row>
+                  <Button variant="primary" type="button" onClick={this.handleSubmit} className="w-100">
+                    Submit All
+                  </Button>
+                </Card.Body>
+              </Card>
+              <hr></hr>
+              <Card className="clearfix" id="collab-info">
+                <Card.Header><a href={this.state.link}>{this.state.title}</a></Card.Header>
+                <Card.Body>
+                  <div 
+                    className="float-right mr-3 responsive-iframe-container" 
+                    style={{width: '40%', paddingTop: (40*9/16) + '%'}}>
+                    <iframe 
+                      title="yt-embed"
+                      className="responsive-iframe"
+                      width="560" height="315" 
+                      src={`https://youtube.com/embed/${this.state.ytId}`} 
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen></iframe>
+                  </div>
+                  <VideoDescription text={this.state.description}></VideoDescription>
+                </Card.Body>
+              </Card>
+            </div>
+          </Form>
         </div>
-      </Form>
-    </div>);
+        <AddNewPersonDialog
+          show={this.state.showAddPersonDialog}
+          handleChannelFound={this.addNewPersonToSelected} />
+      </>)
   }
 }
 
@@ -402,7 +436,7 @@ function SelectedBox(props) {
   let itemsArray = []
   items.forEach((item, i) => {
     let border = 'null'
-    if (item.id === mostRecent) {
+    if (item.misc_id === mostRecent) {
       border = 'danger'
     }
     itemsArray.push(
