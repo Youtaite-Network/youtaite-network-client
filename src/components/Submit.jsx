@@ -304,6 +304,7 @@ class Submit extends React.Component {
 
     return (<div className='container mt-3'>
       <h2>Submit a Collab</h2>
+      <p>Hi there! This form is not fully functional yet :) If you still want to try it out, you first need to sign in and then you can test it out. Be warned, any errors are generally not presented in a user-friendly way right now. So it might be helpful to open up browser devtools and check for errors there, if you want to know what's gone wrong!</p>
       <Form onSubmit={this.handleSubmit}>
         <Form.Group controlId="link-form">
           <Form.Group controlId="form-yt-link">
