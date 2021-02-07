@@ -32,7 +32,6 @@ class RoleAutosuggest extends React.Component {
         'translate',
         'video',
         'vocal',
-        'misc',
       ],
     }
 
@@ -51,23 +50,21 @@ class RoleAutosuggest extends React.Component {
   }
 
   // Auosuggest: calculate role suggestions based on input
-  getRoleSuggestions(value) {
-    const inputValue = value.trim().toLowerCase()
-    const inputLength = inputValue.length
-    const availableRoles = this.state.roles.filter(role => !this.props.takenRoles.includes(role))
-    const suggestions = inputLength === 0 ? [] : availableRoles.filter(role =>
-      role.toLowerCase().slice(0, inputLength) === inputValue
-    )
-    if (suggestions.length < 6 && !suggestions.includes('misc') && !this.props.takenRoles.includes('misc')) {
+  getSuggestions(value) {
+    const inputValue = value.replace(/\W/g, '').toLowerCase()
+    const suggestions = inputValue.length === 0 ? [] : this.state.roles.filter(role => {
+      return !this.props.takenRoles.includes(role) && role.toLowerCase().includes(inputValue)
+    })
+    if (!this.props.takenRoles.includes('misc')) {
       suggestions.push('misc')
     }
-    return suggestions.splice(0, 6)
+    return suggestions
   }
 
   // Autosuggest: update role suggestions
   onSuggestionsFetchRequested({ value }) {
     this.setState({
-      suggestions: this.getRoleSuggestions(value),
+      suggestions: this.getSuggestions(value),
     });
   };
 
