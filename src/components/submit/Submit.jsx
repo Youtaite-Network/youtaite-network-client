@@ -199,6 +199,7 @@ class Submit extends React.Component {
       <>
         <div className='container mt-3'>
           <h2>Submit a Collab</h2>
+          <p>Hi there! This form is not quite complete :) but feel free to mess around anyway! You'll need to sign in with Google before you can do anything though.</p>
           <Form onSubmit={this.handleSubmit}>
             <CollabLink handleClick={this.useSubmitForm} resetOnChange={this.state.resetCollabLinkOnChange} />
             <div id="submit-form" style={{display: this.state.showSubmitForm ? 'block' : 'none'}}>
