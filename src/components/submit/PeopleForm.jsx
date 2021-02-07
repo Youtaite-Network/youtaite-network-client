@@ -17,7 +17,6 @@ class PeopleForm extends React.Component {
     // currentPerson
     this.state = {
       people: [],
-      clearPersonInput: false,
     }
 
     // refs
@@ -65,11 +64,6 @@ class PeopleForm extends React.Component {
   handleRoleKeyDown(e) {
     if (e.key === 'Enter' && e.metaKey === true) {
       this.personInput.current.focus()
-      this.setState(prevState => {
-        return {
-          clearPersonInput: !prevState.clearPersonInput,
-        }
-      })
     }
   }
 
@@ -94,7 +88,6 @@ class PeopleForm extends React.Component {
           <Form.Row className='mb-2'>
             <Col>
               <PersonAutosuggest
-                clearOnChange={this.state.clearPersonInput}
                 people={this.state.people}
                 onSuggestionSelected={this.onPersonSuggestionSelected}
                 personInput={this.personInput}

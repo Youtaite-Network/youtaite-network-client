@@ -32,19 +32,18 @@ class PersonAutosuggest extends React.Component {
     this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this)
     this.getSuggestionValue = this.getSuggestionValue.bind(this)
     this.handleChange = this.handleChange.bind(this) 
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.clearOnChange !== this.props.clearOnChange) {
-      this.setState({
-        inputValue: '',
-      })
-    }
+    this.handleFocus = this.handleFocus.bind(this)
   }
 
   handleChange(e, {newValue}) {
     this.setState({
       inputValue: newValue,
+    })
+  }
+
+  handleFocus(e) {
+    this.setState({
+      inputValue: '',
     })
   }
 
@@ -89,6 +88,7 @@ class PersonAutosuggest extends React.Component {
       value: inputValue,
       onChange: this.handleChange,
       onKeyDown: this.props.handleKeyDown,
+      onFocus: this.handleFocus,
       className: 'form-control',
       ref: this.props.personInput,
     }
