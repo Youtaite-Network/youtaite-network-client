@@ -1,11 +1,13 @@
 import React from 'react'
 import Image from 'react-bootstrap/Image'
 import Button from 'react-bootstrap/Button'
+import './ChannelResults.css'
 
 class ChannelResults extends React.Component {
   constructor(props) {
     super(props);
     // PROPS:
+    // show
     // handleChannelFound(person object)
     // handleChannelNotFound
     // data
@@ -48,10 +50,11 @@ class ChannelResults extends React.Component {
     )
 
     return (
-      <>
+      <div className={this.props.show ? '' : 'd-none'}>
+        <hr/>
         <h6>Choose the correct channel:</h6>
         {channelArray}
-      </>
+      </div>
     );
   }
 }

@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react'
 import Network from './Network'
 
 class Home extends React.Component {
   constructor(props) {
-    super(props);
-    this.state = {};
+    super(props)
+    this.state = {}
   }
 
   render() {
@@ -17,4 +17,4 @@ class Home extends React.Component {
   }
 }
 
-export default Home;
+export default Home

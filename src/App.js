@@ -5,7 +5,7 @@ import {
   Route,
 } from "react-router-dom";
 import Home from './components/Home';
-import Submit from './components/Submit';
+import Submit from './components/submit/Submit';
 import About from './components/About'
 import GoogleLoginWrapper from './components/GoogleLoginWrapper'
 import Navbar from 'react-bootstrap/Navbar';
