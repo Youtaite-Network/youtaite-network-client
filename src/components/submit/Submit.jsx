@@ -4,7 +4,6 @@ import Card from 'react-bootstrap/Card'
 import axios from 'axios'
 import getVideoId from 'get-video-id'
 import Cookies from 'js-cookie'
-import AddNewPersonDialog from './addnewperson/AddNewPersonDialog'
 import VideoDescription from './VideoDescription'
 import SelectedBox from './SelectedBox'
 import CollabLink from './CollabLink'
@@ -23,16 +22,13 @@ class Submit extends React.Component {
       description: '',
       selected: [],
       currentMiscId: '',
-      showAddNewPersonDialog: false,
       resetCollabLinkOnChange: false,
     }
 
     // general event handlers
     this.handleSubmit = this.handleSubmit.bind(this)
     this.useSubmitForm = this.useSubmitForm.bind(this)
-    this.hideAddNewPersonDialog = this.hideAddNewPersonDialog.bind(this)
-    this.onPersonSuggestionSelected = this.onPersonSuggestionSelected.bind(this)
-    this.addNewPersonToSelected = this.addNewPersonToSelected.bind(this)
+    this.addPersonToSelected = this.addPersonToSelected.bind(this)
     this.onRoleSuggestionSelected = this.onRoleSuggestionSelected.bind(this)
     this.removePersonFromSelected = this.removePersonFromSelected.bind(this)
     this.removeRoleFromSelected = this.removeRoleFromSelected.bind(this)
@@ -49,7 +45,6 @@ class Submit extends React.Component {
         description: '',
         selected: [],
         currentMiscId: '',
-        showAddNewPersonDialog: false,
         resetCollabLinkOnChange: !prevState.resetCollabLinkOnChange,
       }
     })
@@ -134,47 +129,17 @@ class Submit extends React.Component {
       .catch(error => console.log(error))
   }
 
-  addNewPersonToSelected(newPerson) {
+  addPersonToSelected(newPerson) {
     this.setState(prevState => {
-      let newSelected = null
-      if (prevState.selected.find(person => person.misc_id === newPerson.misc_id)) {
-        newSelected = prevState.selected
-      } else {
+      let newSelected = prevState.selected
+      if (!prevState.selected.find(person => person.misc_id === newPerson.misc_id)) {
         newSelected = prevState.selected.concat([newPerson])
       }
       return {
         selected: newSelected,
         currentMiscId: newPerson.misc_id,
-        showAddNewPersonDialog: false,
       }
     })
-  }
-
-  hideAddNewPersonDialog() {
-    this.setState({
-      showAddNewPersonDialog: false,
-    })
-  }
-
-  onPersonSuggestionSelected(newPerson) {
-    if (newPerson.misc_id === 'add new') {
-      this.setState({
-        showAddNewPersonDialog: true,
-      })
-    } else {
-      this.setState(function(prevState) {
-        let newSelected = null
-        if (prevState.selected.find(person => person.misc_id === newPerson.misc_id)) {
-          newSelected = prevState.selected
-        } else {
-          newSelected = prevState.selected.concat([newPerson])
-        }
-        return {
-          selected: newSelected,
-          currentMiscId: newPerson.misc_id,
-        }
-      })
-    }
   }
 
   onRoleSuggestionSelected(newRole) {
@@ -234,41 +199,35 @@ class Submit extends React.Component {
   render() {
     const currentPerson = this.state.selected.find(person => person.misc_id === this.state.currentMiscId)
     return (
-      <>
-        <div className='container mt-3'>
-          <h2>Submit a Collab</h2>
-          <p>Hi there! This form is not quite complete :) but feel free to mess around anyway! You'll need to sign in with Google before you can do anything though.</p>
-          <Form onSubmit={this.handleSubmit}>
-            <CollabLink handleClick={this.useSubmitForm} resetOnChange={this.state.resetCollabLinkOnChange} />
-            <div id="submit-form" style={{display: this.state.showSubmitForm ? 'block' : 'none'}}>
-              <hr/>
-              <SelectedBox 
-                items={this.state.selected} 
-                current={this.state.currentMiscId}
-                removePerson={this.removePersonFromSelected}
-                removeRole={this.removeRoleFromSelected} />
-              <PeopleForm
-                show={this.state.showSubmitForm}
-                handleSubmit={this.handleSubmit}
-                onPersonSuggestionSelected={this.onPersonSuggestionSelected}
-                onRoleSuggestionSelected={this.onRoleSuggestionSelected}
-                currentPerson={currentPerson} />
-              <hr/>
-              <Card className="clearfix" id="collab-info">
-                <Card.Header><a href={`https://youtube.com/watch?v=${this.state.ytId}`}>{this.state.title}</a></Card.Header>
-                <Card.Body>
-                  <Video ytId={this.state.ytId} />
-                  <VideoDescription byline={this.state.byline} description={this.state.description}></VideoDescription>
-                </Card.Body>
-              </Card>
-            </div>
-          </Form>
-        </div>
-        <AddNewPersonDialog
-          show={this.state.showAddNewPersonDialog}
-          handleClose={this.hideAddNewPersonDialog}
-          addNewPerson={this.addNewPersonToSelected} />
-      </>
+      <div className='container mt-3'>
+        <h2>Submit a Collab</h2>
+        <p>Hi there! This form is not quite complete :) but feel free to mess around anyway! You'll need to sign in with Google before you can do anything though.</p>
+        <Form onSubmit={this.handleSubmit}>
+          <CollabLink handleClick={this.useSubmitForm} resetOnChange={this.state.resetCollabLinkOnChange} />
+          <div id="submit-form" style={{display: this.state.showSubmitForm ? 'block' : 'none'}}>
+            <hr/>
+            <SelectedBox 
+              items={this.state.selected} 
+              current={this.state.currentMiscId}
+              removePerson={this.removePersonFromSelected}
+              removeRole={this.removeRoleFromSelected} />
+            <PeopleForm
+              show={this.state.showSubmitForm}
+              handleSubmit={this.handleSubmit}
+              onRoleSuggestionSelected={this.onRoleSuggestionSelected}
+              currentPerson={currentPerson}
+              addPersonToSelected={this.addPersonToSelected} />
+            <hr/>
+            <Card className="clearfix" id="collab-info">
+              <Card.Header><a href={`https://youtube.com/watch?v=${this.state.ytId}`}>{this.state.title}</a></Card.Header>
+              <Card.Body>
+                <Video ytId={this.state.ytId} />
+                <VideoDescription byline={this.state.byline} description={this.state.description} />
+              </Card.Body>
+            </Card>
+          </div>
+        </Form>
+      </div>
     )
   }
 }

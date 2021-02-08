@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import PersonAutosuggest from './PersonAutosuggest'
 import RoleAutosuggest from './RoleAutosuggest'
+import AddNewPersonDialog from './addnewperson/AddNewPersonDialog'
 
 class PeopleForm extends React.Component {
   constructor(props) {
@@ -13,10 +14,11 @@ class PeopleForm extends React.Component {
     // PROPS
     // handleSubmit
     // onRoleSuggestionSelected
-    // onPersonSuggestionSelected
+    // addPersonToSelected
     // currentPerson
     this.state = {
       people: [],
+      showAddNewPersonDialog: false,
     }
 
     // refs
@@ -27,6 +29,8 @@ class PeopleForm extends React.Component {
     this.handlePersonKeyDown = this.handlePersonKeyDown.bind(this)
     this.onRoleSuggestionSelected = this.onRoleSuggestionSelected.bind(this)
     this.handleRoleKeyDown = this.handleRoleKeyDown.bind(this)
+    this.hideAddNewPersonDialog = this.hideAddNewPersonDialog.bind(this)
+    this.addNewPerson = this.addNewPerson.bind(this)
   }
 
   componentDidMount() {
@@ -50,7 +54,13 @@ class PeopleForm extends React.Component {
   onPersonSuggestionSelected(e, { suggestion }) {
     if (!e.metaKey) { // user meant to switch inputs, not enter suggestion
       this.roleInput.current.focus()
-      this.props.onPersonSuggestionSelected(suggestion)
+      if (suggestion.misc_id === 'add new') {
+        this.setState({
+          showAddNewPersonDialog: true,
+        })
+      } else {
+        this.props.addPersonToSelected(suggestion)
+      }
     }
   }
 
@@ -73,6 +83,26 @@ class PeopleForm extends React.Component {
     }
   }
 
+  hideAddNewPersonDialog() {
+    this.setState({
+      showAddNewPersonDialog: false,
+    })
+  }
+
+  addNewPerson(newPerson) {
+    this.setState(prevState => {
+      let newPeople = prevState.people
+      if (!prevState.people.find(person => person.misc_id === newPerson.misc_id)) {
+        newPeople = newPeople.concat([newPerson])
+      }
+      return {
+        people: newPeople,
+        showAddNewPersonDialog: false,
+      }
+    })
+    this.props.addPersonToSelected(newPerson)
+  }
+
   render() {
     let takenRoles = []
     let readOnly = true
@@ -82,31 +112,37 @@ class PeopleForm extends React.Component {
     }
 
     return (
-      <Card className="sticky-top mb-3" bg="light">
-        <Card.Header>{'Press enter or click to select an option. Cmd/ctrl-enter switches between the two inputs.'}</Card.Header>
-        <Card.Body>
-          <Form.Row className='mb-2'>
-            <Col>
-              <PersonAutosuggest
-                people={this.state.people}
-                onSuggestionSelected={this.onPersonSuggestionSelected}
-                personInput={this.personInput}
-                handleKeyDown={this.handlePersonKeyDown} />
-            </Col>
-            <Col>
-              <RoleAutosuggest
-                takenRoles={takenRoles}
-                readOnly={readOnly}
-                onSuggestionSelected={this.onRoleSuggestionSelected}
-                roleInput={this.roleInput}
-                handleKeyDown={this.handleRoleKeyDown} />
-            </Col>
-          </Form.Row>
-          <Button variant="primary" type="button" onClick={this.props.handleSubmit} className="w-100">
-            Submit All
-          </Button>
-        </Card.Body>
-      </Card>
+      <>
+        <Card className="sticky-top mb-3" bg="light">
+          <Card.Header>{'Press enter or click to select an option. Cmd/ctrl-enter switches between the two inputs.'}</Card.Header>
+          <Card.Body>
+            <Form.Row className='mb-2'>
+              <Col>
+                <PersonAutosuggest
+                  people={this.state.people}
+                  onSuggestionSelected={this.onPersonSuggestionSelected}
+                  personInput={this.personInput}
+                  handleKeyDown={this.handlePersonKeyDown} />
+              </Col>
+              <Col>
+                <RoleAutosuggest
+                  takenRoles={takenRoles}
+                  readOnly={readOnly}
+                  onSuggestionSelected={this.onRoleSuggestionSelected}
+                  roleInput={this.roleInput}
+                  handleKeyDown={this.handleRoleKeyDown} />
+              </Col>
+            </Form.Row>
+            <Button variant="primary" type="button" onClick={this.props.handleSubmit} className="w-100">
+              Submit All
+            </Button>
+          </Card.Body>
+        </Card>
+        <AddNewPersonDialog
+          show={this.state.showAddNewPersonDialog}
+          handleClose={this.hideAddNewPersonDialog}
+          addNewPerson={this.addNewPerson} />
+      </>
     );
   }
 }
