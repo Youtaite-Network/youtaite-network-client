@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useRef } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import getVideoId from 'get-video-id'
@@ -13,8 +13,8 @@ function CollabLink(props) {
   const { setAlert } = useContext(AlertContext)
 
   // refs
-  const defaultButton = React.createRef()
-  const input = React.createRef()
+  const defaultButton = useRef(null)
+  const input = useRef(null)
 
   useEffect(() => {
     setCollabLink('')
