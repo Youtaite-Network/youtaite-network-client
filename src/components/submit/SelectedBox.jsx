@@ -49,7 +49,7 @@ class SelectedBox extends React.Component {
             <strong>
               {item.name}
             </strong>
-            <div class="d-flex">
+            <div className="d-flex">
               {this.renderRoles(item.roles, i)}
             </div>
           </div>
@@ -67,9 +67,9 @@ class SelectedBox extends React.Component {
   renderRoles(roles, personIndex) {
     let rolesArray = []
     if (roles && roles.length > 0) {
-      roles.forEach(role => {
+      roles.forEach((role, i) => {
         rolesArray.push(
-          <div className="role-card d-flex">
+          <div className="role-card d-flex" key={`role-${personIndex}-${role}`}>
             <i>{`${role},`}</i>
             <Button id={`rm-role-btn-${personIndex}-${role}`} 
               className="rm-role-btn m-0 p-0" variant="outline-danger" 
@@ -81,7 +81,7 @@ class SelectedBox extends React.Component {
       })
     } else {
       rolesArray.push(
-        <div className="role-card d-flex" bg="light">
+        <div className="role-card d-flex" bg="light" key={`role-${personIndex}-none`}>
           <i>no roles.</i>
         </div>
       )
