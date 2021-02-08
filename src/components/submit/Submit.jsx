@@ -2,7 +2,6 @@ import React from 'react'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import axios from 'axios'
-import getVideoId from 'get-video-id'
 import Cookies from 'js-cookie'
 import VideoDescription from './VideoDescription'
 import SelectedBox from './SelectedBox'
@@ -75,58 +74,14 @@ class Submit extends React.Component {
     }
   }
 
-  handleLinkChange(e) {
-    this.setState({link: e.target.value})
-  }
-
-  useSubmitForm(collabLink) {
-    // get youtube video ID
-    let id = collabLink
-    let service = 'youtube'
-    let match = id.match(/[\w\d-_]{11}/g)
-    if (match && match[0] !== id) {
-      ({id, service} = getVideoId(collabLink))
-    }
-    if (service !== 'youtube') {
-      console.error('Could not parse URL. Make sure it is a valid Youtube URL and not a shortened/redirect URL (eg, bitly)')
-      return
-    }
-    // call youtaite-network-api.herokuapp.com to get title & description from ID
-    axios(`https://youtaite-network-api.herokuapp.com/collabs/info/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Cookies.get('access-token')}`
-      }
+  useSubmitForm(title, byline, description, ytId) {
+    this.setState({
+      showSubmitForm: true,
+      title,
+      byline,
+      description,
+      ytId,
     })
-      .then(response => {
-        // set cookies
-        Cookies.set('access-token', response.headers['access-token'], {
-          expires: new Date(response.headers['expiry'])
-        })
-        let {title, description, channel_id} = response.data
-        axios(`https://youtaite-network-api.herokuapp.com/people/info/${channel_id}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Cookies.get('access-token')}`
-          }
-        })
-          .then(response => {
-            // set cookies
-            Cookies.set('access-token', response.headers['access-token'], {
-              expires: new Date(response.headers['expiry'])
-            })
-            let {name} = response.data
-            let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
-            this.setState({
-              showSubmitForm: true,
-              title,
-              byline,
-              description,
-              ytId: id,
-            })
-          })
-      })
-      .catch(error => console.log(error))
   }
 
   addPersonToSelected(newPerson) {
