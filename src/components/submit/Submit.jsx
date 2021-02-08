@@ -16,7 +16,7 @@ class Submit extends React.Component {
     super(props)
     this.state = {
       ytId: '',
-      showSubmitForm: true, // change
+      showSubmitForm: false,
       title: '',
       byline: '',
       thumbnail: '',
