@@ -34,6 +34,7 @@ class Submit extends React.Component {
     this.onPersonSuggestionSelected = this.onPersonSuggestionSelected.bind(this)
     this.addNewPersonToSelected = this.addNewPersonToSelected.bind(this)
     this.onRoleSuggestionSelected = this.onRoleSuggestionSelected.bind(this)
+    this.removePersonFromSelected = this.removePersonFromSelected.bind(this)
   }
 
   resetState() {
@@ -74,8 +75,8 @@ class Submit extends React.Component {
         .catch(error => {
           console.log(error)
         })
+      this.resetState()
     }
-    this.resetState()
   }
 
   handleLinkChange(e) {
@@ -188,7 +189,23 @@ class Submit extends React.Component {
       return {
         selected: prevState.selected.slice(0, index)
           .concat([current])
+          .concat(prevState.selected.slice(index + 1)),
+      }
+    })
+  }
+
+  removePersonFromSelected(misc_id) {
+    this.setState(prevState => {
+      let index = prevState.selected.findIndex(person => person.misc_id === misc_id)
+      let newSelected = prevState.selected.slice(0, index)
           .concat(prevState.selected.slice(index + 1))
+      let newMiscId = prevState.currentMiscId
+      if (misc_id === prevState.currentMiscId) {
+        newMiscId = newSelected[newSelected.length - 1].misc_id
+      }
+      return {
+        selected: newSelected,
+        currentMiscId: newMiscId,
       }
     })
   }
@@ -206,7 +223,8 @@ class Submit extends React.Component {
               <hr/>
               <SelectedBox 
                 items={this.state.selected} 
-                current={this.state.currentMiscId} />
+                current={this.state.currentMiscId}
+                removePerson={this.removePersonFromSelected} />
               <PeopleForm
                 show={this.state.showSubmitForm}
                 handleSubmit={this.handleSubmit}

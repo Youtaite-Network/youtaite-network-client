@@ -53,7 +53,7 @@ class CollabLink extends React.Component {
   render() {
     return (
       <Form.Group>
-        <Form.Group>
+        <div className="mb-2">
           <Form.Label>YouTube video link</Form.Label>
           <Form.Control 
             type="yt_link" 
@@ -63,7 +63,7 @@ class CollabLink extends React.Component {
             onKeyDown={this.handleKeyDown}
             ref={this.input}
           />
-        </Form.Group>
+        </div>
         <Button ref={this.defaultButton} variant="primary" onClick={this.handleClick}>
           Analyze link
         </Button>
