@@ -44,7 +44,7 @@ class ChannelResults extends React.Component {
     channelArray.push(
       <Button id={`channel-option-${this.props.data.length}`} className="btn-light d-flex flex-row align-items-center w-100" key="channel-array-none" onClick={this.props.handleChannelNotFound}>
         <div className="ml-1 text-truncate d-flex flex-row align-items-center" style={{height: '40px'}}><strong>
-          None of these
+          None of these/Unsure
         </strong></div>
       </Button>
     )
