@@ -40,7 +40,7 @@ class SelectedBox extends React.Component {
         border = 'danger'
       }
       itemsArray.push(
-        <Card className="row flex-row align-items-center flex-nowrap mx-1 pr-3" 
+        <Card className="row flex-row align-items-center flex-nowrap m-1 pr-3" 
           bg="light" text="dark" border={border} key={`selected-${i}`}>
           <div>
             <Image className="m-1" width="40px" height="40px" roundedCircle src={item.thumbnail} />
@@ -70,7 +70,7 @@ class SelectedBox extends React.Component {
       roles.forEach(role => {
         rolesArray.push(
           <div className="role-card d-flex">
-            <i className="mx-1">{role}</i>
+            <i>{`${role},`}</i>
             <Button id={`rm-role-btn-${personIndex}-${role}`} 
               className="rm-role-btn m-0 p-0" variant="outline-danger" 
               onClick={this.removeRole}>
@@ -82,7 +82,7 @@ class SelectedBox extends React.Component {
     } else {
       rolesArray.push(
         <div className="role-card d-flex" bg="light">
-          <i className="mx-1">no roles yet.</i>
+          <i>no roles.</i>
         </div>
       )
     }
