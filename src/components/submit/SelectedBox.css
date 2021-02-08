@@ -2,12 +2,11 @@
   position: absolute;
   right: 0;
   border: none;
-  box-shadow: -1px 0 0 1px #dc3545;
   opacity: .8;
 }
 
 .rm-person-btn:focus {
-  box-shadow: -1px 0 0 1px #dc3545;
+  box-shadow: none;
 }
 
 .role-card {
