@@ -47,7 +47,7 @@ class UseOtherSocial extends React.Component {
     person.thumbnail = '#'
     person.name = this.state.alias
 
-    if (this.state.misc_id === '') {
+    if (this.state.socialLink === '') {
       person.misc_id = this.state.alias
       person.id_type = 'no_link'
     } else {
