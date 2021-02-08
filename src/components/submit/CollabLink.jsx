@@ -1,55 +1,42 @@
-import React from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import getVideoId from 'get-video-id'
 import axios from 'axios'
 import Cookies from 'js-cookie'
+import AlertContext from '../AlertContext'
 
-class CollabLink extends React.Component {
-  constructor(props) {
-    super(props)
-    // PROPS
-    // handleSubmit
-    // resetOnChange
-    this.state = {
-      collabLink: '',
+function CollabLink(props) {
+  const onSubmit = props.onSubmit
+  const resetOnChange = props.resetOnChange
+  const [collabLink, setCollabLink] = useState('')
+  const { setAlert } = useContext(AlertContext)
+
+  // refs
+  const defaultButton = React.createRef()
+  const input = React.createRef()
+
+  useEffect(() => {
+    setCollabLink('')
+    input.current.focus()
+  }, [resetOnChange])
+
+  const handleCollabLinkChange = e => {
+    setCollabLink(e.target.value)
+  }
+
+  const handleClick = e => {
+    if (!collabLink) {
+      setAlert({ message: 'Enter a Youtube video first', variant: 'info' })
+      input.current.focus()
+      return
     }
-
-    // refs
-    this.defaultButton = React.createRef()
-    this.input = React.createRef()
-    // event handlers
-    this.handleKeyDown = this.handleKeyDown.bind(this)
-    this.handleCollabLinkChange = this.handleCollabLinkChange.bind(this)
-    this.handleClick = this.handleClick.bind(this)
-  }
-
-  resetState() {
-    this.setState({
-      collabLink: '',
-    })
-    this.input.current.focus()
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.resetOnChange !== this.props.resetOnChange) {
-      this.resetState()
-    }
-  }
-
-  handleCollabLinkChange(e) {
-    this.setState({
-      collabLink: e.target.value,
-    })
-  }
-
-  handleClick(e) {
     // get YT video ID
-    let id = this.state.collabLink
+    let id = collabLink
     let service = 'youtube'
-    let match = id.match(/[\w\d-_]{11}/g)
+    const match = id.match(/[\w\d-_]{11}/g)
     if (match && match[0] !== id) {
-      ({id, service} = getVideoId(this.state.collabLink))
+      ({id, service} = getVideoId(collabLink))
     }
     if (service !== 'youtube') {
       console.error('Could not parse URL. Make sure it is a valid Youtube URL and not a shortened/redirect URL (eg, bitly)')
@@ -81,40 +68,44 @@ class CollabLink extends React.Component {
             })
             let {name} = response.data
             let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
-            this.props.handleClick(title, byline, description, id)
+            onSubmit(title, byline, description, id)
+            setAlert({ message: '', variant: '' })
           })
       })
-      .catch(error => console.log(error))
-
-
+      .catch(error => {
+        console.error(error)
+        if (error.response) {
+          if (error.response.status === 403) {
+            setAlert({ message: 'Please sign in', variant: 'danger' })
+          }
+        }
+      })
   }
 
-  handleKeyDown(e) {
+  const handleKeyDown = e => {
     if (e.key === 'Enter') {
-      this.defaultButton.current.click()
+      defaultButton.current.click()
     }
   }
 
-  render() {
-    return (
-      <Form.Group>
-        <div className="mb-2">
-          <Form.Label>YouTube video link</Form.Label>
-          <Form.Control 
-            type="yt_link" 
-            placeholder="https://youtube.com/watch?v=XXXXXX" 
-            value={this.state.collabLink} 
-            onChange={this.handleCollabLinkChange}
-            onKeyDown={this.handleKeyDown}
-            ref={this.input}
-          />
-        </div>
-        <Button ref={this.defaultButton} variant="primary" onClick={this.handleClick}>
-          Analyze link
-        </Button>
-      </Form.Group>
-    );
-  }
+  return (
+    <Form.Group>
+      <div className="mb-2">
+        <Form.Label>YouTube video link</Form.Label>
+        <Form.Control 
+          type="yt_link" 
+          placeholder="https://youtube.com/watch?v=XXXXXX" 
+          value={collabLink} 
+          onChange={handleCollabLinkChange}
+          onKeyDown={handleKeyDown}
+          ref={input}
+        />
+      </div>
+      <Button ref={defaultButton} variant="primary" onClick={handleClick}>
+        Analyze link
+      </Button>
+    </Form.Group>
+  );
 }
 
 export default CollabLink;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -10,38 +10,54 @@ import About from './components/About'
 import GoogleLoginWrapper from './components/GoogleLoginWrapper'
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav'
+import Alert from 'react-bootstrap/Alert'
+import AlertContext from './components/AlertContext'
 
-export default function App() {
+function App() {
+  const [alert, setAlert] = useState([])
+  const alertContext = {
+    setAlert: setAlert
+  }
+
   return (
-    <Router>
-      <div>
-        <Navbar bg="light" expand="lg">
-          <Navbar.Brand href="/home">Youtaite Network</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <Nav.Link href="/home">Home</Nav.Link>
-              <Nav.Link href="/submit">Submit</Nav.Link>
-              <Nav.Link href="/about">What's this?</Nav.Link>
-            </Nav>
-            <GoogleLoginWrapper></GoogleLoginWrapper>
-          </Navbar.Collapse>
-        </Navbar>
+    <AlertContext.Provider value={alertContext}>
+      <Router>
+        <div>
+          <Navbar bg="light" expand="lg">
+            <Navbar.Brand href="/home">Youtaite Network</Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="mr-auto">
+                <Nav.Link href="/home">Home</Nav.Link>
+                <Nav.Link href="/submit">Submit</Nav.Link>
+                <Nav.Link href="/about">What's this?</Nav.Link>
+              </Nav>
+              <GoogleLoginWrapper></GoogleLoginWrapper>
+            </Navbar.Collapse>
+          </Navbar>
+          <div className="container">
+            <Alert show={!!alert.message} variant={alert.variant}>
+              {alert.message}
+            </Alert>
+          </div>
 
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
-        <Switch>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/submit">
-            <Submit />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
-      </div>
-    </Router>
-  );
+          {/* A <Switch> looks through its children <Route>s and
+              renders the first one that matches the current URL. */}
+          <Switch>
+            <Route path="/about">
+              <About />
+            </Route>
+            <Route path="/submit">
+              <Submit />
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </div>
+      </Router>
+    </AlertContext.Provider>
+  )
 }
+
+export default App
