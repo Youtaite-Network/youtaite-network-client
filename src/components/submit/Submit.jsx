@@ -16,7 +16,7 @@ class Submit extends React.Component {
     super(props)
     this.state = {
       ytId: '',
-      showSubmitForm: false,
+      showSubmitForm: true, // change
       title: '',
       byline: '',
       thumbnail: '',
@@ -35,6 +35,7 @@ class Submit extends React.Component {
     this.addNewPersonToSelected = this.addNewPersonToSelected.bind(this)
     this.onRoleSuggestionSelected = this.onRoleSuggestionSelected.bind(this)
     this.removePersonFromSelected = this.removePersonFromSelected.bind(this)
+    this.removeRoleFromSelected = this.removeRoleFromSelected.bind(this)
   }
 
   resetState() {
@@ -201,11 +202,31 @@ class Submit extends React.Component {
           .concat(prevState.selected.slice(index + 1))
       let newMiscId = prevState.currentMiscId
       if (misc_id === prevState.currentMiscId) {
-        newMiscId = newSelected[newSelected.length - 1].misc_id
+        if (newSelected.length > 0) {
+          newMiscId = newSelected[newSelected.length - 1].misc_id
+        } else {
+          newMiscId = ''
+        }
       }
       return {
         selected: newSelected,
         currentMiscId: newMiscId,
+      }
+    })
+  }
+
+  removeRoleFromSelected(misc_id, roleToRemove) {
+    this.setState(prevState => {
+      let personIndex = prevState.selected.findIndex(person => person.misc_id === misc_id)
+      let newRoles = prevState.selected[personIndex].roles
+      if (newRoles) {
+        let roleIndex = newRoles.findIndex(role => role === roleToRemove)
+        newRoles = newRoles.slice(0, roleIndex).concat(newRoles.slice(roleIndex + 1))
+      }
+      return {
+        selected: prevState.selected.slice(0, personIndex)
+          .concat([{...prevState.selected[personIndex], roles: newRoles}])
+          .concat(prevState.selected.slice(personIndex + 1))
       }
     })
   }
@@ -224,7 +245,8 @@ class Submit extends React.Component {
               <SelectedBox 
                 items={this.state.selected} 
                 current={this.state.currentMiscId}
-                removePerson={this.removePersonFromSelected} />
+                removePerson={this.removePersonFromSelected}
+                removeRole={this.removeRoleFromSelected} />
               <PeopleForm
                 show={this.state.showSubmitForm}
                 handleSubmit={this.handleSubmit}
