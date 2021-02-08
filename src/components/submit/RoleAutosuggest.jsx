@@ -23,8 +23,10 @@ class RoleAutosuggest extends React.Component {
       inputValue: '',
       suggestions: [],
       roles: [
+        'arrange',
         'art',
         'guide',
+        'instrumentalist',
         'lyrics',
         'mix',
         'organize',
