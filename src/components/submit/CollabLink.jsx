@@ -46,7 +46,7 @@ function CollabLink(props) {
     axios(`https://youtaite-network-api.herokuapp.com/collabs/info/${id}`, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Cookies.get('access-token')}`
+        'Authorization': `Bearer ${Cookies.get('access-token')}`,
       }
     })
       .then(response => {
@@ -55,10 +55,11 @@ function CollabLink(props) {
           expires: new Date(response.headers['expiry'])
         })
         let {title, description, channel_id} = response.data
+        // get info about channel that posted collab
         axios(`https://youtaite-network-api.herokuapp.com/people/info/${channel_id}`, {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Cookies.get('access-token')}`
+            'Authorization': `Bearer ${Cookies.get('access-token')}`,
           }
         })
           .then(response => {
@@ -70,9 +71,53 @@ function CollabLink(props) {
             let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
             onSubmit(title, byline, description, id)
             setAlert({ message: '', variant: '' })
+          }).catch(error => {
+            console.error(error)
           })
+      }).catch(error => {
+        console.error(error)
+        if (error.response) {
+          if (error.response.status === 403) {
+            setAlert({ message: 'Please sign in', variant: 'danger' })
+          }
+        }
       })
-      .catch(error => {
+  }
+
+  const getRandom = e => {
+    // call youtaite-network-api.herokuapp.com to get title & description from ID
+    axios(`https://youtaite-network-api.herokuapp.com/collabs/new_random`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Cookies.get('access-token')}`,
+      }
+    })
+      .then(response => {
+        // set cookies
+        Cookies.set('access-token', response.headers['access-token'], {
+          expires: new Date(response.headers['expiry'])
+        })
+        let {title, description, person_id} = response.data
+        // get info about channel that posted collab
+        axios(`https://youtaite-network-api.herokuapp.com/people/info/${person_id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Cookies.get('access-token')}`,
+          }
+        })
+          .then(response => {
+            // set cookies
+            Cookies.set('access-token', response.headers['access-token'], {
+              expires: new Date(response.headers['expiry'])
+            })
+            let {name} = response.data
+            let byline = `posted by: ${name} (https://youtube.com/channel/${person_id})`
+            onSubmit(title, byline, description, person_id)
+            setAlert({ message: '', variant: '' })
+          }).catch(error => {
+            console.error(error)
+          })
+      }).catch(error => {
         console.error(error)
         if (error.response) {
           if (error.response.status === 403) {
@@ -90,7 +135,7 @@ function CollabLink(props) {
 
   return (
     <Form.Group>
-      <div className="mb-2">
+      <div className="m-1">
         <Form.Label>YouTube video link</Form.Label>
         <Form.Control 
           type="yt_link" 
@@ -101,8 +146,11 @@ function CollabLink(props) {
           ref={input}
         />
       </div>
-      <Button ref={defaultButton} variant="primary" onClick={handleClick}>
+      <Button className="m-1" ref={defaultButton} variant="primary" onClick={handleClick}>
         Analyze link
+      </Button>
+      <Button className="m-1" variant="info" onClick={getRandom}>
+        I'm feeling lucky
       </Button>
     </Form.Group>
   );
