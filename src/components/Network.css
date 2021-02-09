@@ -12,6 +12,7 @@ line {
 
 text {
   transition: opacity .15s ease-in-out;
+  pointer-events: none;
 }
 
 .network {
