@@ -67,6 +67,7 @@ function CollabLink(props) {
             Cookies.set('access-token', response.headers['access-token'], {
               expires: new Date(response.headers['expiry'])
             })
+            console.log(response.data)
             let {name} = response.data
             let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
             onSubmit(title, byline, description, id)
@@ -97,7 +98,7 @@ function CollabLink(props) {
         Cookies.set('access-token', response.headers['access-token'], {
           expires: new Date(response.headers['expiry'])
         })
-        let {title, description, channel_id} = response.data
+        let {yt_id, title, description, channel_id} = response.data
         // get info about channel that posted collab
         axios(`https://youtaite-network-api.herokuapp.com/people/info/${channel_id}`, {
           headers: {
@@ -112,7 +113,7 @@ function CollabLink(props) {
             })
             let {name} = response.data
             let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
-            onSubmit(title, byline, description, channel_id)
+            onSubmit(title, byline, description, yt_id)
             setAlert({ message: '', variant: '' })
           }).catch(error => {
             console.error(error)
