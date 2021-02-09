@@ -104,17 +104,17 @@ class Network extends React.Component {
         filtered_edges.forEach(function(edge) {
           svg.select('#edge-' + edge.source.id + '-' + edge.target.id)
             .attr('stroke', 'orange')
-            .attr('stroke-width', 2)
+            .attr('stroke-width', 1.5)
           filtered_node_ids.push(edge.source.id)
           filtered_node_ids.push(edge.target.id)
         })
         filtered_node_ids = [...new Set(filtered_node_ids)] // remove dupes
         filtered_node_ids.forEach(function(node_id) {
-          svg.select('#rect-' + node_id)
+          svg.select(`#rect-${node_id}`)
             .attr('stroke', 'orange')
-            .attr('stroke-width', 1.5)
+            .attr('stroke-width', 1.3)
             .attr('transform', 'scale(1.5)')
-          svg.select('#img-' + node_id)
+          svg.select(`#img-${node_id}`)
             .attr('transform', 'scale(1.5)')
         })
         svg.select('#title-text')
@@ -228,12 +228,13 @@ class Network extends React.Component {
     return (
       <>
         <p>cmd/ctrl-click to open the video in a new tab</p>
-        <div className="network d-flex justify-content-center align-items-center">
+        <div className="network d-flex justify-content-center align-items-top">
           {!this.state.removeSpinner && <div id="spinner" 
-            className={this.state.showSpinner ? 'spinning' : ''}>
+            className={'d-flex flex-column ' + (this.state.showSpinner ? 'spinning' : '')}>
             <Spinner animation="border" role="loading network">
-              <span className="sr-only">Loading...</span>
+              <span className="sr-only">Loading network...</span>
             </Spinner>
+            <span className="ml-3">Loading network...</span>
           </div>}
         </div>
       </>
