@@ -12,22 +12,6 @@ code {
     monospace;
 }
 
-image {
-  transition: all .12s ease-in-out;
-}
-
-rect {
-  transition: all .12s ease-in-out;
-}
-
-line {
-  transition: all .12s ease-in-out;
-}
-
-text {
-  transition: opacity .15s ease-in-out;
-}
-
 .react-autosuggest__container {
   position: relative;
 }

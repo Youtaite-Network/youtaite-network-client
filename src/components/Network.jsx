@@ -1,12 +1,18 @@
-import React from "react";
-import * as d3 from 'd3';
-import axios from 'axios';
+import React from "react"
+import * as d3 from 'd3'
+import axios from 'axios'
+import Spinner from 'react-bootstrap/Spinner'
+import './Network.css'
 
 class Network extends React.Component {
   constructor(props) {
-    super(props);
-    this.state = {};
-    this.createNetwork = this.createNetwork.bind(this);
+    super(props)
+
+    this.state = {
+      removeSpinner: false,
+      showSpinner: true,
+    }
+    this.spinner = React.createRef()
   }
 
   componentDidMount() {
@@ -28,6 +34,13 @@ class Network extends React.Component {
               return node_ids.includes(node.id)
             })
             this.createNetwork(dataset)
+            setTimeout(() => {
+              this.setState({ showSpinner: false }, () => {
+                setTimeout(() => {
+                  this.setState({ removeSpinner: true })
+                }, 200)
+              })
+            }, 500)
           })
           .catch(function(error) {
             console.log(error)
@@ -38,15 +51,19 @@ class Network extends React.Component {
       })
   }
 
+  shouldComponentUpdate() {
+    return !this.state.removeSpinner
+  }
+
   createNetwork(dataset) {
     let w = 1000;
     let h = 600;
-    let node_w = 72
-    let node_h = 40.5
+    let node_w = 36
+    let node_h = 20.25
 
     // initialize force layout
     let force = d3.forceSimulation(dataset.nodes)
-      .force("charge", d3.forceManyBody().strength(-1500))
+      .force("charge", d3.forceManyBody().strength(-500))
       .force("link", d3.forceLink(dataset.edges).id(d => d.id).distance(30))
       .force("center", d3.forceCenter().x(w/2).y(h/2));
 
@@ -96,9 +113,9 @@ class Network extends React.Component {
           svg.select('#rect-' + node_id)
             .attr('stroke', 'orange')
             .attr('stroke-width', 1.5)
-            .attr('transform', 'scale(1.25,1.25)')
+            .attr('transform', 'scale(1.5)')
           svg.select('#img-' + node_id)
-            .attr('transform', 'scale(1.25,1.25)')
+            .attr('transform', 'scale(1.5)')
         })
         svg.select('#title-text')
           .text(d.title)
@@ -108,12 +125,12 @@ class Network extends React.Component {
         svg.selectAll('rect.node-rect')
           .attr('stroke', 'lightgrey')
           .attr('stroke-width', .5)
-          .attr('transform', 'scale(1,1)')
+          .attr('transform', 'scale(1)')
         svg.selectAll('line.edge')
           .attr('stroke-width', .5)
           .attr('stroke', 'lightgrey')
         svg.selectAll('image.node-img')
-          .attr('transform', 'scale(1,1)')
+          .attr('transform', 'scale(1)')
         svg.select('#title-text')
           .style('opacity', 0)
       })
@@ -209,9 +226,17 @@ class Network extends React.Component {
 
   render() {
     return (
-      <div className="network">
+      <>
         <p>cmd/ctrl-click to open the video in a new tab</p>
-      </div>
+        <div className="network d-flex justify-content-center align-items-center">
+          {!this.state.removeSpinner && <div id="spinner" 
+            className={this.state.showSpinner ? 'spinning' : ''}>
+            <Spinner animation="border" role="loading network">
+              <span className="sr-only">Loading...</span>
+            </Spinner>
+          </div>}
+        </div>
+      </>
     );
   }
 }
