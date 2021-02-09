@@ -56,14 +56,6 @@ class Network extends React.Component {
       .attr("width", w)
       .attr("height", h)
       .style('border', '1px solid lightgrey')
-
-    // create title label in top left
-    svg.append('text')
-      .attr('id', 'title-text')
-      .attr('x', 15)
-      .attr('y', 26)
-      .attr('font-size', 18)
-      .attr('font-weight', 'bold')
     
     // create edges
     let edges = svg.selectAll("line")
@@ -169,6 +161,14 @@ class Network extends React.Component {
       .attr('fill', 'none')
       .attr('stroke', 'lightgrey')
       .attr('stroke-width', .5)
+
+    // create title label in top left
+    svg.append('text')
+      .attr('id', 'title-text')
+      .attr('x', 15)
+      .attr('y', 26)
+      .attr('font-size', 18)
+      .attr('font-weight', 'bold')
 
     // draw edges & nodes with correct placements at each tick
     force.on("tick", function() {
