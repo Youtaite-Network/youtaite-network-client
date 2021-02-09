@@ -11,17 +11,30 @@ class Network extends React.Component {
 
   componentDidMount() {
     let dataset = {}
-    axios('https://youtaite-network-api.herokuapp.com/collabs')
+    axios('https://youtaite-network-api.herokuapp.com/edges')
       .then(response => {
-        dataset.nodes = response.data
-        axios('https://youtaite-network-api.herokuapp.com/edges')
+        dataset.edges = response.data
+        // create array of all nodes with degree > 0
+        let node_ids = []
+        response.data.forEach(edge => {
+          node_ids.push(edge.source)
+          node_ids.push(edge.target)
+        })
+        node_ids = [...new Set(node_ids)]
+        axios('https://youtaite-network-api.herokuapp.com/collabs')
           .then(response => {
-            dataset.edges = response.data
+            // don't use orphan nodes
+            dataset.nodes = response.data.filter(node => {
+              return node_ids.includes(node.id)
+            })
             this.createNetwork(dataset)
           })
           .catch(function(error) {
             console.log(error)
           })
+      })
+      .catch(function(error) {
+        console.log(error)
       })
   }
 
