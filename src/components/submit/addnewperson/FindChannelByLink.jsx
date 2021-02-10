@@ -48,6 +48,9 @@ class FindChannelByLink extends React.Component {
         })
         this.props.handleSubmit(this.state.channelLink, response.data)
       })
+      .catch(response => {
+        console.error(response)
+      })
   }
 
   handleKeyDown(e) {
@@ -60,7 +63,7 @@ class FindChannelByLink extends React.Component {
     return (
       <Form.Group>
         <Form.Group>
-          <Form.Label>Channel link (YouTube)</Form.Label>
+          <Form.Label>Link (Youtube or Twitter)</Form.Label>
           <Form.Control 
             type="channel_link" 
             placeholder="https://youtube.com/channel/XXXXXXXXX" 
@@ -71,7 +74,7 @@ class FindChannelByLink extends React.Component {
           />
         </Form.Group>
         <Button className="mr-1" variant="secondary" onClick={this.props.handleNoYTChannel}>
-          No YouTube link available
+          No YT or TW link available
         </Button>
         <Button ref={this.defaultButton} className="ml-1" variant="primary" disabled={this.state.channelLink.length === 0} onClick={this.analyzeChannelLink}>
           Analyze link

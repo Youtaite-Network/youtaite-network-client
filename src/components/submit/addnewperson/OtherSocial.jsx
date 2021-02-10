@@ -14,7 +14,6 @@ class UseOtherSocial extends React.Component {
     };
 
     // refs
-    this.twRadio = React.createRef()
     this.igRadio = React.createRef()
     this.otherRadio = React.createRef()
     this.input = React.createRef()
@@ -43,24 +42,24 @@ class UseOtherSocial extends React.Component {
   }
 
   handleAdd(e) {
+    let link = this.state.socialLink
+    if (link.startsWith('http')) { // remove protocol
+      let url = new URL(link)
+      link = `${url.hostname}${url.pathname}` 
+    }
     let person = {}
     person.thumbnail = '#'
     person.name = this.state.alias
+    person.misc_id = link
 
     if (this.state.socialLink === '') {
       person.misc_id = this.state.alias
       person.id_type = 'no_link'
+    } else if (this.igRadio.current.checked) {
+      person.id_type = 'ig'
     } else {
-      person.misc_id = this.state.socialLink
-      if (this.twRadio.current.checked) {
-        person.id_type = 'tw'
-      } else if (this.igRadio.current.checked) {
-        person.id_type = 'ig'
-      } else {
-        person.id_type = 'other'
-      }
+      person.id_type = 'other'
     }
-
     this.props.handleSubmit(person)
   }
 
@@ -81,18 +80,11 @@ class UseOtherSocial extends React.Component {
           <Form.Label>Enter another social link (blank if none)</Form.Label>
           <Form.Control
             type="social_link"
-            placeholder="https://twitter.com/XXXXX"
+            placeholder="https://instagram.com/XXXXX"
             value={this.state.socialLink}
             onChange={this.handleSocialLinkChange} />
         </Form.Group>
         <Form.Group>
-          <Form.Check 
-            id="tw-radio"
-            type="radio"
-            label="twitter"
-            name="social-type"
-            ref={this.twRadio}
-          />
           <Form.Check 
             id="ig-radio"
             type="radio"
