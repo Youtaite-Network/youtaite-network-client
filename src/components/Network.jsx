@@ -22,7 +22,7 @@ class Network extends React.Component {
         dataset.edges = response.data
         // create array of all nodes with degree > 0
         let node_ids = []
-        response.data.forEach(edge => {
+        dataset.edges.forEach(edge => {
           node_ids.push(edge.source)
           node_ids.push(edge.target)
         })
@@ -73,9 +73,11 @@ class Network extends React.Component {
       .attr("width", w)
       .attr("height", h)
       .style('border', '1px solid lightgrey')
+
+    let graph = svg.append('g')
     
     // create edges
-    let edges = svg.selectAll("line")
+    let edges = graph.selectAll("line")
       .data(dataset.edges)
       .enter()
       .append("line")
@@ -87,7 +89,7 @@ class Network extends React.Component {
       .attr("stroke-width", .5);
 
     // create nodes
-    let nodes = svg.selectAll('g')
+    let nodes = graph.selectAll('g')
       .data(dataset.nodes)
       .enter()
       .append('g')
@@ -221,6 +223,16 @@ class Network extends React.Component {
         .on('start', dragStarted)
         .on('drag', dragging)
         .on('end', dragEnded)
+    }
+
+    // define zoom function
+    svg.call(d3.zoom()
+      .extent([[0, 0], [w, h]])
+      .scaleExtent([.2, 5])
+      .on("zoom", zoomed));
+
+    function zoomed({transform}) {
+      graph.attr('transform', transform)
     }
   }
 
