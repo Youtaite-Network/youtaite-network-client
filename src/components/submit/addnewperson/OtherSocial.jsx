@@ -15,6 +15,9 @@ class UseOtherSocial extends React.Component {
 
     // refs
     this.igRadio = React.createRef()
+    this.fbRadio = React.createRef()
+    this.scRadio = React.createRef()
+    this.tumblrRadio = React.createRef()
     this.otherRadio = React.createRef()
     this.input = React.createRef()
     // event handlers
@@ -57,6 +60,12 @@ class UseOtherSocial extends React.Component {
       person.id_type = 'no_link'
     } else if (this.igRadio.current.checked) {
       person.id_type = 'ig'
+    } else if (this.fbRadio.current.checked) {
+      person.id_type = 'fb'
+    } else if (this.scRadio.current.checked) {
+      person.id_type = 'soundcloud'
+    } else if (this.tumblrRadio.current.checked) {
+      person.id_type = 'tumblr'
     } else {
       person.id_type = 'other'
     }
@@ -91,6 +100,27 @@ class UseOtherSocial extends React.Component {
             label="instagram"
             name="social-type"
             ref={this.igRadio}
+          />
+          <Form.Check 
+            id="fb-radio"
+            type="radio"
+            label="facebook"
+            name="social-type"
+            ref={this.fbRadio}
+          />
+          <Form.Check 
+            id="sc-radio"
+            type="radio"
+            label="soundcloud"
+            name="social-type"
+            ref={this.scRadio}
+          />
+          <Form.Check 
+            id="tumblr-radio"
+            type="radio"
+            label="tumblr"
+            name="social-type"
+            ref={this.tumblrRadio}
           />
           <Form.Check 
             id="other-radio"
