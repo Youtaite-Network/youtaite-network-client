@@ -102,14 +102,22 @@ class Submit extends React.Component {
   }
 
   useSubmitForm(title, byline, description, ytId) {
-    localStorage.setItem('ytId', ytId)
-    this.setState({
-      selected: [],
-      showSubmitForm: true,
-      title,
-      byline,
-      description,
-      ytId,
+    this.setState(prevState => {
+      let newSelected = []
+      if (localStorage.getItem('ytId') === ytId) {
+        // unchanged from localStorage; do not wipe selected
+        newSelected = prevState.selected
+      }
+      return {
+        selected: newSelected,
+        showSubmitForm: true,
+        title,
+        byline,
+        description,
+        ytId,
+      }
+    }, () => {
+      localStorage.setItem('ytId', ytId)
     })
   }
 
