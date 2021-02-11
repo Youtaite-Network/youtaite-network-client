@@ -35,6 +35,18 @@ class Submit extends React.Component {
     this.setRandom = this.setRandom.bind(this)
   }
 
+  componentDidMount() {
+    const selected = localStorage.getItem('selected')
+    const currentMiscId = localStorage.getItem('currentMiscId')
+    if (selected) {
+      this.setState({
+        showSubmitForm: true,
+        selected: JSON.parse(selected),
+        currentMiscId: currentMiscId,
+      })
+    }
+  }
+
   resetState() {
     if (this.state.random) {
       this.setState(prevState => {
@@ -90,6 +102,7 @@ class Submit extends React.Component {
   }
 
   useSubmitForm(title, byline, description, ytId) {
+    localStorage.setItem('ytId', ytId)
     this.setState({
       showSubmitForm: true,
       title,

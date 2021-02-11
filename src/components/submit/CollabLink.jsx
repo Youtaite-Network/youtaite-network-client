@@ -11,14 +11,29 @@ function CollabLink(props) {
   const resetOnChange = props.resetOnChange
   const setRandom = props.setRandom
   const random = props.random
-  const [collabLink, setCollabLink] = useState('')
-  const { setAlert } = useContext(AlertContext)
 
   // refs
   const prevResetOnChange = useRef()
   const defaultButton = useRef(null)
   const randomButton = useRef(null)
   const input = useRef(null)
+
+  // state/context
+  const initializeCollabLink = () => {
+    const storedYtId = localStorage.getItem('ytId')
+    if (storedYtId) {
+      return `https://youtube.com/watch?v=${storedYtId}`
+    }
+    return ''
+  }
+  const [collabLink, setCollabLink] = useState(initializeCollabLink())
+  const { setAlert } = useContext(AlertContext)
+
+  useEffect(() => {
+    if (localStorage.getItem('ytId')) {
+      defaultButton.current.click()
+    }
+  }, [])
 
   useEffect(() => {
     if (prevResetOnChange.current !== resetOnChange) {

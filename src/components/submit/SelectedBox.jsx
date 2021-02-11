@@ -19,6 +19,11 @@ class SelectedBox extends React.Component {
     this.removeRole = this.removeRole.bind(this)
   }
 
+  componentDidUpdate() {
+    localStorage.setItem('selected', JSON.stringify(this.props.items))
+    localStorage.setItem('currentMiscId', this.props.current)
+  }
+
   removePerson(e) {
     let id = e.target.id
     let index = id.substring(id.lastIndexOf('-') + 1)
