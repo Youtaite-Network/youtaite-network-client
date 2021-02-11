@@ -53,6 +53,7 @@ class PersonAutosuggest extends React.Component {
     let suggestions = inputValue.length === 0 ? [] : this.props.people.filter(person => {
       return person.name.replace(/[ \t\n]/g, '').toLowerCase().includes(inputValue)
     })
+    suggestions.sort((a, b) => a.length - b.length) // shorter comes first
     suggestions.push({name: 'Add new person', misc_id: 'add new'})
     return suggestions
   }

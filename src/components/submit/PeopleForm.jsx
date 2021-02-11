@@ -60,6 +60,15 @@ class PeopleForm extends React.Component {
         })
       } else {
         this.props.addPersonToSelected(suggestion)
+        // move person to top
+        this.setState(prevState => {
+          const index = prevState.people.findIndex(person => person.misc_id === suggestion.misc_id)
+          return {
+            people: [prevState.people[index]]
+              .concat(prevState.people.slice(0, index))
+              .concat(prevState.people.slice(index + 1))
+          }
+        })
       }
     }
   }
@@ -93,7 +102,7 @@ class PeopleForm extends React.Component {
     this.setState(prevState => {
       let newPeople = prevState.people
       if (!prevState.people.find(person => person.misc_id === newPerson.misc_id)) {
-        newPeople = newPeople.concat([newPerson])
+        newPeople = [newPerson].concat(newPeople)
       }
       return {
         people: newPeople,
