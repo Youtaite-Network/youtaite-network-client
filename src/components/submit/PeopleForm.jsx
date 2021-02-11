@@ -37,7 +37,7 @@ class PeopleForm extends React.Component {
     axios('https://youtaite-network-api.herokuapp.com/people')
       .then(response => {
         this.setState({
-          people: response.data,
+          people: response.data.sort((a, b) => a.length - b.length) // shorter comes first,
         })
       })
       .catch(error => console.log(error))
