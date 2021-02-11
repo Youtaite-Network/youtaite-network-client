@@ -9,17 +9,28 @@ import AlertContext from '../AlertContext'
 function CollabLink(props) {
   const onSubmit = props.onSubmit
   const resetOnChange = props.resetOnChange
+  const setRandom = props.setRandom
+  const random = props.random
   const [collabLink, setCollabLink] = useState('')
   const { setAlert } = useContext(AlertContext)
 
   // refs
+  const prevResetOnChange = useRef()
   const defaultButton = useRef(null)
+  const randomButton = useRef(null)
   const input = useRef(null)
 
   useEffect(() => {
-    setCollabLink('')
-    input.current.focus()
-  }, [resetOnChange])
+    if (prevResetOnChange.current !== resetOnChange) {
+      if (random) {
+        randomButton.current.click()
+      } else {
+        setCollabLink('')
+        input.current.focus()
+      }
+    }
+    prevResetOnChange.current = resetOnChange
+  }, [resetOnChange, random])
 
   const handleCollabLinkChange = e => {
     setCollabLink(e.target.value)
@@ -31,6 +42,7 @@ function CollabLink(props) {
       input.current.focus()
       return
     }
+    setRandom(false)
     // get YT video ID
     let id = collabLink
     let service = 'youtube'
@@ -86,6 +98,7 @@ function CollabLink(props) {
   }
 
   const getRandom = e => {
+    setRandom(true)
     // call youtaite-network-api.herokuapp.com to get title & description from ID
     axios(`https://youtaite-network-api.herokuapp.com/collabs/new_random`, {
       headers: {
@@ -150,7 +163,7 @@ function CollabLink(props) {
       <Button className="m-1" ref={defaultButton} variant="primary" onClick={handleClick}>
         Analyze link
       </Button>
-      <Button className="m-1" variant="info" onClick={getRandom}>
+      <Button className="m-1" ref={randomButton} variant="info" onClick={getRandom}>
         I'm feeling lucky
       </Button>
     </Form.Group>

@@ -22,6 +22,7 @@ class Submit extends React.Component {
       selected: [],
       currentMiscId: '',
       resetCollabLinkOnChange: false,
+      random: false,
     }
 
     // general event handlers
@@ -31,22 +32,36 @@ class Submit extends React.Component {
     this.onRoleSuggestionSelected = this.onRoleSuggestionSelected.bind(this)
     this.removePersonFromSelected = this.removePersonFromSelected.bind(this)
     this.removeRoleFromSelected = this.removeRoleFromSelected.bind(this)
+    this.setRandom = this.setRandom.bind(this)
   }
 
   resetState() {
-    this.setState(prevState => {
-      return {
-        ytId: '',
-        showSubmitForm: false,
-        title: '',
-        byline: '',
-        thumbnail: '',
-        description: '',
-        selected: [],
-        currentMiscId: '',
-        resetCollabLinkOnChange: !prevState.resetCollabLinkOnChange,
-      }
-    })
+    if (this.state.random) {
+      this.setState(prevState => {
+        return {
+          showSubmitForm: true,
+          selected: [],
+          currentMiscId: '',
+          resetCollabLinkOnChange: !prevState.resetCollabLinkOnChange,
+          random: true,
+        }
+      })
+    } else {
+      this.setState(prevState => {
+        return {
+          ytId: '',
+          showSubmitForm: false,
+          title: '',
+          byline: '',
+          thumbnail: '',
+          description: '',
+          selected: [],
+          currentMiscId: '',
+          resetCollabLinkOnChange: !prevState.resetCollabLinkOnChange,
+          random: false,
+        }
+      })
+    }
   }
 
   handleSubmit(e) {
@@ -151,6 +166,10 @@ class Submit extends React.Component {
     })
   }
 
+  setRandom(value) {
+    this.setState({ random: value })
+  }
+
   render() {
     const currentPerson = this.state.selected.find(person => person.misc_id === this.state.currentMiscId)
     return (
@@ -158,7 +177,7 @@ class Submit extends React.Component {
         <h2>Submit a Collab</h2>
         <p>Hi there! This form is not quite complete :) but feel free to mess around anyway! You'll need to sign in with Google before you can do anything though.</p>
         <Form onSubmit={this.handleSubmit}>
-          <CollabLink onSubmit={this.useSubmitForm} resetOnChange={this.state.resetCollabLinkOnChange} />
+          <CollabLink onSubmit={this.useSubmitForm} resetOnChange={this.state.resetCollabLinkOnChange} setRandom={this.setRandom} random={this.state.random} />
           <div id="submit-form" style={{display: this.state.showSubmitForm ? 'block' : 'none'}}>
             <hr/>
             <SelectedBox 
