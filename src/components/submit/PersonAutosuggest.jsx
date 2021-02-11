@@ -49,9 +49,9 @@ class PersonAutosuggest extends React.Component {
 
   // calculate person suggestions for any given input value
   getSuggestions(value) {
-    const inputValue = value.replace(/[ \t\n\.]/g, '').toLowerCase()
+    const inputValue = value.replace(/[ \t\n.]/g, '').toLowerCase()
     let suggestions = inputValue.length === 0 ? [] : this.props.people.filter(person => {
-      return person.name.replace(/[ \t\n\.]/g, '').toLowerCase().includes(inputValue)
+      return person.name.replace(/[ \t\n.]/g, '').toLowerCase().includes(inputValue)
     })
     suggestions = suggestions.slice(0, 10)
     suggestions.push({name: 'Add new person', misc_id: 'add new'})
