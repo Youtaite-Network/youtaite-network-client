@@ -109,7 +109,7 @@ class AddNewPersonDialog extends React.Component {
 
   render() {    
     return (
-      <Modal show={this.props.show} onHide={this.props.handleClose}>
+      <Modal animation={false} restoreFocus={false} show={this.props.show} onHide={this.props.handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Add New Person</Modal.Title>
         </Modal.Header>

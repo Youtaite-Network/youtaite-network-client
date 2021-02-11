@@ -53,12 +53,12 @@ class PeopleForm extends React.Component {
   // Autosuggest: what to do when person suggestion is selected
   onPersonSuggestionSelected(e, { suggestion }) {
     if (!e.metaKey) { // user meant to switch inputs, not enter suggestion
-      this.roleInput.current.focus()
       if (suggestion.misc_id === 'add new') {
         this.setState({
           showAddNewPersonDialog: true,
         })
       } else {
+        this.roleInput.current.focus()
         this.props.addPersonToSelected(suggestion)
         // move person to top
         this.setState(prevState => {
@@ -96,6 +96,7 @@ class PeopleForm extends React.Component {
     this.setState({
       showAddNewPersonDialog: false,
     })
+    this.personInput.current.focus()
   }
 
   addNewPerson(newPerson) {
@@ -109,6 +110,7 @@ class PeopleForm extends React.Component {
         showAddNewPersonDialog: false,
       }
     })
+    this.roleInput.current.focus()
     this.props.addPersonToSelected(newPerson)
   }
 
@@ -123,7 +125,7 @@ class PeopleForm extends React.Component {
     return (
       <>
         <Card className="sticky-top mb-3" bg="light">
-          <Card.Header>{'Press enter or click to select an option. Cmd/ctrl-enter switches between the two inputs.'}</Card.Header>
+          <Card.Header>{'Cmd/ctrl-enter to switch between the two inputs. Type "." to quickly bring up "Add new person" option.'}</Card.Header>
           <Card.Body>
             <Form.Row className='mb-2'>
               <Col>
