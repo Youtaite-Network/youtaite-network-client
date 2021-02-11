@@ -49,7 +49,7 @@ class PersonAutosuggest extends React.Component {
 
   // calculate person suggestions for any given input value
   getSuggestions(value) {
-    const inputValue = value.replace(/\W/g, '').toLowerCase()
+    const inputValue = value.replace(/[ \t\n]/g, '').toLowerCase()
     let suggestions = inputValue.length === 0 ? [] : this.props.people.filter(person => {
       return person.name.replace(/\W/g, '').toLowerCase().includes(inputValue)
     })

@@ -53,7 +53,7 @@ class RoleAutosuggest extends React.Component {
 
   // Auosuggest: calculate role suggestions based on input
   getSuggestions(value) {
-    const inputValue = value.replace(/\W/g, '').toLowerCase()
+    const inputValue = value.replace(/[ \t\n]/g, '').toLowerCase()
     const suggestions = inputValue.length === 0 ? [] : this.state.roles.filter(role => {
       return !this.props.takenRoles.includes(role) && role.toLowerCase().includes(inputValue)
     })
