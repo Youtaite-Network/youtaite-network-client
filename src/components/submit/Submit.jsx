@@ -104,6 +104,7 @@ class Submit extends React.Component {
   useSubmitForm(title, byline, description, ytId) {
     localStorage.setItem('ytId', ytId)
     this.setState({
+      selected: [],
       showSubmitForm: true,
       title,
       byline,
