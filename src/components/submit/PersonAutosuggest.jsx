@@ -51,7 +51,7 @@ class PersonAutosuggest extends React.Component {
   getSuggestions(value) {
     const inputValue = value.replace(/[ \t\n]/g, '').toLowerCase()
     let suggestions = inputValue.length === 0 ? [] : this.props.people.filter(person => {
-      return person.name.replace(/\W/g, '').toLowerCase().includes(inputValue)
+      return person.name.replace(/[ \t\n]/g, '').toLowerCase().includes(inputValue)
     })
     suggestions.push({name: 'Add new person', misc_id: 'add new'})
     return suggestions
