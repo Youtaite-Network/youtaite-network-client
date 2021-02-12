@@ -18,7 +18,7 @@ function GoogleLoginWrapper() {
         Cookies.set('access-token', response.headers['access-token'], {
           expires: new Date(response.headers['access-token-expiry'])
         })
-        setAlert('sign-in')
+        setAlert(['sign-in'])
       })
       .catch(error => {
         setAlert(['sign-in', 'Sign in failed', 'danger'])
@@ -27,7 +27,9 @@ function GoogleLoginWrapper() {
   }
 
   const onFailure = error => {
-    setAlert(['sign-in', 'Sign in failed', 'danger'])
+    if (error.error === 'idpiframe_initialization_failed') {
+      setAlert(['sign-in', 'Please enable 3rd party cookies to use this site in incognito.', 'danger'])
+    }
     console.log(error)
   }
 
