@@ -53,10 +53,11 @@ function CollabLink(props) {
 
   const handleClick = e => {
     if (!collabLink) {
-      setAlert({ message: 'Enter a Youtube video first', variant: 'info' })
+      setAlert('enter-video', 'Enter a Youtube video link', 'info')
       input.current.focus()
       return
     }
+    setAlert('enter-video')
     setRandom(false)
     // get YT video ID
     let id = collabLink
@@ -98,7 +99,6 @@ function CollabLink(props) {
             let {name} = response.data
             let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
             onSubmit(title, byline, description, id)
-            setAlert({ message: '', variant: '' })
           }).catch(error => {
             console.error(error)
           })
@@ -106,7 +106,7 @@ function CollabLink(props) {
         console.error(error)
         if (error.response) {
           if (error.response.status === 403) {
-            setAlert({ message: 'Please sign in', variant: 'danger' })
+            setAlert('sign-in', 'Please sign in', 'danger')
           }
         }
       })
@@ -142,7 +142,7 @@ function CollabLink(props) {
             let {name} = response.data
             let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
             onSubmit(title, byline, description, yt_id)
-            setAlert({ message: '', variant: '' })
+            setAlert('enter-video')
           }).catch(error => {
             console.error(error)
           })
@@ -150,7 +150,7 @@ function CollabLink(props) {
         console.error(error)
         if (error.response) {
           if (error.response.status === 403) {
-            setAlert({ message: 'Please sign in', variant: 'danger' })
+            setAlert('sign-in', 'Please sign in', 'danger')
           }
         }
       })

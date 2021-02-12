@@ -1,36 +1,19 @@
-import React from 'react'
+import React, { useState, useRef } from 'react'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
-class FindChannelByLink extends React.Component {
-  constructor(props) {
-    super(props);
-    // PROPS
-    // handleNoYTChannel
-    // handleSubmit
-    // input
-    this.state = {
-      channelLink: '',
-    };
+function FindChannelByLink({handleNoYTChannel, handleSubmit, input}) {
+  const [channelLink, setChannelLink] = useState('')
+  const defaultButton = useRef(null)
 
-    // refs
-    this.defaultButton = React.createRef()
-    // event handlers
-    this.handleChannelLinkChange = this.handleChannelLinkChange.bind(this)
-    this.analyzeChannelLink = this.analyzeChannelLink.bind(this)
-    this.handleKeyDown = this.handleKeyDown.bind(this)
+  const handleChannelLinkChange = e => {
+    setChannelLink(e.target.value)
   }
 
-  handleChannelLinkChange(e) {
-    this.setState({
-      channelLink: e.target.value,
-    })
-  }
-
-  analyzeChannelLink(e) {
-    let link = this.state.channelLink
+  const analyzeChannelLink = e => {
+    let link = channelLink
     if (link.startsWith('http')) { // remove protocol
       let url = new URL(link)
       link = `${url.hostname}${url.pathname}` 
@@ -46,42 +29,40 @@ class FindChannelByLink extends React.Component {
         Cookies.set('access-token', response.headers['access-token'], {
           expires: new Date(response.headers['expiry'])
         })
-        this.props.handleSubmit(this.state.channelLink, response.data)
+        handleSubmit(channelLink, response.data)
       })
       .catch(response => {
         console.error(response)
       })
   }
 
-  handleKeyDown(e) {
+  const handleKeyDown = e => {
     if (e.key === 'Enter') {
-      this.defaultButton.current.click()
+      defaultButton.current.click()
     }
   }
 
-  render() {
-    return (
+  return (
+    <Form.Group>
       <Form.Group>
-        <Form.Group>
-          <Form.Label>Link (Youtube or Twitter)</Form.Label>
-          <Form.Control 
-            type="channel_link" 
-            placeholder="https://youtube.com/channel/XXXXXXXXX" 
-            value={this.state.channelLink} 
-            onChange={this.handleChannelLinkChange}
-            onKeyDown={this.handleKeyDown}
-            ref={this.props.input}
-          />
-        </Form.Group>
-        <Button className="mr-1" variant="secondary" onClick={this.props.handleNoYTChannel}>
-          No YT or TW link available
-        </Button>
-        <Button ref={this.defaultButton} className="ml-1" variant="primary" disabled={this.state.channelLink.length === 0} onClick={this.analyzeChannelLink}>
-          Analyze link
-        </Button>
+        <Form.Label>Link (Youtube or Twitter)</Form.Label>
+        <Form.Control 
+          type="channel_link" 
+          placeholder="https://youtube.com/channel/XXXXXXXXX" 
+          value={channelLink} 
+          onChange={handleChannelLinkChange}
+          onKeyDown={handleKeyDown}
+          ref={input}
+        />
       </Form.Group>
-    );
-  }
+      <Button className="mr-1" variant="secondary" onClick={handleNoYTChannel}>
+        No YT or TW link available
+      </Button>
+      <Button ref={defaultButton} className="ml-1" variant="primary" disabled={channelLink.length === 0} onClick={analyzeChannelLink}>
+        Analyze link
+      </Button>
+    </Form.Group>
+  );
 }
 
 export default FindChannelByLink;

@@ -14,9 +14,26 @@ import Alert from 'react-bootstrap/Alert'
 import AlertContext from './components/AlertContext'
 
 function App() {
-  const [alert, setAlert] = useState([])
+  const [alerts, setAlerts] = useState([])
   const alertContext = {
-    setAlert: setAlert
+    setAlert: function(id, message, variant) {
+      const index = alerts.findIndex(alert => alert.id === id)
+      if (message) {
+        if (index >= 0) {
+          // remove previous id alert, add new alert to end
+          setAlerts(alerts.slice(0, index)
+            .concat(alerts.slice(index + 1))
+            .concat([{id, message, variant}]))
+        } else {
+          // add new alert to end
+          setAlerts([...alerts, {id, message, variant}])
+        }
+      } else {
+        // remove previous id alert
+        setAlerts(alerts.slice(0, index)
+          .concat(alerts.slice(index + 1)))
+      }
+    }
   }
 
   return (
@@ -36,9 +53,11 @@ function App() {
             </Navbar.Collapse>
           </Navbar>
           <div className="container">
-            <Alert show={!!alert.message} variant={alert.variant}>
-              {alert.message}
-            </Alert>
+            {alerts.map(alert => 
+              <Alert key={alert.id} variant={alert.variant}>
+                {alert.message}
+              </Alert>
+            )}
           </div>
 
           {/* A <Switch> looks through its children <Route>s and

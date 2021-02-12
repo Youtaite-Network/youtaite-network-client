@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import ChannelResults from './ChannelResults'
@@ -7,143 +7,106 @@ import FindChannelByVideo from './FindChannelByVideo'
 import FindChannelByLink from './FindChannelByLink'
 import EnterAlias from './EnterAlias'
 
-class AddNewPersonDialog extends React.Component {
-  constructor(props) {
-    super(props);
-    // PROPS
-    // show
-    // addNewPerson
-    // handleClose
-    this.state = {
-      showChannelResults: false,
-      showFindChannelByVideo: false,
-      showOtherSocial: false,
-      showEnterAlias: false,
-      channelResults: [],
-      channelLink: '',
-    };
-
-    // refs
-    this.channelLinkInput = React.createRef()
-    // event handlers
-    this.handleNoYTChannel = this.handleNoYTChannel.bind(this)
-    this.useFindChannelByVideo = this.useFindChannelByVideo.bind(this)
-    this.addNewPerson = this.addNewPerson.bind(this)
-    this.handleNoYTVideo = this.handleNoYTVideo.bind(this)
-    this.useOtherSocial = this.useOtherSocial.bind(this)
-    this.analyzeChannelData = this.analyzeChannelData.bind(this)
-  }
-
-  componentDidUpdate(prevProps) {
-    if (!prevProps.show && this.props.show) {
-      this.channelLinkInput.current.focus()
+function AddNewPersonDialog({show, handleAddNewPerson, handleClose}) {
+  // state
+  const [showChannelResults, setShowChannelResults] = useState(false)
+  const [showFindChannelByVideo, setShowFindChannelByVideo] = useState(false)
+  const [showOtherSocial, setShowOtherSocial] = useState(false)
+  const [showEnterAlias, setShowEnterAlias] = useState(false)
+  const [channelResults, setChannelResults] = useState([])
+  const [channelLink, setChannelLink] = useState('')
+  // refs
+  const channelLinkInput = useRef('')
+  // if show changes from false => true, then focus input
+  useEffect(() => {
+    if (show) {
+      channelLinkInput.current.focus()
     }
+  }, [show])
+
+  const resetState = () => {
+    setShowChannelResults(false)
+    setShowFindChannelByVideo(false)
+    setShowOtherSocial(false)
+    setShowEnterAlias(false)
+    setChannelResults([])
+    setChannelLink('')
   }
 
-  resetState(callback) {
-    this.setState({
-      showChannelResults: false,
-      showFindChannelByVideo: false,
-      showOtherSocial: false,
-      showEnterAlias: false,
-      channelResults: [],
-      channelLink: '',
-    })
+  const handleNoYTVideo = e => {
+    setShowChannelResults(false)
+    setShowFindChannelByVideo(false)
+    setShowOtherSocial(false)
+    setShowEnterAlias(true)
   }
 
-  handleNoYTChannel(e) {
-    this.setState({
-      showChannelResults: false,
-      showFindChannelByVideo: false,
-      showOtherSocial: true,
-      showEnterAlias: false,
-    })
+  const useFindChannelByVideo = e => {
+    setShowChannelResults(false)
+    setShowFindChannelByVideo(true)
+    setShowOtherSocial(false)
+    setShowEnterAlias(false)
   }
 
-  handleNoYTVideo(e) {
-    this.setState({
-      showChannelResults: false,
-      showFindChannelByVideo: false,
-      showOtherSocial: false,
-      showEnterAlias: true,
-    })
+  const useOtherSocial = e => {
+    setShowChannelResults(false)
+    setShowFindChannelByVideo(false)
+    setShowOtherSocial(true)
+    setShowEnterAlias(false)
   }
 
-  useFindChannelByVideo(e) {
-    this.setState({
-      showChannelResults: false,
-      showFindChannelByVideo: true,
-      showOtherSocial: false,
-      showEnterAlias: false,
-    })
-  }
-
-  useOtherSocial(e) {
-    this.setState({
-      showChannelResults: false,
-      showFindChannelByVideo: false,
-      showOtherSocial: true,
-      showEnterAlias: false,
-    })
-  }
-
-  analyzeChannelData(channelLink, data) {
+  const analyzeChannelData = (channelLink, data) => {
     if (Array.isArray(data)) {
-      this.setState({
-        showChannelResults: true,
-        showFindChannelByVideo: false,
-        showOtherSocial: false,
-        showEnterAlias: false,
-        channelLink: channelLink,
-        channelResults: data, // [{name, yt_id, thumbnail}, ...]
-      })
+      setShowChannelResults(true)
+      setShowFindChannelByVideo(false)
+      setShowOtherSocial(false)
+      setShowEnterAlias(false)
+      setChannelLink(channelLink)
+      setChannelResults(data)
     } else {
-      this.addNewPerson(data)
+      addNewPerson(data)
     }
   }
 
-  addNewPerson(person) {
-    this.props.addNewPerson(person)
-    this.resetState()
+  const addNewPerson = person => {
+    handleAddNewPerson(person)
+    resetState()
   }
 
-  render() {    
-    return (
-      <Modal animation={false} restoreFocus={false} show={this.props.show} onHide={this.props.handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add New Person</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <FindChannelByLink
-            input={this.channelLinkInput}
-            handleNoYTChannel={this.useOtherSocial}
-            handleSubmit={this.analyzeChannelData} />
-          <ChannelResults 
-            show={this.state.showChannelResults}
-            data={this.state.channelResults}
-            handleChannelFound={this.addNewPerson}
-            handleChannelNotFound={this.useFindChannelByVideo} />
-          <FindChannelByVideo
-            show={this.state.showFindChannelByVideo}
-            channelLink={this.state.channelLink}
-            handleNoYTVideo={this.handleNoYTVideo}
-            handleSubmit={this.addNewPerson} />
-          <OtherSocial
-            show={this.state.showOtherSocial}
-            handleSubmit={this.addNewPerson} />
-          <EnterAlias
-            show={this.state.showEnterAlias}
-            channelLink={this.state.channelLink}
-            handleSubmit={this.addNewPerson} />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={this.props.handleClose}>
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+  return (
+    <Modal animation={false} restoreFocus={false} show={show} onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>Add New Person</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <FindChannelByLink
+          input={channelLinkInput}
+          handleNoYTChannel={useOtherSocial}
+          handleSubmit={analyzeChannelData} />
+        <ChannelResults 
+          show={showChannelResults}
+          data={channelResults}
+          handleChannelFound={addNewPerson}
+          handleChannelNotFound={useFindChannelByVideo} />
+        <FindChannelByVideo
+          show={showFindChannelByVideo}
+          channelLink={channelLink}
+          handleNoYTVideo={handleNoYTVideo}
+          handleSubmit={addNewPerson} />
+        <OtherSocial
+          show={showOtherSocial}
+          handleSubmit={addNewPerson} />
+        <EnterAlias
+          show={showEnterAlias}
+          channelLink={channelLink}
+          handleSubmit={addNewPerson} />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose}>
+          Cancel
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
 }
 
 export default AddNewPersonDialog;

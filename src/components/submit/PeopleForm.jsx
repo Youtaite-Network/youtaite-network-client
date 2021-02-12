@@ -152,7 +152,7 @@ class PeopleForm extends React.Component {
         <AddNewPersonDialog
           show={this.state.showAddNewPersonDialog}
           handleClose={this.hideAddNewPersonDialog}
-          addNewPerson={this.addNewPerson} />
+          handleAddNewPerson={this.addNewPerson} />
       </>
     );
   }

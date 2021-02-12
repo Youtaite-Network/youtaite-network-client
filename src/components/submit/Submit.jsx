@@ -13,7 +13,7 @@ class Submit extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      ytId: '',
+      ytId: this.props.ytId || '',
       showSubmitForm: false,
       title: '',
       byline: '',
@@ -38,7 +38,7 @@ class Submit extends React.Component {
   componentDidMount() {
     const selected = localStorage.getItem('selected')
     const currentMiscId = localStorage.getItem('currentMiscId')
-    if (selected) {
+    if (selected && Cookies.get('access-token')) {
       this.setState({
         showSubmitForm: true,
         selected: JSON.parse(selected),

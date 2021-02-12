@@ -1,18 +1,13 @@
-import React from "react";
+import React, { useContext } from 'react'
 import GoogleLogin from 'react-google-login'
 import axios from 'axios'
 import Cookies from 'js-cookie'
+import AlertContext from './AlertContext'
 
-class GoogleLoginWrapper extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
+function GoogleLoginWrapper() {
+  const { setAlert } = useContext(AlertContext)
 
-    this.onSuccess = this.onSuccess.bind(this)
-    this.onFailure = this.onFailure.bind(this)
-  }
-
-  onSuccess(user) {
+  const onSuccess = user => {
     let idtoken = user.getAuthResponse().id_token
     const params = new URLSearchParams()
     params.append('idtoken', idtoken)
@@ -23,28 +18,29 @@ class GoogleLoginWrapper extends React.Component {
         Cookies.set('access-token', response.headers['access-token'], {
           expires: new Date(response.headers['expiry'])
         })
+        setAlert('sign-in')
       })
       .catch(error => {
+        setAlert('sign-in', 'Sign in failed', 'danger')
         console.log(error)
       })
   }
 
-  onFailure(error) {
+  const onFailure = error => {
+    setAlert('sign-in', 'Sign in failed', 'danger')
     console.log(error)
   }
 
-  render() {
-    return (
-      <GoogleLogin
-        clientId="242592601877-1unlb9i5rj8ianutc3o8cfgeu84t83a8.apps.googleusercontent.com"
-        buttonText="Sign in"
-        onSuccess={this.onSuccess}
-        onFailure={this.onFailure}
-        cookiePolicy={'single_host_origin'}
-      />
-    );
-  }
+  return (
+    <GoogleLogin
+      clientId="242592601877-1unlb9i5rj8ianutc3o8cfgeu84t83a8.apps.googleusercontent.com"
+      buttonText="Sign in"
+      onSuccess={onSuccess}
+      onFailure={onFailure}
+      cookiePolicy={'single_host_origin'}
+    />
+  )
 }
 
-export default GoogleLoginWrapper;
+export default GoogleLoginWrapper
 

@@ -1,141 +1,128 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
-class UseOtherSocial extends React.Component {
-  constructor(props) {
-    super(props);
-    // PROPS
-    // show
-    // handleSubmit
-    this.state = {
-      alias: '',
-      socialLink: '',
-    };
+function UseOtherSocial({show, handleSubmit}) {
+  // state/context
+  const [alias, setAlias] = useState('')
+  const [socialLink, setSocialLink] = useState('')
 
-    // refs
-    this.igRadio = React.createRef()
-    this.fbRadio = React.createRef()
-    this.scRadio = React.createRef()
-    this.tumblrRadio = React.createRef()
-    this.otherRadio = React.createRef()
-    this.input = React.createRef()
-    // event handlers
-    this.handleAliasChange = this.handleAliasChange.bind(this)
-    this.handleSocialLinkChange = this.handleSocialLinkChange.bind(this)
-    this.handleAdd = this.handleAdd.bind(this)
-  }
+  // refs
+  const igRadio = useRef(null)
+  const fbRadio = useRef(null)
+  const scRadio = useRef(null)
+  const tumblrRadio = useRef(null)
+  const otherRadio = useRef(null)
+  const input = useRef(null)
 
-  componentDidUpdate(prevProps) {
-    if (!prevProps.show && this.props.show) {
-      this.input.current.focus()
+  // if show changed from false => true, focus input
+  useEffect(() => {
+    if (show) {
+      input.current.focus()
     }
+  }, [show])
+
+  const handleAliasChange = e => {
+    setAlias(e.target.value)
   }
 
-  handleAliasChange(e) {
-    this.setState({
-      alias: e.target.value,
-    })
+  const handleSocialLinkChange = e => {
+    setSocialLink(e.target.value)
   }
 
-  handleSocialLinkChange(e) {
-    this.setState({
-      socialLink: e.target.value,
-    })
-  }
-
-  handleAdd(e) {
-    let link = this.state.socialLink
+  const handleAdd = e => {
+    let link = socialLink
     if (link.startsWith('http')) { // remove protocol
       let url = new URL(link)
       link = `${url.hostname}${url.pathname}` 
     }
     let person = {}
     person.thumbnail = '#'
-    person.name = this.state.alias
+    person.name = alias
     person.misc_id = link
 
-    if (this.state.socialLink === '') {
-      person.misc_id = this.state.alias
+    if (socialLink === '') {
+      person.misc_id = alias
       person.id_type = 'no_link'
-    } else if (this.igRadio.current.checked) {
+    } else if (igRadio.current.checked) {
       person.id_type = 'ig'
-    } else if (this.fbRadio.current.checked) {
+    } else if (fbRadio.current.checked) {
       person.id_type = 'fb'
-    } else if (this.scRadio.current.checked) {
+    } else if (scRadio.current.checked) {
       person.id_type = 'soundcloud'
-    } else if (this.tumblrRadio.current.checked) {
+    } else if (tumblrRadio.current.checked) {
       person.id_type = 'tumblr'
     } else {
       person.id_type = 'other'
     }
-    this.props.handleSubmit(person)
+    handleSubmit(person)
   }
 
-  render() {
-    return (
-      <div className={this.props.show ? '' : 'd-none'}>
-        <hr/>
-        <Form.Group>
-          <Form.Label>Enter alias</Form.Label>
-          <Form.Control
-            type="alias"
-            placeholder="Alias"
-            value={this.state.alias}
-            onChange={this.handleAliasChange}
-            ref={this.input} />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Enter another social link (blank if none)</Form.Label>
-          <Form.Control
-            type="social_link"
-            placeholder="https://instagram.com/XXXXX"
-            value={this.state.socialLink}
-            onChange={this.handleSocialLinkChange} />
-        </Form.Group>
-        <Form.Group>
-          <Form.Check 
-            id="ig-radio"
-            type="radio"
-            label="instagram"
-            name="social-type"
-            ref={this.igRadio}
-          />
-          <Form.Check 
-            id="fb-radio"
-            type="radio"
-            label="facebook"
-            name="social-type"
-            ref={this.fbRadio}
-          />
-          <Form.Check 
-            id="sc-radio"
-            type="radio"
-            label="soundcloud"
-            name="social-type"
-            ref={this.scRadio}
-          />
-          <Form.Check 
-            id="tumblr-radio"
-            type="radio"
-            label="tumblr"
-            name="social-type"
-            ref={this.tumblrRadio}
-          />
-          <Form.Check 
-            id="other-radio"
-            type="radio"
-            label="other/no link"
-            name="social-type"
-            ref={this.otherRadio}
-          />
-        </Form.Group>
-        <Button className="ml-1" variant="primary" disabled={this.state.alias.length === 0} onClick={this.handleAdd}>
-          Add
-        </Button>
-      </div>
-    );
-  }
+  return (
+    <div className={show ? '' : 'd-none'}>
+      <hr/>
+      <Form.Group>
+        <Form.Label>Enter alias</Form.Label>
+        <Form.Control
+          type="alias"
+          placeholder="Alias"
+          value={alias}
+          onChange={handleAliasChange}
+          ref={input} />
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>Enter another social link (blank if none)</Form.Label>
+        <Form.Control
+          type="social_link"
+          placeholder="https://instagram.com/XXXXX"
+          value={socialLink}
+          onChange={handleSocialLinkChange} />
+      </Form.Group>
+      <Form.Group>
+        <Form.Check 
+          id="ig-radio"
+          type="radio"
+          label="instagram"
+          name="social-type"
+          ref={igRadio}
+        />
+        <Form.Check 
+          id="fb-radio"
+          type="radio"
+          label="facebook"
+          name="social-type"
+          ref={fbRadio}
+        />
+        <Form.Check 
+          id="sc-radio"
+          type="radio"
+          label="soundcloud"
+          name="social-type"
+          ref={scRadio}
+        />
+        <Form.Check 
+          id="tumblr-radio"
+          type="radio"
+          label="tumblr"
+          name="social-type"
+          ref={tumblrRadio}
+        />
+        <Form.Check 
+          id="other-radio"
+          type="radio"
+          label="other/no link"
+          name="social-type"
+          defaultChecked={true}
+          ref={otherRadio}
+        />
+      </Form.Group>
+      <Button className="ml-1" variant="primary" 
+        onClick={handleAdd}
+        disabled={alias.length === 0}>
+        Add
+      </Button>
+    </div>
+  )
 }
 
 export default UseOtherSocial
