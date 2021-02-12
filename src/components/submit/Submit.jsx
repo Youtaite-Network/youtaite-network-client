@@ -1,7 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
+import Toast from 'react-bootstrap/Toast'
 import Button from 'react-bootstrap/Button'
+import Image from 'react-bootstrap/Image'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import VideoDescription from './VideoDescription'
@@ -22,6 +24,7 @@ function Submit(props) {
   const [currentMiscId, setCurrentMiscId] = useState('')
   const [resetCollabLinkOnChange, setResetCollabLinkOnChange] = useState(false)
   const [random, setRandom] = useState(false)
+  const [tooltip, setTooltip] = useState({})
   const {setAlert} = useContext(AlertContext)
 
   useEffect(() => {
@@ -159,41 +162,62 @@ function Submit(props) {
       .concat(selected.slice(personIndex + 1)))
   }
 
+  const setTooltipData = (tooltipData) => {
+    setTooltip(tooltipData)
+  }
+
   const currentPerson = selected.find(person => person.misc_id === currentMiscId)
   return (
-    <div className='container mt-3'>
-      <h2>Submit a Collab</h2>
-      <p>Hi there! This form is not quite complete :) but feel free to mess around anyway! You'll need to sign in with Google before you can do anything though.</p>
-      <Form onSubmit={handleSubmit}>
-        <CollabLink onSubmit={useSubmitForm} resetOnChange={resetCollabLinkOnChange} setRandom={setRandom} random={random} />
-        <div id="submit-form" className={showSubmitForm ? '' : 'd-none'}>
-          <hr/>
-          <SelectedBox 
-            items={selected} 
-            current={currentMiscId}
-            removePerson={removePersonFromSelected}
-            removeRole={removeRoleFromSelected} />
-          <PeopleForm
-            show={showSubmitForm}
-            handleSubmit={handleSubmit}
-            removeCollab={removeCollab}
-            onRoleSuggestionSelected={onRoleSuggestionSelected}
-            currentPerson={currentPerson}
-            addPersonToSelected={addPersonToSelected} />
-          <hr/>
-          <Card className="clearfix" id="collab-info">
-            <Card.Header><a href={`https://youtube.com/watch?v=${ytId}`}>{title}</a></Card.Header>
-            <Card.Body>
-              <Video ytId={ytId} />
-              <VideoDescription byline={byline} description={description} />
-              <Button className="w-100 mt-2" variant="secondary" type="button" onClick={removeCollab}>
-                Not a collab
-              </Button>
-            </Card.Body>
-          </Card>
-        </div>
-      </Form>
-    </div>
+    <>
+      <div className='container mt-3'>
+        <h2>Submit a Collab</h2>
+        <p>Hi there! This form is not quite complete :) but feel free to mess around anyway! You'll need to sign in with Google before you can do anything though.</p>
+        <Form onSubmit={handleSubmit}>
+          <CollabLink onSubmit={useSubmitForm} resetOnChange={resetCollabLinkOnChange} setRandom={setRandom} random={random} />
+          <div id="submit-form" className={showSubmitForm ? '' : 'd-none'}>
+            <hr/>
+            <SelectedBox 
+              items={selected} 
+              current={currentMiscId}
+              removePerson={removePersonFromSelected}
+              removeRole={removeRoleFromSelected} />
+            <PeopleForm
+              show={showSubmitForm}
+              handleSubmit={handleSubmit}
+              removeCollab={removeCollab}
+              onRoleSuggestionSelected={onRoleSuggestionSelected}
+              currentPerson={currentPerson}
+              addPersonToSelected={addPersonToSelected} />
+            <hr/>
+            <Card className="clearfix" id="collab-info">
+              <Card.Header><a href={`https://youtube.com/watch?v=${ytId}`}>{title}</a></Card.Header>
+              <Card.Body>
+                <Video ytId={ytId} />
+                <VideoDescription byline={byline} description={description} setTooltipData={setTooltipData} />
+                <Button className="w-100 mt-2" variant="secondary" type="button" onClick={removeCollab}>
+                  Not a collab
+                </Button>
+              </Card.Body>
+            </Card>
+          </div>
+        </Form>
+      </div>
+      <Toast className={tooltip.show ? '' : 'd-none'} 
+        bg="light" text="dark" style={{position: 'absolute', maxWidth: '200px', top: tooltip.y, left: tooltip.x}}>
+        <Toast.Header>
+          <Image className="mr-2" width="40px" height="40px" roundedCircle src={tooltip.thumbnail} />
+          <strong className="text-truncate mr-auto">
+            <a href={tooltip.link}>
+              {tooltip.name}
+            </a>
+          </strong>
+        </Toast.Header>
+        <Toast.Body className="p-0">
+          <Button type="button" className="w-50">Add</Button>
+          <Button type="button" variant="secondary" className="w-50">Copy</Button>
+        </Toast.Body>
+      </Toast>
+    </>
   )
 }
 
