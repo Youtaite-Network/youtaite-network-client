@@ -27,7 +27,7 @@ function FindChannelByLink({handleNoYTChannel, handleSubmit, input}) {
     })
       .then(response => {
         Cookies.set('access-token', response.headers['access-token'], {
-          expires: new Date(response.headers['expiry'])
+          expires: new Date(response.headers['access-token-expiry'])
         })
         handleSubmit(channelLink, response.data)
       })

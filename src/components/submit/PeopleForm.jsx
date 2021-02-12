@@ -144,8 +144,8 @@ class PeopleForm extends React.Component {
                   handleKeyDown={this.handleRoleKeyDown} />
               </Col>
             </Form.Row>
-            <Button variant="primary" type="button" onClick={this.props.handleSubmit} className="w-100">
-              Submit All
+            <Button className="w-100" variant="primary" type="button" onClick={this.props.handleSubmit}>
+              Submit all
             </Button>
           </Card.Body>
         </Card>

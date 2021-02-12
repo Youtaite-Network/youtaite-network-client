@@ -16,24 +16,19 @@ import AlertContext from './components/AlertContext'
 function App() {
   const [alerts, setAlerts] = useState([])
   const alertContext = {
-    setAlert: function(id, message, variant) {
-      const index = alerts.findIndex(alert => alert.id === id)
-      if (message) {
+    setAlert: function(...args) {
+      let newAlerts = [...alerts]
+      args.forEach(([id, message, variant]) => {
+        const index = newAlerts.findIndex(alert => alert.id === id)
         if (index >= 0) {
-          // remove previous id alert, add new alert to end
-          setAlerts(alerts.slice(0, index)
-            .concat(alerts.slice(index + 1))
-            .concat([{id, message, variant}]))
-        } else {
-          // add new alert to end
-          setAlerts([...alerts, {id, message, variant}])
+          newAlerts.splice(index, 1)
         }
-      } else {
-        // remove previous id alert
-        setAlerts(alerts.slice(0, index)
-          .concat(alerts.slice(index + 1)))
-      }
-    }
+        if (message) {
+          newAlerts.push({id, message, variant})
+        }
+      })
+      setAlerts(newAlerts)
+    },
   }
 
   return (

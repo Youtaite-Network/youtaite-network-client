@@ -53,11 +53,11 @@ function CollabLink(props) {
 
   const handleClick = e => {
     if (!collabLink) {
-      setAlert('enter-video', 'Enter a Youtube video link', 'info')
+      setAlert(['remove-collab'], ['enter-video', 'Enter a Youtube video link', 'info'])
       input.current.focus()
       return
     }
-    setAlert('enter-video')
+    setAlert(['enter-video'], ['remove-collab'])
     setRandom(false)
     // get YT video ID
     let id = collabLink
@@ -80,7 +80,7 @@ function CollabLink(props) {
       .then(response => {
         // set cookies
         Cookies.set('access-token', response.headers['access-token'], {
-          expires: new Date(response.headers['expiry'])
+          expires: new Date(response.headers['access-token-expiry'])
         })
         let {title, description, channel_id} = response.data
         // get info about channel that posted collab
@@ -93,7 +93,7 @@ function CollabLink(props) {
           .then(response => {
             // set cookies
             Cookies.set('access-token', response.headers['access-token'], {
-              expires: new Date(response.headers['expiry'])
+              expires: new Date(response.headers['access-token-expiry'])
             })
             console.log(response.data)
             let {name} = response.data
@@ -104,16 +104,15 @@ function CollabLink(props) {
           })
       }).catch(error => {
         console.error(error)
-        if (error.response) {
-          if (error.response.status === 403) {
-            setAlert('sign-in', 'Please sign in', 'danger')
-          }
+        if (error.response && error.response.status === 403) {
+          setAlert(['sign-in', 'Please sign in', 'danger'])
         }
       })
   }
 
   const getRandom = e => {
     setRandom(true)
+    setAlert(['remove-collab'])
     // call youtaite-network-api.herokuapp.com to get title & description from ID
     axios(`https://youtaite-network-api.herokuapp.com/collabs/new_random`, {
       headers: {
@@ -124,7 +123,7 @@ function CollabLink(props) {
       .then(response => {
         // set cookies
         Cookies.set('access-token', response.headers['access-token'], {
-          expires: new Date(response.headers['expiry'])
+          expires: new Date(response.headers['access-token-expiry'])
         })
         let {yt_id, title, description, channel_id} = response.data
         // get info about channel that posted collab
@@ -137,12 +136,12 @@ function CollabLink(props) {
           .then(response => {
             // set cookies
             Cookies.set('access-token', response.headers['access-token'], {
-              expires: new Date(response.headers['expiry'])
+              expires: new Date(response.headers['access-token-expiry'])
             })
             let {name} = response.data
             let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
             onSubmit(title, byline, description, yt_id)
-            setAlert('enter-video')
+            setAlert(['enter-video'])
           }).catch(error => {
             console.error(error)
           })
@@ -150,7 +149,7 @@ function CollabLink(props) {
         console.error(error)
         if (error.response) {
           if (error.response.status === 403) {
-            setAlert('sign-in', 'Please sign in', 'danger')
+            setAlert(['sign-in', 'Please sign in', 'danger'])
           }
         }
       })

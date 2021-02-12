@@ -80,7 +80,7 @@ class FindChannelByVideo extends React.Component {
       .then(response => {
         // set cookies
         Cookies.set('access-token', response.headers['access-token'], {
-          expires: new Date(response.headers['expiry'])
+          expires: new Date(response.headers['access-token-expiry'])
         })
         let {channel_id} = response.data
         // call API to get channel info from channel ID
@@ -93,7 +93,7 @@ class FindChannelByVideo extends React.Component {
           .then(response => {
             // set cookies
             Cookies.set('access-token', response.headers['access-token'], {
-              expires: new Date(response.headers['expiry'])
+              expires: new Date(response.headers['access-token-expiry'])
             })
             this.props.handleSubmit(response.data)
           })

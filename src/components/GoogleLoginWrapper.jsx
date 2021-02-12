@@ -16,18 +16,18 @@ function GoogleLoginWrapper() {
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }}) // headers
       .then(response => {
         Cookies.set('access-token', response.headers['access-token'], {
-          expires: new Date(response.headers['expiry'])
+          expires: new Date(response.headers['access-token-expiry'])
         })
         setAlert('sign-in')
       })
       .catch(error => {
-        setAlert('sign-in', 'Sign in failed', 'danger')
+        setAlert(['sign-in', 'Sign in failed', 'danger'])
         console.log(error)
       })
   }
 
   const onFailure = error => {
-    setAlert('sign-in', 'Sign in failed', 'danger')
+    setAlert(['sign-in', 'Sign in failed', 'danger'])
     console.log(error)
   }
 
