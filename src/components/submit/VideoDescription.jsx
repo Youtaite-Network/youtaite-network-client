@@ -89,7 +89,7 @@ function VideoDescriptionLink({link, addPersonToSelected, selected}) {
         <strong>{channelInfo.name}</strong>
       </Popover.Title>
       <Popover.Content>
-        <em>(Click to add)</em> {channelInfo.description}
+        <em>Click to {added ? 'select' : 'add'}</em> {channelInfo.description}
       </Popover.Content>
     </Popover>
   )
