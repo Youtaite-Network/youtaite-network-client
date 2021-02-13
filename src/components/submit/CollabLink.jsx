@@ -97,7 +97,7 @@ function CollabLink(props) {
             })
             console.log(response.data)
             let {name} = response.data
-            let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
+            let byline = `posted by ${name} https://youtube.com/channel/${channel_id}`
             onSubmit(title, byline, description, id)
           }).catch(error => {
             console.error(error)
@@ -139,7 +139,7 @@ function CollabLink(props) {
               expires: new Date(response.headers['access-token-expiry'])
             })
             let {name} = response.data
-            let byline = `posted by: ${name} (https://youtube.com/channel/${channel_id})`
+            let byline = `posted by ${name} (https://youtube.com/channel/${channel_id})`
             onSubmit(title, byline, description, yt_id)
             setAlert(['enter-video'])
           }).catch(error => {

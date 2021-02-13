@@ -23,7 +23,7 @@ class PeopleForm extends React.Component {
 
     // refs
     this.personInput = React.createRef()
-    this.roleInput = React.createRef()
+    this.roleInput = this.props.roleInput
     // event handlers
     this.onPersonSuggestionSelected = this.onPersonSuggestionSelected.bind(this)
     this.handlePersonKeyDown = this.handlePersonKeyDown.bind(this)
@@ -58,7 +58,6 @@ class PeopleForm extends React.Component {
           showAddNewPersonDialog: true,
         })
       } else {
-        this.roleInput.current.focus()
         this.props.addPersonToSelected(suggestion)
         // move person to top
         this.setState(prevState => {
@@ -96,7 +95,6 @@ class PeopleForm extends React.Component {
     this.setState({
       showAddNewPersonDialog: false,
     })
-    this.personInput.current.focus()
   }
 
   addNewPerson(newPerson) {
@@ -110,7 +108,6 @@ class PeopleForm extends React.Component {
         showAddNewPersonDialog: false,
       }
     })
-    this.roleInput.current.focus()
     this.props.addPersonToSelected(newPerson)
   }
 
