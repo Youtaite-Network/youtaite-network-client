@@ -9,9 +9,16 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 
 function isYoutubeLink(link) {
-  const url = new URL(link)
+  const url = new URL(addProtocol(link))
   const hostArray = url.hostname.split('.')
   return hostArray[hostArray.length - 2] === 'youtube'
+}
+
+function addProtocol(link) {
+  if (link.startsWith('http')) {
+    return `https://${link}`
+  }
+  return link
 }
 
 function stripProtocol(link) {
