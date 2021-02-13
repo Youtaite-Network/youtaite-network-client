@@ -8,19 +8,6 @@ import { MdCheck, MdAdd } from 'react-icons/md'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 
-function isYoutubeLink(link) {
-  const url = new URL(addProtocol(link))
-  const hostArray = url.hostname.split('.')
-  return hostArray[hostArray.length - 2] === 'youtube'
-}
-
-function addProtocol(link) {
-  if (link.startsWith('http')) {
-    return `https://${link}`
-  }
-  return link
-}
-
 function stripProtocol(link) {
   if (link.startsWith('http')) {
     const url = new URL(link)
@@ -52,29 +39,30 @@ function VideoDescriptionLink({link, addPersonToSelected, selected}) {
   const [added, setAdded] = useState(false)
 
   useEffect(() => {
-    if (isYoutubeLink(link)) {
-      const linkWithoutProtocol = stripProtocol(link)
-      axios(`https://youtaite-network-api.herokuapp.com/people/info_from_url/${linkWithoutProtocol}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Cookies.get('access-token')}`
-        },
+    const linkWithoutProtocol = stripProtocol(link)
+    axios(`https://youtaite-network-api.herokuapp.com/people/info_from_url/${linkWithoutProtocol}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Cookies.get('access-token')}`
+      },
+    })
+      .then(response => {
+        Cookies.set('access-token', response.headers['access-token'], {
+          expires: new Date(response.headers['access-token-expiry'])
+        })
+        setChannelInfo({
+          thumbnail: response.data.thumbnail,
+          name: response.data.name,
+          misc_id: response.data.misc_id,
+          id_type: response.data.id_type,
+        })
       })
-        .then(response => {
-          Cookies.set('access-token', response.headers['access-token'], {
-            expires: new Date(response.headers['access-token-expiry'])
-          })
-          setChannelInfo({
-            thumbnail: response.data.thumbnail,
-            name: response.data.name,
-            misc_id: response.data.misc_id,
-            id_type: 'yt',
-          })
-        })
-        .catch(response => {
-          console.error(response)
-        })
-    }
+      .catch(error => {
+        // fail silently for 404
+        if (error.response && !error.response.status === 404) {
+          console.error(error)
+        }
+      })
   }, [link])
 
   useEffect(() => {
@@ -96,7 +84,7 @@ function VideoDescriptionLink({link, addPersonToSelected, selected}) {
         <strong>{channelInfo.name}</strong>
       </Popover.Title>
       <Popover.Content>
-        <em>Click to {added ? 'select' : 'add'}</em> {channelInfo.description}
+        <em>Click to {added ? 'select' : 'add'}. {channelInfo.id_type !== 'yt' ? 'Please check if they have a YT link before adding!' : ''}</em>{channelInfo.description}
       </Popover.Content>
     </Popover>
   )
