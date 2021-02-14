@@ -48,6 +48,15 @@ class PeopleForm extends React.Component {
     if (!prevProps.show && this.props.show) {
       this.personInput.current.focus()
     }
+    if (this.props.currentPerson) {
+      if (!this.state.people.find(person => person.misc_id === this.props.currentPerson.misc_id)) {
+        this.setState(prevState => {
+          return {
+            people: [this.props.currentPerson].concat(prevState.people)
+          }
+        })
+      }
+    }
   }
 
   // Autosuggest: what to do when person suggestion is selected

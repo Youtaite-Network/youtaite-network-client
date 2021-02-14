@@ -52,11 +52,13 @@ class SelectedBox extends React.Component {
           </div>
           <div className="mx-1 d-flex flex-column text-truncate">
             <strong>
-              <a href={(item.id_type === 'yt' && `https://youtube.com/channel/${item.misc_id}`) 
+              {item.id_type === 'no_link' 
+              ? item.name
+              : <a href={(item.id_type === 'yt' && `https://youtube.com/channel/${item.misc_id}`) 
                 || (item.id_type === 'tw' && `https://twitter.com/i/user/${item.misc_id}`) 
-                || item.misc_id}>
+                || `https://${item.misc_id}`}>
                 {item.name}
-              </a>
+              </a>}
             </strong>
             <div className="d-flex">
               {this.renderRoles(item.roles, i)}
