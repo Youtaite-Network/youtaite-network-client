@@ -181,6 +181,11 @@ function Network({dataset, range}) {
                 svg.select('#title-text')
                   .style('opacity', 0)
               })
+              .on('click', function(e, d) {
+                if (e.metaKey || e.ctrlKey) {
+                  window.open('https://youtube.com/watch?v=' + d.yt_id, 'mywindow').focus()
+                }
+              })
               .call(dragNode(simulation))
             enter.append('clipPath')
               .attr('id', function(d) {
@@ -220,12 +225,6 @@ function Network({dataset, range}) {
               .style('stroke-width', .5)
             return enter;
           })
-          
-          // .on('click', function(e, d) {
-          //   if (e.metaKey) {
-          //     window.open('https://youtube.com/watch?v=' + d.yt_id, 'mywindow').focus()
-          //   }
-          // })
 
         edge = edge
           .data(edges, d => [d.source, d.target])
