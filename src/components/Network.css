@@ -2,7 +2,7 @@ image {
   transition: all .12s ease-in-out;
 }
 
-rect {
+rect.node {
   transition: all .12s ease-in-out;
 }
 
