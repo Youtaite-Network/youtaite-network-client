@@ -20,8 +20,14 @@ function Network({datasetProp, rangeProp, loadMessage}) {
         dataset.current = datasetProp
         range.current = rangeProp
         const graphComponents = getGraphComponents(dataset.current, range.current)
-        nodes.current = graphComponents.nodes
-        edges.current = graphComponents.edges
+        if (focusedNode.current) {
+          const subgraphComponents = getSubgraphFromNode(graphComponents.nodes, graphComponents.edges, focusedNode.current)
+          nodes.current = subgraphComponents.nodes
+          edges.current = subgraphComponents.edges
+        } else {
+          nodes.current = graphComponents.nodes
+          edges.current = graphComponents.edges
+        }
         network.current.update()
       } else {
         console.log('here')
@@ -65,8 +71,8 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       .selectAll('g')
 
     const simulation = d3.forceSimulation()
-      .force("charge", d3.forceManyBody().strength(-500))
-      .force("link", d3.forceLink().id(d => d.id).distance(30))
+      .force("charge", d3.forceManyBody().strength(-1000))
+      .force("link", d3.forceLink().id(d => d.id).distance(50))
       .force("x", d3.forceX())
       .force("y", d3.forceY())
       .force("center", d3.forceCenter().x(w/2).y(h/2))
@@ -115,8 +121,12 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       }
       function dragEnded(e, d) {  
         if (!e.active) force.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
+        if (!focusedNode.current || (focusedNode.current && focusedNode.current.id !== d.id)) {
+          d.fx = null;
+          d.fy = null;
+        } else if (focusedNode.current && focusedNode.current.id === d.id) {
+          simulation.force('center', d3.forceCenter().x(d.x).y(d.y))
+        }
       }
       return d3.drag()
         .on('start', dragStarted)
@@ -185,25 +195,37 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                 let graphComponents = null
                 if (focusedNode.current && focusedNode.current.id === d.id) {
                   console.log('deselect')
+                  // defocus clicked node
                   focusedNode.current = null
+                  // unfix clicked node
+                  d.fx = null
+                  d.fx = null
+                  // change force center
+                  simulation.force('center', d3.forceCenter().x(w/2).y(h/2))
                   graphComponents = getGraphComponents(dataset.current, range.current)
-                } else if (focusedNode.current) {
-                  console.log('change select')
-                  // focus clicked node
-                  focusedNode.current = d
-                  // move and fix clicked node to center
-                  // update with clicked node + directly linked collabs
-                  const mainComponents = getGraphComponents(dataset.current, range.current)
-                  graphComponents = getSubgraphFromNode(mainComponents.nodes, mainComponents.edges, d)
-                  // display people
                 } else {
-                  console.log('new select')
+                  if (focusedNode.current) {
+                    console.log('change select')
+                    // unfix currently selected node
+                    focusedNode.current.fx = null
+                    focusedNode.current.fy = null
+                    // update with clicked node + directly linked collabs
+                    const mainComponents = getGraphComponents(dataset.current, range.current)
+                    graphComponents = getSubgraphFromNode(mainComponents.nodes, mainComponents.edges, d)
+                    // display people
+                  } else {
+                    console.log('new select')
+                    // update with clicked node + directly linked collabs
+                    graphComponents = getSubgraphFromNode(nodes.current, edges.current, d)
+                    // display people
+                  }
                   // focus clicked node
                   focusedNode.current = d
-                  // move and fix clicked node to center
-                  // update with clicked node + directly linked collabs
-                  graphComponents = getSubgraphFromNode(nodes.current, edges.current, d)
-                  // display people
+                  // fix clicked node
+                  d.fx = d.x
+                  d.fy = d.y
+                  // change force center
+                  simulation.force('center', d3.forceCenter().x(d.fx).y(d.fy))
                 }
                 nodes.current = graphComponents.nodes
                 edges.current = graphComponents.edges
@@ -266,7 +288,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
 
   return (
     <>
-      <p className="mb-1">Cmd/ctrl-click to open the video in a new tab. Zoom, pan, drag enabled.</p>
+      <p className="mb-1">Cmd/ctrl-click to open the collab in a new tab. Click a collab to see collabs it is connected to. Zoom, pan, drag enabled.</p>
       <div id="network" className="d-flex justify-content-center align-items-top">
         {!removeSpinner && <div id="spinner" 
           className={'d-flex flex-column ' + (showSpinner ? 'spinning' : '')}>
