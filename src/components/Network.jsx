@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import Spinner from 'react-bootstrap/Spinner'
 import './Network.css'
 
-function Network({dataset, range}) {
+function Network({dataset, range, loadMessage}) {
   const [removeSpinner, setRemoveSpinner] = useState(false)
   const [showSpinner, setShowSpinner] = useState(true)
   let network = useRef()
@@ -245,13 +245,13 @@ function Network({dataset, range}) {
   return (
     <>
       <p className="mb-1">Cmd/ctrl-click to open the video in a new tab. Zoom, pan, drag enabled.</p>
-      <div id="network" className="d-flex justify-content-center align-items-top" style={{width: '100%', height: '75vh'}}>
+      <div id="network" className="d-flex justify-content-center align-items-top">
         {!removeSpinner && <div id="spinner" 
           className={'d-flex flex-column ' + (showSpinner ? 'spinning' : '')}>
           <Spinner animation="border" role="loading network">
             <span className="sr-only">Loading network...</span>
           </Spinner>
-          <span className="ml-3">Loading network...</span>
+          <span className="ml-3">{loadMessage}</span>
         </div>}
       </div>
     </>
