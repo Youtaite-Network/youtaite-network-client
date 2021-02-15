@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Network from './Network'
 import NetworkSettings from './NetworkSettings'
 import axios from 'axios'
 
 function Home(props) {
-  const [range, setRange] = useState([0, 0])
-  const [data, setData] = useState({nodes: [], edgeStrength: {}})
+  const [range, setRange] = useState(null)
+  const [data, setData] = useState(null)
+  const startRange = useRef()
 
   useEffect(() => {
     const newData = {}
@@ -16,7 +17,11 @@ function Home(props) {
           .then(response => {
             newData.nodes = response.data
             setData(newData)
-            setRange([1, Math.max(Object.keys(newData.edgeStrength)) + 1])
+            const maxRange = Math.max(...Object.keys(newData.edgeStrength)) + 1
+            const minRange = maxRange > 1 ? 2 : 1
+            startRange.current = [minRange, maxRange]
+            setRange(startRange.current)
+            console.log(newData)
           })
           .catch(function(error) {
             console.log(error)
@@ -37,13 +42,14 @@ function Home(props) {
     //     10: [{source: 1, target: 3}],
     //   },
     // })
-    // setRange([1, 11])
+    // startRange.current = [2, 11]
+    // setRange(startRange.current)
   }, [])
 
   return (
     <div className="container mt-3">
       <h2>Youtaite Network</h2>
-      <NetworkSettings maxStrength={10} range={range} setRange={setRange} />
+      <NetworkSettings startRange={startRange.current} setRange={setRange} />
       <Network range={range} dataset={data} />
     </div>
   );

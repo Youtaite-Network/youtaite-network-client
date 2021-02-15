@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import * as d3 from 'd3'
 import Button from 'react-bootstrap/Button'
-import { MdSettings } from 'react-icons/md'
+import Tooltip from 'react-bootstrap/Tooltip'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import { MdInfo } from 'react-icons/md'
 
-function NetworkSettings({maxStrength, range, setRange}) {
+function NetworkSettings({startRange, setRange}) {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
+    if (!startRange) return
     // create slider
     const w = 200
     const h = 40
@@ -17,15 +20,15 @@ function NetworkSettings({maxStrength, range, setRange}) {
       .attr('width', w)
       .attr('height', h)
     // https://observablehq.com/@sarah37/snapping-range-slider-with-d3-brush
-    const slider = sliderSnap(svg, [1, maxStrength], {x: padX, y: padY, width: w - padX*2, height: h - padY*2})
+    const slider = sliderSnap(svg, [1, startRange[1], startRange[0]], {x: padX, y: padY, width: w - padX*2, height: h - padY*2})
     d3.select('#slider-event-handler')
       .on('change', function(event) {
         setRange(slider.getRange())
       })
-  }, [maxStrength, setRange])
+  }, [startRange, setRange])
 
-  const sliderSnap = (svg, [min, max], {x, y, width, height}) => {
-    const range = [min, max + 1]
+  const sliderSnap = (svg, [min, max, start], {x, y, width, height}) => {
+    const range = [min, max]
 
     // create x scale
     const xScale = d3.scaleLinear()
@@ -37,7 +40,7 @@ function NetworkSettings({maxStrength, range, setRange}) {
     
     // draw background lines
     g.append('g').selectAll('line')
-      .data(d3.range(range[0], range[1]+1))
+      .data(d3.range(range[0], range[1]))
       .enter()
       .append('line')
       .attr('x1', d => xScale(d)).attr('x2', d => xScale(d))
@@ -113,7 +116,7 @@ function NetworkSettings({maxStrength, range, setRange}) {
       .each(function(d) { d.type = "selection"; })
     
     // select entire range
-    gBrush.call(brush.move, range.map(xScale))
+    gBrush.call(brush.move, [start, max].map(xScale))
     const getRange = function() {
       return d3.brushSelection(gBrush.node()).map(d => Math.round(xScale.invert(d)))
     }
@@ -124,16 +127,24 @@ function NetworkSettings({maxStrength, range, setRange}) {
     setShow(!show)
   }
 
+  const renderTooltip = props => (
+    <Tooltip id="button-tooltip" {...props}>
+      Edge strength of X means that X people in common between 2 collabs becomes an edge.
+    </Tooltip>
+  )
+
   return (
     <>
-      <Button variant="outline-secondary" className="py-1 px-2" style={{lineHeight: 1}} onClick={toggleShow}>
-        <h5 className="m-0"><MdSettings size="1.5rem" className="mt-n1 mr-1" />Settings</h5>
-      </Button>
-      <div id="network-settings" className={show ? '' : 'd-none'}>
-        <div id="slider">
-          <strong>Edge Strength</strong>
+      <Button variant="light" onClick={toggleShow}>{show ? 'Hide' : 'Show'} settings</Button>
+      <div id="slider-event-handler" className="d-none"></div>
+      <div id="network-settings" size="sm" className={show ? '' : 'd-none'}>
+        <div className="d-flex flex-row align-items-center">
+          <OverlayTrigger overlay={renderTooltip}>
+            <Button variant="link"><MdInfo className="mt-n1" /></Button>
+          </OverlayTrigger>
+          <div><strong>Edge Strength:</strong></div>
+          <div id="slider"></div>
         </div>
-        <div id="slider-event-handler" className="d-none"></div>
       </div>
     </>
   )

@@ -1,39 +1,18 @@
-import React from "react"
+import React, { useState, useRef, useEffect } from "react"
 import * as d3 from 'd3'
 import Spinner from 'react-bootstrap/Spinner'
 import './Network.css'
 
-class Network extends React.Component {
-  constructor(props) {
-    super(props)
+function Network({dataset, range}) {
+  const [removeSpinner, setRemoveSpinner] = useState(false)
+  const [showSpinner, setShowSpinner] = useState(true)
+  let network = useRef()
 
-    this.state = {
-      removeSpinner: false,
-      showSpinner: true,
-    }
-    this.spinner = React.createRef()
-  }
-
-  componentDidMount() {
-    this.network = this.createNetwork(this.getGraphComponents())
-    setTimeout(() => {
-      this.setState({ showSpinner: false }, () => {
-        setTimeout(() => {
-          this.setState({ removeSpinner: true })
-        }, 200)
-      })
-    }, 500)
-  }
-
-  componentDidUpdate() {
-    this.network.update(this.getGraphComponents())
-  }
-
-  getGraphComponents() {
+  const getGraphComponents = () => {
     let edges = []
     let nodeIds = []
-    for (const [strength, e] of Object.entries(this.props.dataset.edgeStrength)) {
-      if (strength >= this.props.range[0] && strength < this.props.range[1]) {
+    for (const [strength, e] of Object.entries(dataset.edgeStrength)) {
+      if (strength >= range[0] && strength < range[1]) {
         edges = edges.concat(e)
       }
     }
@@ -41,13 +20,29 @@ class Network extends React.Component {
       nodeIds.push(e.source)
       nodeIds.push(e.target)
     })
-    let nodes = this.props.dataset.nodes.filter(node => {
+    let nodes = dataset.nodes.filter(node => {
       return nodeIds.includes(node.id)
     })
     return {nodes, edges}
   }
 
-  createNetwork(dataset) {
+  useEffect(() => {
+    if (dataset && range) {
+      if (network.current) {
+        network.current.update(getGraphComponents())
+      } else {
+        network.current = createNetwork(getGraphComponents())
+        setTimeout(() => {
+          setShowSpinner(false)
+          setTimeout(() => {
+            setRemoveSpinner(true)
+          }, 200)
+        }, 500)
+      }
+    }
+  })
+
+  const createNetwork = dataset => {
     const boundingRect = d3.select('#network').node().getBoundingClientRect()
     const w = boundingRect.width
     const h = boundingRect.height
@@ -248,22 +243,20 @@ class Network extends React.Component {
     }
   }
 
-  render() {
-    return (
-      <>
-        <p>cmd/ctrl-click to open the video in a new tab</p>
-        <div id="network" className="d-flex justify-content-center align-items-top" style={{width: '100%', height: '75vh'}}>
-          {!this.state.removeSpinner && <div id="spinner" 
-            className={'d-flex flex-column ' + (this.state.showSpinner ? 'spinning' : '')}>
-            <Spinner animation="border" role="loading network">
-              <span className="sr-only">Loading network...</span>
-            </Spinner>
-            <span className="ml-3">Loading network...</span>
-          </div>}
-        </div>
-      </>
-    );
-  }
+  return (
+    <>
+      <p className="mb-1">Cmd/ctrl-click to open the video in a new tab. Zoom, pan, drag enabled.</p>
+      <div id="network" className="d-flex justify-content-center align-items-top" style={{width: '100%', height: '75vh'}}>
+        {!removeSpinner && <div id="spinner" 
+          className={'d-flex flex-column ' + (showSpinner ? 'spinning' : '')}>
+          <Spinner animation="border" role="loading network">
+            <span className="sr-only">Loading network...</span>
+          </Spinner>
+          <span className="ml-3">Loading network...</span>
+        </div>}
+      </div>
+    </>
+  );
 }
 
 export default Network;
