@@ -61,14 +61,16 @@ class Network extends React.Component {
       .attr("height", h)
       .style('border', '1px solid lightgrey')
 
+    const graph = svg.append('g')
+
     // create edges
-    let edge = svg.append('g')
+    let edge = graph.append('g')
       .attr("stroke", "lightgrey")
       .attr("stroke-width", .5)
       .selectAll("line")
 
     // create nodes
-    let node = svg.append('g')
+    let node = graph.append('g')
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5)
       .selectAll('g')
@@ -101,6 +103,39 @@ class Network extends React.Component {
       })
     }
 
+    // define zoom function
+    svg.call(d3.zoom()
+      .extent([[0, 0], [w, h]])
+      .scaleExtent([.2, 5])
+      .on("zoom", zoomed));
+
+    function zoomed({transform}) {
+      graph.attr('transform', transform)
+    }
+
+    // define node drag function
+    function dragNode(force) {
+      function dragStarted(e, d) {
+        if (!e.active) force.alphaTarget(.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+      function dragging(e, d) {
+        d.fx = e.x;
+        d.fy = e.y;
+      }
+      function dragEnded(e, d) {  
+        if (!e.active) force.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+      return d3.drag()
+        .on('start', dragStarted)
+        .on('drag', dragging)
+        .on('end', dragEnded)
+    }
+
+    // https://observablehq.com/@d3/modifying-a-force-directed-graph
     return {...svg.node(),
       update: function({nodes, edges}) {
         if (!nodes || !edges) return
@@ -151,6 +186,7 @@ class Network extends React.Component {
                 svg.select('#title-text')
                   .style('opacity', 0)
               })
+              .call(dragNode(simulation))
             enter.append('clipPath')
               .attr('id', function(d) {
                 return 'clip-path-' + d.id
@@ -195,7 +231,6 @@ class Network extends React.Component {
           //     window.open('https://youtube.com/watch?v=' + d.yt_id, 'mywindow').focus()
           //   }
           // })
-          // .call(this.dragNode(this.force))
 
         edge = edge
           .data(edges, d => [d.source, d.target])
@@ -211,38 +246,6 @@ class Network extends React.Component {
         simulation.alpha(1).restart();
       }
     }
-
-    // define zoom function
-//     svg.call(d3.zoom()
-//       .extent([[0, 0], [w, h]])
-//       .scaleExtent([.2, 5])
-//       .on("zoom", zoomed));
-// 
-//     function zoomed({transform}) {
-//       this.graph.attr('transform', transform)
-//     }
-  }
-
-  // define node drag function
-  dragNode(force) {
-    function dragStarted(e, d) {
-      if (!e.active) force.alphaTarget(.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
-    }
-    function dragging(e, d) {
-      d.fx = e.x;
-      d.fy = e.y;
-    }
-    function dragEnded(e, d) {  
-      if (!e.active) force.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
-    }
-    return d3.drag()
-      .on('start', dragStarted)
-      .on('drag', dragging)
-      .on('end', dragEnded)
   }
 
   render() {

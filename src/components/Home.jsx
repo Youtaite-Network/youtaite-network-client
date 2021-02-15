@@ -25,6 +25,19 @@ function Home(props) {
       .catch(function(error) {
         console.log(error)
       })
+    // setData({
+    //   nodes: [
+    //     {id: 1, title: 1, thumbnail: 'https://i.ytimg.com/vi/wzl53pm2548/mqdefault.jpg'},
+    //     {id: 2, title: 2, thumbnail: 'https://i.ytimg.com/vi/Xy9qwKajpgM/mqdefault.jpg'},
+    //     {id: 3, title: 3, thumbnail: 'https://i.ytimg.com/vi/debzHTI4a8I/mqdefault.jpg'},
+    //   ],
+    //   edgeStrength: {
+    //     1: [{source: 1, target: 2}],
+    //     5: [{source: 2, target: 3}],
+    //     10: [{source: 1, target: 3}],
+    //   },
+    // })
+    // setRange([1, 11])
   }, [])
 
   return (
