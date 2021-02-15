@@ -56,7 +56,7 @@ function Home(props) {
     <div className="container mt-3">
       <h2>Youtaite Network</h2>
       <NetworkSettings startRange={startRange.current} setRange={setRange} />
-      <Network range={range} dataset={data} loadMessage={loadMessage} />
+      <Network rangeProp={range} datasetProp={data} loadMessage={loadMessage} />
     </div>
   );
 }

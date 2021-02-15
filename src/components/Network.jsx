@@ -2,36 +2,30 @@ import React, { useState, useRef, useEffect } from "react"
 import * as d3 from 'd3'
 import Spinner from 'react-bootstrap/Spinner'
 import './Network.css'
+import { getGraphComponents, getSubgraphFromNode } from '../Utils/GraphUtils'
 
-function Network({dataset, range, loadMessage}) {
+function Network({datasetProp, rangeProp, loadMessage}) {
   const [removeSpinner, setRemoveSpinner] = useState(false)
   const [showSpinner, setShowSpinner] = useState(true)
-  let network = useRef()
-
-  const getGraphComponents = () => {
-    let edges = []
-    let nodeIds = []
-    for (const [strength, e] of Object.entries(dataset.edgeStrength)) {
-      if (strength >= range[0] && strength < range[1]) {
-        edges = edges.concat(e)
-      }
-    }
-    edges.forEach(e => {
-      nodeIds.push(e.source)
-      nodeIds.push(e.target)
-    })
-    let nodes = dataset.nodes.filter(node => {
-      return nodeIds.includes(node.id)
-    })
-    return {nodes, edges}
-  }
+  const focusedNode = useRef(null)
+  const edges = useRef()
+  const nodes = useRef()
+  const dataset = useRef()
+  const range = useRef()
+  const network = useRef()
 
   useEffect(() => {
-    if (dataset && range) {
+    if (datasetProp && rangeProp) {
       if (network.current) {
-        network.current.update(getGraphComponents())
+        dataset.current = datasetProp
+        range.current = rangeProp
+        const graphComponents = getGraphComponents(dataset.current, range.current)
+        nodes.current = graphComponents.nodes
+        edges.current = graphComponents.edges
+        network.current.update()
       } else {
-        network.current = createNetwork(getGraphComponents())
+        console.log('here')
+        network.current = createNetwork()
         setTimeout(() => {
           setShowSpinner(false)
           setTimeout(() => {
@@ -42,7 +36,7 @@ function Network({dataset, range, loadMessage}) {
     }
   })
 
-  const createNetwork = dataset => {
+  const createNetwork = () => {
     const boundingRect = d3.select('#network').node().getBoundingClientRect()
     const w = boundingRect.width
     const h = boundingRect.height
@@ -131,29 +125,31 @@ function Network({dataset, range, loadMessage}) {
     }
 
     // https://observablehq.com/@d3/modifying-a-force-directed-graph
+    // NOTE: using refs to prevent stale props/state within event handlers
     return {...svg.node(),
-      update: function({nodes, edges}) {
-        if (!nodes || !edges) return
+      update: function() {
+        if (!nodes.current || !edges.current) return
         const old = new Map(node.data().map(d => [d.id, d]))
-        nodes = nodes.map(d => Object.assign(old.get(d.id) || {}, d));
-        edges = edges.map(d => Object.assign({}, d));
+        nodes.current = nodes.current.map(d => Object.assign(old.get(d.id) || {}, d));
+        // create new variable so that edges.current ALWAYS holds {source: nodeId, target: nodeId}
+        let edgesToSimulate = edges.current.map(d => Object.assign({}, d));
         node = node
-          .data(nodes, d => d.id)
+          .data(nodes.current, d => d.id)
           .join(enter => {
             enter = enter.append('g')
               .classed('node', true)
               .attr('id', d => `g-${d.id}`)
               .on('mouseover', function(evt, d) {
-                let filteredEdges = edges.filter(function(e) {
-                  return e.source.id === d.id || e.target.id === d.id
+                const filteredEdges = edges.current.filter(function(e) {
+                  return e.source === d.id || e.target === d.id
                 })
                 let filteredNodeIds = []
                 filteredEdges.forEach(function(e) {
-                  svg.select('#edge-' + e.source.id + '-' + e.target.id)
+                  svg.select('#edge-' + e.source + '-' + e.target)
                     .style('stroke', 'orange')
                     .style('stroke-width', 1.5)
-                  filteredNodeIds.push(e.source.id)
-                  filteredNodeIds.push(e.target.id)
+                  filteredNodeIds.push(e.source)
+                  filteredNodeIds.push(e.target)
                 })
                 filteredNodeIds = [...new Set(filteredNodeIds)] // remove dupes
                 filteredNodeIds.forEach(function(nodeId) {
@@ -184,7 +180,34 @@ function Network({dataset, range, loadMessage}) {
               .on('click', function(e, d) {
                 if (e.metaKey || e.ctrlKey) {
                   window.open('https://youtube.com/watch?v=' + d.yt_id, 'mywindow').focus()
+                  return
                 }
+                let graphComponents = null
+                if (focusedNode.current && focusedNode.current.id === d.id) {
+                  console.log('deselect')
+                  focusedNode.current = null
+                  graphComponents = getGraphComponents(dataset.current, range.current)
+                } else if (focusedNode.current) {
+                  console.log('change select')
+                  // focus clicked node
+                  focusedNode.current = d
+                  // move and fix clicked node to center
+                  // update with clicked node + directly linked collabs
+                  const mainComponents = getGraphComponents(dataset.current, range.current)
+                  graphComponents = getSubgraphFromNode(mainComponents.nodes, mainComponents.edges, d)
+                  // display people
+                } else {
+                  console.log('new select')
+                  // focus clicked node
+                  focusedNode.current = d
+                  // move and fix clicked node to center
+                  // update with clicked node + directly linked collabs
+                  graphComponents = getSubgraphFromNode(nodes.current, edges.current, d)
+                  // display people
+                }
+                nodes.current = graphComponents.nodes
+                edges.current = graphComponents.edges
+                network.current.update()
               })
               .call(dragNode(simulation))
             enter.append('clipPath')
@@ -227,16 +250,15 @@ function Network({dataset, range, loadMessage}) {
           })
 
         edge = edge
-          .data(edges, d => [d.source, d.target])
+          .data(edgesToSimulate, d => [d.source, d.target])
           .join("line")
           .classed('edge', true)
           .attr('id', function(d) {
             return 'edge-' + d.source + '-' + d.target
           })
           .classed('edge', true)
-
-        simulation.nodes(nodes);
-        simulation.force("link").links(edges);
+        simulation.nodes(nodes.current);
+        simulation.force("link").links(edgesToSimulate);
         simulation.alpha(1).restart();
       }
     }
