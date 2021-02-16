@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react"
 import * as d3 from 'd3'
 import Spinner from 'react-bootstrap/Spinner'
 import './Network.css'
-import { getGraphComponents, getSubgraphFromNode } from '../Utils/GraphUtils'
+import { getGraphComponents, getSubgraphFromNode, getLabelData } from '../utils/GraphUtils'
 
 function Network({datasetProp, rangeProp, loadMessage}) {
   const [removeSpinner, setRemoveSpinner] = useState(false)
@@ -10,6 +10,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
   const focusedNode = useRef(null)
   const edges = useRef()
   const nodes = useRef()
+  const labels = useRef()
   const dataset = useRef()
   const range = useRef()
   const network = useRef()
@@ -47,6 +48,8 @@ function Network({datasetProp, rangeProp, loadMessage}) {
     const h = boundingRect.height
     const nodeW = 36
     const nodeH = 20.25
+    const labelW = 20
+    const labelH = 20
 
     // create svg
     const svg = d3.select("#network")
@@ -62,6 +65,10 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       .attr("stroke", "lightgrey")
       .attr("stroke-width", .5)
       .selectAll("line")
+
+    // create people (image labels)
+    let label = graph.append('g')
+      .selectAll('image')
 
     // create nodes
     let node = graph.append('g')
@@ -97,6 +104,13 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       node.attr('transform', function(d) {
         return 'translate(' + d.x + ',' + d.y + ')'
       })
+
+      label.attr('x', function(d) {
+          return d.edge.source.x + (d.edge.target.x-d.edge.source.x) * (d.i+1) / (d.l+1) - labelW/2
+        })
+        .attr('y', function(d) {
+          return d.edge.source.y + (d.edge.target.y-d.edge.source.y) * (d.i+1)/(d.l+1) - labelH/2
+        })
     }
 
     // define zoom function
@@ -144,6 +158,8 @@ function Network({datasetProp, rangeProp, loadMessage}) {
         nodes.current = nodes.current.map(d => Object.assign(old.get(d.id) || {}, d));
         // create new variable so that edges.current ALWAYS holds {source: nodeId, target: nodeId}
         let edgesToSimulate = edges.current.map(d => Object.assign({}, d));
+        labels.current = getLabelData(edges.current, nodes.current, dataset.current.people, dataset.current.personEdges, focusedNode.current)
+
         node = node
           .data(nodes.current, d => d.id)
           .join(enter => {
@@ -282,6 +298,17 @@ function Network({datasetProp, rangeProp, loadMessage}) {
             return 'edge-' + d.source + '-' + d.target
           })
           .classed('edge', true)
+
+        label = label
+          .data(labels.current, d => [d.person, d.edge.source.id, d.edge.target.id])
+          .join('image')
+          .classed('label', true)
+          .attr('width', labelW)
+          .attr('height', labelH)
+          .attr('xlink:href', function(d) {
+            return d.person.thumbnail
+          })
+
         simulation.nodes(nodes.current);
         simulation.force("link").links(edgesToSimulate);
         simulation.alpha(1).restart();

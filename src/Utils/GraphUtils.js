@@ -1,14 +1,14 @@
-/* gets {nodes, edges} from:
- *  - dataset {nodes, edgeStrength}
- *  - range of edgeStrengths to include
+/* returns {nodes, edges} from:
+ *  - dataset {nodes, freqToEdges, edgeToPeople, people}
+ *  - range of edge freqs to include
 */
 const getGraphComponents = (dataset, range) => {
   let edges = []
   let nodeIds = []
-  for (const [strength, edgesWithStrength] of Object.entries(dataset.edgeStrength)) {
-    if (strength >= range[0] && strength < range[1]) {
+  for (const [freq, edgesWithFreq] of Object.entries(dataset.freqToEdges)) {
+    if (freq >= range[0] && freq < range[1]) {
       // replace ID with object
-      edges = edges.concat(edgesWithStrength)
+      edges = edges.concat(edgesWithFreq)
     }
   }
   edges.forEach(edge => {
@@ -22,7 +22,7 @@ const getGraphComponents = (dataset, range) => {
   return {nodes, edges}
 }
 
-/* gets subset {nodes, edges} connected to given node from:
+/* returns subset {nodes, edges} connected to given node from:
  *  - nodes of graph
  *  - edges of graph
  *  - centerNode
@@ -43,4 +43,24 @@ const getSubgraphFromNode = (nodes, edges, centerNode) => {
   return {nodes: connectedNodes, edges: connectedEdges}
 }
 
-export { getGraphComponents, getSubgraphFromNode }
+/* returns [{person, edge, i, l}] from:
+ *  - people: array of person objects {id, name, misc_id, id_type, thumbnail}
+ *  - edges: array of edge objects {source, target}; source < target
+ *  - edgesToPeople: {edge: [people ids]}
+*/
+const getLabelData = (edges, nodes, people, personEdges, focusedNode) => {
+  if (!focusedNode) return []
+  return personEdges.filter(pe => edges.find(edge => edge.source === pe.edge.source && edge.target === pe.edge.target))
+    .map(pe => {
+      return {
+        ...pe,
+        person: people.find(person => person.id === pe.person),
+        edge: {
+          source: nodes.find(node => node.id === pe.edge.source),
+          target: nodes.find(node => node.id === pe.edge.target),
+        },
+      }
+    })
+}
+
+export { getGraphComponents, getSubgraphFromNode, getLabelData }
