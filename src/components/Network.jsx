@@ -30,7 +30,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
         }
         network.current.update()
       } else {
-        console.log('here')
         network.current = createNetwork()
         setTimeout(() => {
           setShowSpinner(false)
@@ -77,6 +76,8 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       .force("y", d3.forceY())
       .force("center", d3.forceCenter().x(w/2).y(h/2))
       .on("tick", ticked)
+
+    const defaultForceLinkStrength = simulation.force('link').strength()
 
     // create title label in top left
     svg.append('text')
@@ -202,6 +203,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   d.fx = null
                   // change force center
                   simulation.force('center', d3.forceCenter().x(w/2).y(h/2))
+                  simulation.force("link").strength(defaultForceLinkStrength)
                   graphComponents = getGraphComponents(dataset.current, range.current)
                 } else {
                   if (focusedNode.current) {
@@ -226,6 +228,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   d.fy = d.y
                   // change force center
                   simulation.force('center', d3.forceCenter().x(d.fx).y(d.fy))
+                  simulation.force("link").strength(0)
                 }
                 nodes.current = graphComponents.nodes
                 edges.current = graphComponents.edges
