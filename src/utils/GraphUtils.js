@@ -2,7 +2,7 @@
  *  - dataset {nodes, freqToEdges, edgeToPeople, people}
  *  - range of edge freqs to include
 */
-const getGraphComponents = (dataset, range) => {
+const getRangeGraphComponents = (dataset, range, focusedNode) => {
   let edges = []
   let nodeIds = []
   for (const [freq, edgesWithFreq] of Object.entries(dataset.freqToEdges)) {
@@ -16,31 +16,36 @@ const getGraphComponents = (dataset, range) => {
     nodeIds.push(edge.target)
   })
   nodeIds = [...new Set(nodeIds)]
-  const nodes = dataset.nodes.filter(node => {
+  const collabs = dataset.nodes.filter(node => {
     return nodeIds.includes(node.id)
   })
-  return {nodes, edges}
+  return {collabs, edges}
+}
+
+const getCurrentGraphComponents = (rangeCollabs, rangeEdges, focusedNode) => {
+  if (!focusedNode) return {collabs: rangeCollabs, edges: rangeEdges}
+  return getSubgraphFromNode(rangeCollabs, rangeEdges, focusedNode)
 }
 
 /* returns subset {nodes, edges} connected to given node from:
  *  - nodes of graph
  *  - edges of graph
- *  - centerNode
+ *  - focusedNode
 */
-const getSubgraphFromNode = (nodes, edges, centerNode) => {
+const getSubgraphFromNode = (nodes, edges, focusedNode) => {
   // find all edges with node as source or target + nodes that node is connected to
-  const connectedNodes = [centerNode]
+  const connectedNodes = [focusedNode]
   const connectedEdges = []
   edges.forEach(edge => {
-    if (edge.source === centerNode.id) {
+    if (edge.source === focusedNode.id) {
       connectedNodes.push(nodes.find(node => node.id === edge.target))
       connectedEdges.push(edge)
-    } else if (edge.target === centerNode.id) {
+    } else if (edge.target === focusedNode.id) {
       connectedNodes.push(nodes.find(node => node.id === edge.source))
       connectedEdges.push(edge)
     }
   })
-  return {nodes: connectedNodes, edges: connectedEdges}
+  return {collabs: connectedNodes, edges: connectedEdges}
 }
 
 /* returns [{person, edge, i, l}] from:
@@ -63,4 +68,4 @@ const getLabelData = (edges, nodes, people, personEdges, focusedNode) => {
     })
 }
 
-export { getGraphComponents, getSubgraphFromNode, getLabelData }
+export { getRangeGraphComponents, getCurrentGraphComponents, getLabelData }

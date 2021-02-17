@@ -2,14 +2,16 @@ import React, { useState, useRef, useEffect } from "react"
 import * as d3 from 'd3'
 import Spinner from 'react-bootstrap/Spinner'
 import './Network.css'
-import { getGraphComponents, getSubgraphFromNode, getLabelData } from '../utils/GraphUtils'
+import { getRangeGraphComponents, getCurrentGraphComponents, getLabelData } from '../utils/GraphUtils'
 
 function Network({datasetProp, rangeProp, loadMessage}) {
   const [removeSpinner, setRemoveSpinner] = useState(false)
   const [showSpinner, setShowSpinner] = useState(true)
   const focusedNode = useRef(null)
+  const rangeEdges = useRef()
+  const rangeCollabs = useRef()
   const edges = useRef()
-  const nodes = useRef()
+  const collabs = useRef()
   const labels = useRef()
   const dataset = useRef()
   const range = useRef()
@@ -20,15 +22,9 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       if (network.current) {
         dataset.current = datasetProp
         range.current = rangeProp
-        const graphComponents = getGraphComponents(dataset.current, range.current)
-        if (focusedNode.current) {
-          const subgraphComponents = getSubgraphFromNode(graphComponents.nodes, graphComponents.edges, focusedNode.current)
-          nodes.current = subgraphComponents.nodes
-          edges.current = subgraphComponents.edges
-        } else {
-          nodes.current = graphComponents.nodes
-          edges.current = graphComponents.edges
-        }
+        const graphComponents = getRangeGraphComponents(dataset.current, range.current)
+        rangeCollabs.current = graphComponents.collabs
+        rangeEdges.current = graphComponents.edges
         network.current.update()
       } else {
         network.current = createNetwork()
@@ -70,8 +66,8 @@ function Network({datasetProp, rangeProp, loadMessage}) {
     let label = graph.append('g')
       .selectAll('image')
 
-    // create nodes
-    let node = graph.append('g')
+    // create collab nodes
+    let collab = graph.append('g')
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5)
       .selectAll('g')
@@ -101,7 +97,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
     
-      node.attr('transform', function(d) {
+      collab.attr('transform', function(d) {
         return 'translate(' + d.x + ',' + d.y + ')'
       })
 
@@ -153,15 +149,17 @@ function Network({datasetProp, rangeProp, loadMessage}) {
     // NOTE: using refs to prevent stale props/state within event handlers
     return {...svg.node(),
       update: function() {
-        if (!nodes.current || !edges.current) return
-        const old = new Map(node.data().map(d => [d.id, d]))
-        nodes.current = nodes.current.map(d => Object.assign(old.get(d.id) || {}, d));
+        if (!rangeCollabs.current || !rangeEdges.current) return
+        const old = new Map(collab.data().map(d => [d.id, d])); // change? must concat with people nodes
+        const currentGraphComponents = getCurrentGraphComponents(rangeCollabs.current, rangeEdges.current, focusedNode.current)
+        collabs.current = currentGraphComponents.collabs.map(d => Object.assign(old.get(d.id) || {}, d));
+        edges.current = currentGraphComponents.edges
         // create new variable so that edges.current ALWAYS holds {source: nodeId, target: nodeId}
         let edgesToSimulate = edges.current.map(d => Object.assign({}, d));
-        labels.current = getLabelData(edges.current, nodes.current, dataset.current.people, dataset.current.personEdges, focusedNode.current)
+        labels.current = getLabelData(edges.current, collabs.current, dataset.current.people, dataset.current.personEdges, focusedNode.current)
 
-        node = node
-          .data(nodes.current, d => d.id)
+        collab = collab
+          .data(collabs.current, d => d.id)
           .join(enter => {
             enter = enter.append('g')
               .classed('node', true)
@@ -209,7 +207,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   window.open('https://youtube.com/watch?v=' + d.yt_id, 'mywindow').focus()
                   return
                 }
-                let graphComponents = null
                 if (focusedNode.current && focusedNode.current.id === d.id) {
                   console.log('deselect')
                   // defocus clicked node
@@ -220,22 +217,14 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   // change force center
                   simulation.force('center', d3.forceCenter().x(w/2).y(h/2))
                   simulation.force("link").strength(defaultForceLinkStrength)
-                  graphComponents = getGraphComponents(dataset.current, range.current)
                 } else {
                   if (focusedNode.current) {
                     console.log('change select')
                     // unfix currently selected node
                     focusedNode.current.fx = null
                     focusedNode.current.fy = null
-                    // update with clicked node + directly linked collabs
-                    const mainComponents = getGraphComponents(dataset.current, range.current)
-                    graphComponents = getSubgraphFromNode(mainComponents.nodes, mainComponents.edges, d)
-                    // display people
                   } else {
                     console.log('new select')
-                    // update with clicked node + directly linked collabs
-                    graphComponents = getSubgraphFromNode(nodes.current, edges.current, d)
-                    // display people
                   }
                   // focus clicked node
                   focusedNode.current = d
@@ -246,8 +235,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   simulation.force('center', d3.forceCenter().x(d.fx).y(d.fy))
                   simulation.force("link").strength(0)
                 }
-                nodes.current = graphComponents.nodes
-                edges.current = graphComponents.edges
                 network.current.update()
               })
               .call(dragNode(simulation))
@@ -309,7 +296,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
             return d.person.thumbnail
           })
 
-        simulation.nodes(nodes.current);
+        simulation.nodes(collabs.current);
         simulation.force("link").links(edgesToSimulate);
         simulation.alpha(1).restart();
       }
