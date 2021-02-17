@@ -19,12 +19,13 @@ const getRangeGraphComponents = (dataset, range, focusedNode) => {
   const collabs = dataset.nodes.filter(node => {
     return nodeIds.includes(node.id)
   })
+  console.log({collabs, edges})
   return {collabs, edges}
 }
 
-const getCurrentGraphComponents = (rangeCollabs, rangeEdges, focusedNode) => {
-  if (!focusedNode) return {collabs: rangeCollabs, edges: rangeEdges}
-  return getSubgraphFromNode(rangeCollabs, rangeEdges, focusedNode)
+const getCurrentGraphComponents = (dataset, rangeCollabs, rangeEdges, focusedNode) => {
+  if (!focusedNode) return {collabs: rangeCollabs, people: [], edges: rangeEdges}
+  return getFocusedGraphComponents(dataset, rangeCollabs, rangeEdges, focusedNode)
 }
 
 /* returns subset {nodes, edges} connected to given node from:
@@ -32,40 +33,47 @@ const getCurrentGraphComponents = (rangeCollabs, rangeEdges, focusedNode) => {
  *  - edges of graph
  *  - focusedNode
 */
-const getSubgraphFromNode = (nodes, edges, focusedNode) => {
-  // find all edges with node as source or target + nodes that node is connected to
-  const connectedNodes = [focusedNode]
+const getFocusedGraphComponents = (dataset, rangeCollabs, rangeEdges, focusedNode) => {
+  const connectedCollabs = [focusedNode]
+  const connectedPeople = []
   const connectedEdges = []
-  edges.forEach(edge => {
-    if (edge.source === focusedNode.id) {
-      connectedNodes.push(nodes.find(node => node.id === edge.target))
-      connectedEdges.push(edge)
-    } else if (edge.target === focusedNode.id) {
-      connectedNodes.push(nodes.find(node => node.id === edge.source))
-      connectedEdges.push(edge)
+  rangeEdges.forEach(edge => {
+    if (edge.source === focusedNode.id || edge.target === focusedNode.id) {
+      const personEdges = dataset.personEdges.filter(pe => {
+        return pe.edge.source === edge.source
+          && pe.edge.target === edge.target
+      })
+      // find people connected to edge
+      personEdges.forEach(pe => {
+        const personId = `p-${pe.person}`
+        if (!connectedPeople.find(person => person.id === personId)) {
+          connectedPeople.push({...dataset.people.find(person => person.id === pe.person), id: personId})
+        }
+        connectedEdges.push({
+          source: personId,
+          target: focusedNode.id,
+        })
+        if (pe.edge.source === focusedNode.id) {
+          connectedEdges.push({
+            source: personId,
+            target: pe.edge.target,
+          })
+          if (!connectedCollabs.find(collab => collab.id === pe.edge.target)) {
+            connectedCollabs.push(rangeCollabs.find(collab => collab.id === pe.edge.target))
+          }
+        } else if (pe.edge.target === focusedNode.id) {
+          connectedEdges.push({
+            source: personId,
+            target: pe.edge.source,
+          })
+          if (!connectedCollabs.find(collab => collab.id === pe.edge.source)) {
+            connectedCollabs.push(rangeCollabs.find(collab => collab.id === pe.edge.source))
+          }
+        }
+      })
     }
   })
-  return {collabs: connectedNodes, edges: connectedEdges}
+  return {collabs: connectedCollabs, people: connectedPeople, edges: connectedEdges}
 }
 
-/* returns [{person, edge, i, l}] from:
- *  - people: array of person objects {id, name, misc_id, id_type, thumbnail}
- *  - edges: array of edge objects {source, target}; source < target
- *  - edgesToPeople: {edge: [people ids]}
-*/
-const getLabelData = (edges, nodes, people, personEdges, focusedNode) => {
-  if (!focusedNode) return []
-  return personEdges.filter(pe => edges.find(edge => edge.source === pe.edge.source && edge.target === pe.edge.target))
-    .map(pe => {
-      return {
-        ...pe,
-        person: people.find(person => person.id === pe.person),
-        edge: {
-          source: nodes.find(node => node.id === pe.edge.source),
-          target: nodes.find(node => node.id === pe.edge.target),
-        },
-      }
-    })
-}
-
-export { getRangeGraphComponents, getCurrentGraphComponents, getLabelData }
+export { getRangeGraphComponents, getCurrentGraphComponents }

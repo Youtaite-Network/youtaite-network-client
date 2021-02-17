@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react"
 import * as d3 from 'd3'
 import Spinner from 'react-bootstrap/Spinner'
 import './Network.css'
-import { getRangeGraphComponents, getCurrentGraphComponents, getLabelData } from '../utils/GraphUtils'
+import { getRangeGraphComponents, getCurrentGraphComponents } from '../utils/GraphUtils'
 
 function Network({datasetProp, rangeProp, loadMessage}) {
   const [removeSpinner, setRemoveSpinner] = useState(false)
@@ -12,6 +12,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
   const rangeCollabs = useRef()
   const edges = useRef()
   const collabs = useRef()
+  const people = useRef()
   const labels = useRef()
   const dataset = useRef()
   const range = useRef()
@@ -42,10 +43,10 @@ function Network({datasetProp, rangeProp, loadMessage}) {
     const boundingRect = d3.select('#network').node().getBoundingClientRect()
     const w = boundingRect.width
     const h = boundingRect.height
-    const nodeW = 36
-    const nodeH = 20.25
-    const labelW = 20
-    const labelH = 20
+    const collabW = 36
+    const collabH = 20.25
+    const personW = 20
+    const personH = 20
 
     // create svg
     const svg = d3.select("#network")
@@ -63,7 +64,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       .selectAll("line")
 
     // create people (image labels)
-    let label = graph.append('g')
+    let person = graph.append('g')
       .selectAll('image')
 
     // create collab nodes
@@ -79,8 +80,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       .force("y", d3.forceY())
       .force("center", d3.forceCenter().x(w/2).y(h/2))
       .on("tick", ticked)
-
-    const defaultForceLinkStrength = simulation.force('link').strength()
 
     // create title label in top left
     svg.append('text')
@@ -101,12 +100,8 @@ function Network({datasetProp, rangeProp, loadMessage}) {
         return 'translate(' + d.x + ',' + d.y + ')'
       })
 
-      label.attr('x', function(d) {
-          return d.edge.source.x + (d.edge.target.x-d.edge.source.x) * (d.i+1) / (d.l+1) - labelW/2
-        })
-        .attr('y', function(d) {
-          return d.edge.source.y + (d.edge.target.y-d.edge.source.y) * (d.i+1)/(d.l+1) - labelH/2
-        })
+      person.attr('x', d => d.x)
+        .attr('y', d => d.y)
     }
 
     // define zoom function
@@ -151,12 +146,12 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       update: function() {
         if (!rangeCollabs.current || !rangeEdges.current) return
         const old = new Map(collab.data().map(d => [d.id, d])); // change? must concat with people nodes
-        const currentGraphComponents = getCurrentGraphComponents(rangeCollabs.current, rangeEdges.current, focusedNode.current)
+        const currentGraphComponents = getCurrentGraphComponents(dataset.current, rangeCollabs.current, rangeEdges.current, focusedNode.current)
         collabs.current = currentGraphComponents.collabs.map(d => Object.assign(old.get(d.id) || {}, d));
-        edges.current = currentGraphComponents.edges
+        people.current = currentGraphComponents.people.map(d => Object.assign(old.get(d.id) || {}, d));
+        edges.current = currentGraphComponents.edges;
         // create new variable so that edges.current ALWAYS holds {source: nodeId, target: nodeId}
         let edgesToSimulate = edges.current.map(d => Object.assign({}, d));
-        labels.current = getLabelData(edges.current, collabs.current, dataset.current.people, dataset.current.personEdges, focusedNode.current)
 
         collab = collab
           .data(collabs.current, d => d.id)
@@ -216,7 +211,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   d.fx = null
                   // change force center
                   simulation.force('center', d3.forceCenter().x(w/2).y(h/2))
-                  simulation.force("link").strength(defaultForceLinkStrength)
                 } else {
                   if (focusedNode.current) {
                     console.log('change select')
@@ -233,7 +227,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   d.fy = d.y
                   // change force center
                   simulation.force('center', d3.forceCenter().x(d.fx).y(d.fy))
-                  simulation.force("link").strength(0)
                 }
                 network.current.update()
               })
@@ -244,10 +237,10 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               })
               .classed('node', true)
               .append('rect')
-              .attr('width', nodeW)
-              .attr('height', nodeH)
-              .attr('x', -nodeW/2)
-              .attr('y', -nodeH/2)
+              .attr('width', collabW)
+              .attr('height', collabH)
+              .attr('x', -collabW/2)
+              .attr('y', -collabH/2)
               .attr('rx', 5)
               .attr('fill', 'white')
             enter.append('image')
@@ -259,17 +252,17 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                 return 'url(#clip-path-' + d.id
               })
               .attr('xlink:href', function(d) { return d.thumbnail;})
-              .attr('width', nodeW)
-              .attr('height', nodeH)
-              .attr('x', -nodeW/2)
-              .attr('y', -nodeH/2)
+              .attr('width', collabW)
+              .attr('height', collabH)
+              .attr('x', -collabW/2)
+              .attr('y', -collabH/2)
             enter.append('rect')
               .attr('id', d => `rect-${d.id}`)
               .classed('node', true)
-              .attr('width', nodeW)
-              .attr('height', nodeH)
-              .attr('x', -nodeW/2)
-              .attr('y', -nodeH/2)
+              .attr('width', collabW)
+              .attr('height', collabH)
+              .attr('x', -collabW/2)
+              .attr('y', -collabH/2)
               .attr('rx', 5)
               .style('fill', 'none')
               .style('stroke', 'lightgrey')
@@ -286,17 +279,17 @@ function Network({datasetProp, rangeProp, loadMessage}) {
           })
           .classed('edge', true)
 
-        label = label
-          .data(labels.current, d => [d.person, d.edge.source.id, d.edge.target.id])
+        person = person
+          .data(people.current, d => d.id)
           .join('image')
-          .classed('label', true)
-          .attr('width', labelW)
-          .attr('height', labelH)
+          .classed('person', true)
+          .attr('width', personW)
+          .attr('height', personH)
           .attr('xlink:href', function(d) {
-            return d.person.thumbnail
+            return d.thumbnail
           })
 
-        simulation.nodes(collabs.current);
+        simulation.nodes(collabs.current.concat(people.current));
         simulation.force("link").links(edgesToSimulate);
         simulation.alpha(1).restart();
       }

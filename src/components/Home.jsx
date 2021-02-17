@@ -37,7 +37,7 @@ function Home(props) {
     //   })
     //   .catch(error => console.log(error))
     setTimeout(() => {
-      const data = require('../data/small.json')
+      const data = require('../data/large.json')
       setData(data)
       startRange.current = [3, 11]
       setRange(startRange.current)
