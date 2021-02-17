@@ -13,7 +13,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
   const edges = useRef()
   const collabs = useRef()
   const people = useRef()
-  const labels = useRef()
   const dataset = useRef()
   const range = useRef()
   const network = useRef()
@@ -157,7 +156,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
           .data(collabs.current, d => d.id)
           .join(enter => {
             enter = enter.append('g')
-              .classed('node', true)
+              .classed('collab', true)
               .attr('id', d => `g-${d.id}`)
               .on('mouseover', function(evt, d) {
                 const filteredEdges = edges.current.filter(function(e) {
@@ -185,14 +184,14 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   .style('opacity', 1)
               })
               .on('mouseout', function(e, d) {
-                svg.selectAll('rect.node')
+                svg.selectAll('rect.collab')
                   .style('stroke', 'lightgrey')
                   .style('stroke-width', .5)
                   .attr('transform', 'scale(1)')
                 svg.selectAll('line.edge')
                   .style('stroke-width', .5)
                   .style('stroke', 'lightgrey')
-                svg.selectAll('image.node')
+                svg.selectAll('image.collab')
                   .attr('transform', 'scale(1)')
                 svg.select('#title-text')
                   .style('opacity', 0)
@@ -235,7 +234,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('id', function(d) {
                 return 'clip-path-' + d.id
               })
-              .classed('node', true)
+              .classed('collab', true)
               .append('rect')
               .attr('width', collabW)
               .attr('height', collabH)
@@ -247,7 +246,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('id', function(d) {
                 return 'img-' + d.id
               })
-              .classed('node', true)
+              .classed('collab', true)
               .attr('clip-path', function(d) {
                 return 'url(#clip-path-' + d.id
               })
@@ -258,7 +257,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('y', -collabH/2)
             enter.append('rect')
               .attr('id', d => `rect-${d.id}`)
-              .classed('node', true)
+              .classed('collab', true)
               .attr('width', collabW)
               .attr('height', collabH)
               .attr('x', -collabW/2)

@@ -49,10 +49,12 @@ const getFocusedGraphComponents = (dataset, rangeCollabs, rangeEdges, focusedNod
         if (!connectedPeople.find(person => person.id === personId)) {
           connectedPeople.push({...dataset.people.find(person => person.id === pe.person), id: personId})
         }
-        connectedEdges.push({
-          source: personId,
-          target: focusedNode.id,
-        })
+        if (!connectedEdges.find(edge => edge.source === personId && edge.target === focusedNode.id)) {
+          connectedEdges.push({
+            source: personId,
+            target: focusedNode.id,
+          })
+        }
         if (pe.edge.source === focusedNode.id) {
           connectedEdges.push({
             source: personId,
