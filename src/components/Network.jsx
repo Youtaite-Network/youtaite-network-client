@@ -179,7 +179,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               })
               .on('click', function(e, d) {
                 if (e.metaKey || e.ctrlKey) {
-                  window.open('https://youtube.com/watch?v=' + d.yt_id, 'mywindow').focus()
+                  window.open(`https://youtube.com/watch?v=${d.yt_id}`, d.id).focus()
                   return
                 }
                 if (focusedNode.current && focusedNode.current.id === d.id) {
@@ -279,6 +279,17 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                 svg.selectAll('line.active')
                   .classed('active', false)
                 titleText.classed('active', false) // title label
+              })
+              .on('click', function(e, d) {
+                if (e.metaKey || e.ctrlKey) {
+                  if (d.id_type === 'yt') {
+                    window.open(`https://youtube.com/channel/${d.misc_id}`, d.id).focus()
+                  } else if (d.id_type === 'tw') {
+                    window.open(`https://twitter.com/i/user/${d.misc_id}`, d.id).focus()
+                  } else if (d.id_type !== 'no_link') { // soundcloud, ig, etc; haven't linked these APIs yet
+                    window.open(d.misc_id, d.id).focus()
+                  }
+                }
               })
             enter.append('clipPath')
               .attr('id', d => `clip-path-${d.id}`)
