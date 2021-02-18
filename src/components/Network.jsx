@@ -86,10 +86,10 @@ function Network({datasetProp, rangeProp, loadMessage}) {
 
     // draw edges & nodes with correct placements at each tick
     function ticked() {
-      edge.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+      edge.attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
     
       collab.attr('transform', d => `translate(${d.x},${d.y})`)
 
@@ -171,11 +171,11 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   .classed('active', true)
               })
               .on('mouseout', function(e, d) {
-                svg.selectAll('g.active')
+                svg.selectAll('g.active') // nodes
                   .classed('active', false)
-                svg.selectAll('line.active')
+                svg.selectAll('line.active') // edges
                   .classed('active', false)
-                titleText.classed('active', false)
+                titleText.classed('active', false) // title label
               })
               .on('click', function(e, d) {
                 if (e.metaKey || e.ctrlKey) {
@@ -184,9 +184,8 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                 }
                 if (focusedNode.current && focusedNode.current.id === d.id) {
                   console.log('deselect')
-                  // defocus clicked node
+                  // defocus & unfix clicked node
                   focusedNode.current = null
-                  // unfix clicked node
                   d.fx = null
                   d.fx = null
                   // change force center
@@ -200,9 +199,8 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   } else {
                     console.log('new select')
                   }
-                  // focus clicked node
+                  // focus/fix clicked node
                   focusedNode.current = d
-                  // fix clicked node
                   d.fx = d.x
                   d.fy = d.y
                   // change force center
@@ -242,9 +240,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
           .data(edgesToSimulate, d => [d.source, d.target])
           .join("line")
           .classed('edge', true)
-          .attr('id', function(d) {
-            return 'edge-' + d.source + '-' + d.target
-          })
+          .attr('id', d => `edge-${d.source}-${d.target}`)
           .classed('edge', true)
 
         person = person
