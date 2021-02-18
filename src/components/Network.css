@@ -13,16 +13,16 @@ rect.collab, circle.person, line.edge {
   fill: none;
 }
 
-image.collab.active, image.person.active, rect.collab.active, circle.person.active {
+g.active image.collab, g.active image.person, g.active rect.collab, g.active circle.person {
   transform: scale(1.5);
 }
 
-rect.collab.active {
+g.active rect.collab {
   stroke: orangered;
   stroke-width: 1;
 }
 
-circle.person.active {
+g.active circle.person {
   stroke: dodgerblue;
   stroke-width: 1;
 }

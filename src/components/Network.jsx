@@ -157,35 +157,23 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                 })
                 let filteredNodeIds = []
                 filteredEdges.forEach(function(e) {
-                  svg.select('#edge-' + e.source + '-' + e.target)
+                  svg.select(`#edge-${e.source}-${e.target}`)
                     .classed('active', true)
                   filteredNodeIds.push(e.source)
                   filteredNodeIds.push(e.target)
                 })
                 filteredNodeIds = [...new Set(filteredNodeIds)] // remove dupes
                 filteredNodeIds.forEach(function(nodeId) {
-                  svg.select(`#image-${nodeId}`)
-                    .classed('active', true)
-                  // for collab nodes
-                  svg.select(`#rect-${nodeId}`)
-                    .classed('active', true)
-                  // for person nodes
-                  svg.select(`#circle-${nodeId}`)
+                  svg.select(`#g-${nodeId}`)
                     .classed('active', true)
                 })
                 titleText.text(d.title)
                   .classed('active', true)
               })
               .on('mouseout', function(e, d) {
-                svg.selectAll('rect.collab')
+                svg.selectAll('g.active')
                   .classed('active', false)
-                svg.selectAll('line.edge')
-                  .classed('active', false)
-                svg.selectAll('image.collab')
-                  .classed('active', false)
-                svg.selectAll('image.person')
-                  .classed('active', false)
-                svg.selectAll('circle.person')
+                svg.selectAll('line.active')
                   .classed('active', false)
                 titleText.classed('active', false)
               })
@@ -224,9 +212,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               })
               .call(dragNode(simulation))
             enter.append('clipPath')
-              .attr('id', function(d) {
-                return 'clip-path-' + d.id
-              })
+              .attr('id', d => `clip-path-${d.id}`)
               .classed('collab', true)
               .append('rect')
               .attr('width', collabW)
@@ -235,18 +221,14 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('y', -collabH/2)
               .attr('rx', 5)
             enter.append('image')
-              .attr('id', function(d) {
-                return 'image-' + d.id
-              })
               .classed('collab', true)
               .attr('clip-path', d => `url(#clip-path-${d.id})`)
-              .attr('xlink:href', function(d) { return d.thumbnail;})
+              .attr('xlink:href', d => d.thumbnail)
               .attr('width', collabW)
               .attr('height', collabH)
               .attr('x', -collabW/2)
               .attr('y', -collabH/2)
             enter.append('rect')
-              .attr('id', d => `rect-${d.id}`)
               .classed('collab', true)
               .attr('width', collabW)
               .attr('height', collabH)
@@ -270,6 +252,11 @@ function Network({datasetProp, rangeProp, loadMessage}) {
           .join(enter => {
             enter = enter.append('g')
               .classed('person', true)
+              .attr('id', d => `g-${d.id}`)
+              .on('mouseover', function(e, d) {
+                titleText.text(d.name)
+                  .classed('active', true)
+              })
             enter.append('clipPath')
               .attr('id', d => `clip-path-${d.id}`)
               .classed('person', true)
@@ -278,7 +265,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('x', -personR/2)
               .attr('y', -personR/2)
             enter.append('image')
-              .attr('id', d => `image-${d.id}`)
               .classed('person', true)
               .attr('width', personR)
               .attr('height', personR)
@@ -287,7 +273,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('xlink:href', d => d.thumbnail)
               .attr('clip-path', d => `url(#clip-path-${d.id})`)
             enter.append('circle')
-              .attr('id', d => `circle-${d.id}`)
               .classed('person', true)
               .attr('r', personR/2)
               .attr('x', -personR/2)
