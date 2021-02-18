@@ -51,7 +51,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       .append("svg")
       .attr("width", w)
       .attr("height", h)
-      .style('border', '1px solid lightgrey')
 
     const graph = svg.append('g')
 
@@ -84,8 +83,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       .attr('id', 'title-text')
       .attr('x', 15)
       .attr('y', 26)
-      .style('font-size', '1.2em')
-      .style('font-weight', 'bold')
 
     // draw edges & nodes with correct placements at each tick
     function ticked() {
@@ -161,56 +158,36 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                 let filteredNodeIds = []
                 filteredEdges.forEach(function(e) {
                   svg.select('#edge-' + e.source + '-' + e.target)
-                    .style('stroke', 'orange')
-                    .style('stroke-width', 1.5)
+                    .classed('active', true)
                   filteredNodeIds.push(e.source)
                   filteredNodeIds.push(e.target)
                 })
                 filteredNodeIds = [...new Set(filteredNodeIds)] // remove dupes
                 filteredNodeIds.forEach(function(nodeId) {
                   svg.select(`#image-${nodeId}`)
-                    .attr('transform', 'scale(1.5)')
+                    .classed('active', true)
                   // for collab nodes
                   svg.select(`#rect-${nodeId}`)
-                    .style('stroke', 'orangered')
-                    .style('stroke-width', 1)
-                    .attr('transform', 'scale(1.5)')
+                    .classed('active', true)
                   // for person nodes
                   svg.select(`#circle-${nodeId}`)
-                    .style('stroke', 'dodgerblue')
-                    .style('stroke-width', 1)
-                    .attr('transform', 'scale(1.5)')
+                    .classed('active', true)
                 })
                 titleText.text(d.title)
-                  .style('opacity', 1)
-                // filteredNodeIds.forEach(nodeId => {
-                //   // don't list the hovered node
-                //   if (nodeId === d.id || !nodeId.toString().startsWith('p')) return
-                //   titleText.append('tspan')
-                //     .attr('x', 15)
-                //     .attr('dy', '1.2em')
-                //     .style('font-size', '.8em')
-                //     .style('font-weight', 'normal')
-                //     .text(people.current.find(person => person.id === nodeId).name)
-                // })
+                  .classed('active', true)
               })
               .on('mouseout', function(e, d) {
                 svg.selectAll('rect.collab')
-                  .style('stroke', 'lightgrey')
-                  .style('stroke-width', .5)
-                  .attr('transform', 'scale(1)')
+                  .classed('active', false)
                 svg.selectAll('line.edge')
-                  .style('stroke-width', .5)
-                  .style('stroke', 'lightgrey')
+                  .classed('active', false)
                 svg.selectAll('image.collab')
-                  .attr('transform', 'scale(1)')
+                  .classed('active', false)
                 svg.selectAll('image.person')
-                  .attr('transform', 'scale(1)')
+                  .classed('active', false)
                 svg.selectAll('circle.person')
-                  .style('stroke', 'lightgrey')
-                  .style('stroke-width', .5)
-                  .attr('transform', 'scale(1)')
-                titleText.style('opacity', 0)
+                  .classed('active', false)
+                titleText.classed('active', false)
               })
               .on('click', function(e, d) {
                 if (e.metaKey || e.ctrlKey) {
@@ -276,9 +253,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('x', -collabW/2)
               .attr('y', -collabH/2)
               .attr('rx', 5)
-              .style('fill', 'none')
-              .style('stroke', 'lightgrey')
-              .style('stroke-width', .5)
             return enter;
           })
 
@@ -318,9 +292,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('r', personR/2)
               .attr('x', -personR/2)
               .attr('y', -personR/2)
-              .style('fill', 'none')
-              .style('stroke', 'lightgrey')
-              .style('stroke-width', .5)
             return enter
           })
 

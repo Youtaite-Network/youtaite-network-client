@@ -1,10 +1,47 @@
-image.collab, rect.collab, image.person, circle.person, line.edge {
-  transition: all .12s ease-in-out;
+svg {
+  border: 1px solid lightgrey;
 }
 
-text {
+image.collab, rect.collab, image.person, circle.person, line.edge {
+  transition: all .12s ease-in-out;
+  transform: scale(1);
+}
+
+rect.collab, circle.person, line.edge {
+  stroke: lightgrey;
+  stroke-width: .5;
+  fill: none;
+}
+
+image.collab.active, image.person.active, rect.collab.active, circle.person.active {
+  transform: scale(1.5);
+}
+
+rect.collab.active {
+  stroke: orangered;
+  stroke-width: 1;
+}
+
+circle.person.active {
+  stroke: dodgerblue;
+  stroke-width: 1;
+}
+
+line.edge.active {
+  stroke: orange;
+  stroke-width: 1.5;
+}
+
+#title-text {
   transition: opacity .15s ease-in-out;
+  font-size: 1.2em;
+  font-weight: bold;
   pointer-events: none;
+  opacity: 0;
+}
+
+#title-text.active {
+  opacity: 1;
 }
 
 #network {
