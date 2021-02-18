@@ -44,8 +44,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
     const h = boundingRect.height
     const collabW = 36
     const collabH = 20.25
-    const personW = 20
-    const personH = 20
+    const personR = 20
 
     // create svg
     const svg = d3.select("#network")
@@ -280,20 +279,20 @@ function Network({datasetProp, rangeProp, loadMessage}) {
             enter.append('clipPath')
               .attr('id', d => `clip-path-${d.id}`)
               .append('circle')
-              .attr('r', personW/2)
-              .attr('x', -personW/2)
-              .attr('y', -personH/2)
+              .attr('r', personR/2)
+              .attr('x', -personR/2)
+              .attr('y', -personR/2)
             enter.append('image')
-              .attr('width', personW)
-              .attr('height', personH)
-              .attr('x', -personW/2)
-              .attr('y', -personH/2)
+              .attr('width', personR)
+              .attr('height', personR)
+              .attr('x', -personR/2)
+              .attr('y', -personR/2)
               .attr('xlink:href', d => d.thumbnail)
               .attr('clip-path', d => `url(#clip-path-${d.id})`)
             enter.append('circle')
-              .attr('r', personW/2)
-              .attr('x', -personW/2)
-              .attr('y', -personH/2)
+              .attr('r', personR/2)
+              .attr('x', -personR/2)
+              .attr('y', -personR/2)
               .style('fill', 'none')
               .style('stroke', 'lightgrey')
               .style('stroke-width', .5)
