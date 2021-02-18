@@ -89,13 +89,13 @@ class PeopleForm extends React.Component {
 
   // event handler: switch to personInput when cmd/ctrl-enter is pressed in roleInput
   handleRoleKeyDown(e) {
-    if (e.key === 'Enter' && e.metaKey === true) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       this.personInput.current.focus()
     }
   }
 
   handlePersonKeyDown(e) {
-    if (e.key === 'Enter' && e.metaKey === true) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       this.roleInput.current.focus()
     }
   }

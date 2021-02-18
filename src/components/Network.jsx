@@ -79,7 +79,7 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
       .selectAll('g')
 
     const simulation = d3.forceSimulation()
-      .force("charge", d3.forceManyBody().strength(-1000))
+      .force("charge", d3.forceManyBody().strength(-600))
       .force("link", d3.forceLink().id(d => d.id).distance(50))
       .force("x", d3.forceX())
       .force("y", d3.forceY())
