@@ -249,9 +249,36 @@ function Network({datasetProp, rangeProp, loadMessage}) {
             enter = enter.append('g')
               .classed('person', true)
               .attr('id', d => `g-${d.id}`)
-              .on('mouseover', function(e, d) {
+              .on('mouseover', function(evt, d) {
                 titleText.text(d.name)
                   .classed('active', true)
+                // find connected edges/nodes
+                const filteredEdges = edges.current.filter(e => 
+                  e.source === d.id || e.target === d.id)
+                const filteredNodes = filteredEdges.map(e => {
+                  if (e.source === d.id) {
+                    return collabs.current.find(node => node.id === e.target)
+                  } else {
+                    return collabs.current.find(node => node.id === e.source)
+                  }
+                })
+                filteredNodes.push(d)
+                // assign active class to connected edges/nodes
+                filteredEdges.forEach(e => {
+                  svg.select(`#edge-${e.source}-${e.target}`)
+                    .classed('active', true)
+                })
+                filteredNodes.forEach(n => {
+                  svg.select(`#g-${n.id}`)
+                    .classed('active', true)
+                })
+              })
+              .on('mouseout', function(evt, d) {
+                svg.selectAll('g.active')
+                  .classed('active', false)
+                svg.selectAll('line.active')
+                  .classed('active', false)
+                titleText.classed('active', false) // title label
               })
             enter.append('clipPath')
               .attr('id', d => `clip-path-${d.id}`)
