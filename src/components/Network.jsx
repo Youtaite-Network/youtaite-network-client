@@ -64,7 +64,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
 
     // create people (image labels)
     let person = graph.append('g')
-      .selectAll('image')
+      .selectAll('g')
 
     // create collab nodes
     let collab = graph.append('g')
@@ -99,8 +99,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
         return 'translate(' + d.x + ',' + d.y + ')'
       })
 
-      person.attr('x', d => d.x)
-        .attr('y', d => d.y)
+      person.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
     }
 
     // define zoom function
@@ -280,12 +279,16 @@ function Network({datasetProp, rangeProp, loadMessage}) {
 
         person = person
           .data(people.current, d => d.id)
-          .join('image')
-          .classed('person', true)
-          .attr('width', personW)
-          .attr('height', personH)
-          .attr('xlink:href', function(d) {
-            return d.thumbnail
+          .join(enter => {
+            enter = enter.append('g')
+              .classed('person', true)
+            enter.append('image')
+              .attr('width', personW)
+              .attr('height', personH)
+              .attr('x', -personW/2)
+              .attr('y', -personH/2)
+              .attr('xlink:href', d => d.thumbnail)
+            return enter
           })
 
         simulation.nodes(collabs.current.concat(people.current));
