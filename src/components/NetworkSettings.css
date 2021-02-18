@@ -1,0 +1,20 @@
+rect.selection {
+  fill: dodgerblue;
+  stroke: none;
+}
+
+rect.overlay {
+  stroke: lightgray;
+}
+
+#labelleft, #labelright {
+  font-size: 12px;
+}
+
+#labelleft {
+  text-anchor: end;
+}
+
+#labelright {
+  text-anchor: start;
+}

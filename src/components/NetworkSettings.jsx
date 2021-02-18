@@ -6,6 +6,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Form from 'react-bootstrap/Form'
 import Table from 'react-bootstrap/Table'
 import { MdInfo } from 'react-icons/md'
+import './NetworkSettings.css'
 
 function NetworkSettings({initialRange, setRange, initialDrag, setDrag}) {
   const [show, setShow] = useState(false)
@@ -15,17 +16,17 @@ function NetworkSettings({initialRange, setRange, initialDrag, setDrag}) {
     // create slider
     const w = 200
     const h = 40
-    const padX = 20
+    const padX = 15
     const padY = 5
     const svg = d3.select('#slider')
       .append('svg')
       .attr('width', w)
       .attr('height', h)
     // https://observablehq.com/@sarah37/snapping-range-slider-with-d3-brush
-    const slider = sliderSnap(svg, [1, initialRange[1], initialRange[0]], {x: padX, y: padY, width: w - padX*2, height: h - padY*2})
+    sliderSnap(svg, [1, initialRange[1], initialRange[0]], {x: padX, y: padY, width: w - padX*2, height: h - padY*2})
     d3.select('#slider-event-handler')
       .on('change', function(event) {
-        setRange(slider.getRange())
+        setRange(event.detail.range)
       })
   }, [initialRange, setRange])
 
@@ -35,7 +36,8 @@ function NetworkSettings({initialRange, setRange, initialDrag, setDrag}) {
     // create x scale
     const xScale = d3.scaleLinear()
       .domain(range)  // data space
-      .range([x, x + width]);  // display space
+      .range([x, x + width])  // display space
+      .clamp(true); // clamp to range
     
     // create svg and translated g
     const g = svg.append('g').classed('slider', true)
@@ -48,49 +50,53 @@ function NetworkSettings({initialRange, setRange, initialDrag, setDrag}) {
       .attr('x1', d => xScale(d)).attr('x2', d => xScale(d))
       .attr('y1', y).attr('y2', y+height)
       .style('stroke', '#ccc')
-    
-    // labels
-    const labelL = g.append('text')
-      .attr('id', 'labelleft')
-      .attr('x', x)
-      .attr('y', y + height + 5)
-      .text(range[0])
 
-    const labelR = g.append('text')
-      .attr('id', 'labelright')
-      .attr('x', x)
-      .attr('y', y + height + 5)
-      .text(range[1])
+    let selection = null
 
     // define brush
     const brush = d3.brushX()
       .extent([[x,y], [x+width, y+height]])
       .on('brush', function(event) {
-        const s = event.selection;
+        if (event.sourceEvent && event.sourceEvent.type === "brush") return
+        selection = event.selection;
         // update and move labels
-        labelL.attr('x', s[0])
-          .text(Math.round(xScale.invert(s[0])))
-        labelR.attr('x', s[1])
-          .text(Math.round(xScale.invert(s[1])) - 1)
+        labelL.attr('x', selection[0])
+          .text(Math.round(xScale.invert(selection[0])))
+        labelR.attr('x', selection[1])
+          .text(Math.round(xScale.invert(selection[1])))
         // move brush handles      
         handle.attr("display", null)
           .attr("transform", function(d, i) { 
-            return `translate(${[ s[i], y - height / 4]})`; 
+            return `translate(${[selection[i], y - height / 4]})`; 
           });
       })
       .on('end', function(event) {
         if (!event.sourceEvent) return;
-        const d0 = event.selection.map(xScale.invert);
+        const s = selection ? selection : [event.sourceEvent.offsetX, event.sourceEvent.offsetX];
+        const d0 = s.map(xScale.invert);
         const d1 = d0.map(Math.round)
         d3.select(this).transition().call(event.target.move, d1.map(xScale))
         // update view
-        d3.select('#slider-event-handler').dispatch('change');
+        d3.select('#slider-event-handler').dispatch('change', {detail: {range: d1}});
       })
 
     // append brush to g
     const gBrush = g.append("g")
         .attr("class", "brush")
         .call(brush)
+
+    // labels
+    const labelL = g.append('text')
+      .attr('id', 'labelleft')
+      .attr('x', x)
+      .attr('y', y + height + 4)
+      .text(range[0])
+
+    const labelR = g.append('text')
+      .attr('id', 'labelright')
+      .attr('x', x)
+      .attr('y', y + height + 4)
+      .text(range[1])
 
     // add brush handles (from https://bl.ocks.org/Fil/2d43867ba1f36a05459c7113c7f6f98a)
     const brushResizePath = function(d) {
@@ -119,10 +125,7 @@ function NetworkSettings({initialRange, setRange, initialDrag, setDrag}) {
     
     // select entire range
     gBrush.call(brush.move, [start, max].map(xScale))
-    const getRange = function() {
-      return d3.brushSelection(gBrush.node()).map(d => Math.round(xScale.invert(d)))
-    }
-    return {...svg.node(), getRange: getRange}
+    return svg.node()
   }
 
   const toggleShow = e => {

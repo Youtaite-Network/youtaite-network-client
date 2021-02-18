@@ -160,23 +160,30 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
               .classed('collab', true)
               .attr('id', d => `g-${d.id}`)
               .on('mouseover', function(evt, d) {
+                titleText.text(d.title)
+                  .classed('active', true)
+                // find edges
                 const filteredEdges = edges.current.filter(function(e) {
                   return e.source === d.id || e.target === d.id
                 })
-                let filteredNodeIds = []
+                // find nodes
+                const filteredNodeIds = filteredEdges.map(edge => {
+                  if (edge.source === d.id) {
+                    return edge.target
+                  } else {
+                    return edge.source
+                  }
+                })
+                filteredNodeIds.push(d.id)
+                // add class active to edges & nodes
                 filteredEdges.forEach(function(e) {
                   svg.select(`#edge-${e.source}-${e.target}`)
                     .classed('active', true)
-                  filteredNodeIds.push(e.source)
-                  filteredNodeIds.push(e.target)
                 })
-                filteredNodeIds = [...new Set(filteredNodeIds)] // remove dupes
                 filteredNodeIds.forEach(function(nodeId) {
                   svg.select(`#g-${nodeId}`)
                     .classed('active', true)
                 })
-                titleText.text(d.title)
-                  .classed('active', true)
               })
               .on('mouseout', function(e, d) {
                 svg.selectAll('g.active') // nodes
@@ -262,21 +269,21 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
                 // find connected edges/nodes
                 const filteredEdges = edges.current.filter(e => 
                   e.source === d.id || e.target === d.id)
-                const filteredNodes = filteredEdges.map(e => {
+                const filteredNodeIds = filteredEdges.map(e => {
                   if (e.source === d.id) {
-                    return collabs.current.find(node => node.id === e.target)
+                    return e.target
                   } else {
-                    return collabs.current.find(node => node.id === e.source)
+                    return e.source
                   }
                 })
-                filteredNodes.push(d)
+                filteredNodeIds.push(d.id)
                 // assign active class to connected edges/nodes
                 filteredEdges.forEach(e => {
                   svg.select(`#edge-${e.source}-${e.target}`)
                     .classed('active', true)
                 })
-                filteredNodes.forEach(n => {
-                  svg.select(`#g-${n.id}`)
+                filteredNodeIds.forEach(nodeId => {
+                  svg.select(`#g-${nodeId}`)
                     .classed('active', true)
                 })
               })
