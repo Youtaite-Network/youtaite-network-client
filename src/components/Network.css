@@ -1,12 +1,4 @@
-image.collab {
-  transition: all .12s ease-in-out;
-}
-
-rect.collab {
-  transition: all .12s ease-in-out;
-}
-
-line {
+image.collab, rect.collab, image.person, circle.person, line.edge {
   transition: all .12s ease-in-out;
 }
 

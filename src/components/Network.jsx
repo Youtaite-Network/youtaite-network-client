@@ -168,11 +168,17 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                 })
                 filteredNodeIds = [...new Set(filteredNodeIds)] // remove dupes
                 filteredNodeIds.forEach(function(nodeId) {
+                  svg.select(`#image-${nodeId}`)
+                    .attr('transform', 'scale(1.5)')
+                  // for collab nodes
                   svg.select(`#rect-${nodeId}`)
-                    .style('stroke', 'orange')
+                    .style('stroke', 'orangered')
                     .style('stroke-width', 1)
                     .attr('transform', 'scale(1.5)')
-                  svg.select(`#img-${nodeId}`)
+                  // for person nodes
+                  svg.select(`#circle-${nodeId}`)
+                    .style('stroke', 'dodgerblue')
+                    .style('stroke-width', 1)
                     .attr('transform', 'scale(1.5)')
                 })
                 svg.select('#title-text')
@@ -191,6 +197,12 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   .attr('transform', 'scale(1)')
                 svg.select('#title-text')
                   .style('opacity', 0)
+                svg.selectAll('image.person')
+                  .attr('transform', 'scale(1)')
+                svg.selectAll('circle.person')
+                  .style('stroke', 'lightgrey')
+                  .style('stroke-width', .5)
+                  .attr('transform', 'scale(1)')
               })
               .on('click', function(e, d) {
                 if (e.metaKey || e.ctrlKey) {
@@ -239,7 +251,7 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('rx', 5)
             enter.append('image')
               .attr('id', function(d) {
-                return 'img-' + d.id
+                return 'image-' + d.id
               })
               .classed('collab', true)
               .attr('clip-path', d => `url(#clip-path-${d.id})`)
@@ -278,11 +290,14 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .classed('person', true)
             enter.append('clipPath')
               .attr('id', d => `clip-path-${d.id}`)
+              .classed('person', true)
               .append('circle')
               .attr('r', personR/2)
               .attr('x', -personR/2)
               .attr('y', -personR/2)
             enter.append('image')
+              .attr('id', d => `image-${d.id}`)
+              .classed('person', true)
               .attr('width', personR)
               .attr('height', personR)
               .attr('x', -personR/2)
@@ -290,6 +305,8 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('xlink:href', d => d.thumbnail)
               .attr('clip-path', d => `url(#clip-path-${d.id})`)
             enter.append('circle')
+              .attr('id', d => `circle-${d.id}`)
+              .classed('person', true)
               .attr('r', personR/2)
               .attr('x', -personR/2)
               .attr('y', -personR/2)
