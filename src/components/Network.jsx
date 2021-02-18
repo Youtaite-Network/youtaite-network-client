@@ -95,11 +95,9 @@ function Network({datasetProp, rangeProp, loadMessage}) {
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
     
-      collab.attr('transform', function(d) {
-        return 'translate(' + d.x + ',' + d.y + ')'
-      })
+      collab.attr('transform', d => `translate(${d.x},${d.y})`)
 
-      person.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
+      person.attr('transform', d => `translate(${d.x},${d.y})`)
     }
 
     // define zoom function
@@ -240,15 +238,12 @@ function Network({datasetProp, rangeProp, loadMessage}) {
               .attr('x', -collabW/2)
               .attr('y', -collabH/2)
               .attr('rx', 5)
-              .attr('fill', 'white')
             enter.append('image')
               .attr('id', function(d) {
                 return 'img-' + d.id
               })
               .classed('collab', true)
-              .attr('clip-path', function(d) {
-                return 'url(#clip-path-' + d.id
-              })
+              .attr('clip-path', d => `url(#clip-path-${d.id})`)
               .attr('xlink:href', function(d) { return d.thumbnail;})
               .attr('width', collabW)
               .attr('height', collabH)
@@ -282,12 +277,26 @@ function Network({datasetProp, rangeProp, loadMessage}) {
           .join(enter => {
             enter = enter.append('g')
               .classed('person', true)
+            enter.append('clipPath')
+              .attr('id', d => `clip-path-${d.id}`)
+              .append('circle')
+              .attr('r', personW/2)
+              .attr('x', -personW/2)
+              .attr('y', -personH/2)
             enter.append('image')
               .attr('width', personW)
               .attr('height', personH)
               .attr('x', -personW/2)
               .attr('y', -personH/2)
               .attr('xlink:href', d => d.thumbnail)
+              .attr('clip-path', d => `url(#clip-path-${d.id})`)
+            enter.append('circle')
+              .attr('r', personW/2)
+              .attr('x', -personW/2)
+              .attr('y', -personH/2)
+              .style('fill', 'none')
+              .style('stroke', 'lightgrey')
+              .style('stroke-width', .5)
             return enter
           })
 
