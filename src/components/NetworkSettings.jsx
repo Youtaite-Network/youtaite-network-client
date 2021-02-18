@@ -3,13 +3,15 @@ import * as d3 from 'd3'
 import Button from 'react-bootstrap/Button'
 import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Form from 'react-bootstrap/Form'
+import Table from 'react-bootstrap/Table'
 import { MdInfo } from 'react-icons/md'
 
-function NetworkSettings({startRange, setRange}) {
+function NetworkSettings({initialRange, setRange, initialDrag, setDrag}) {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    if (!startRange) return
+    if (!initialRange) return
     // create slider
     const w = 200
     const h = 40
@@ -20,12 +22,12 @@ function NetworkSettings({startRange, setRange}) {
       .attr('width', w)
       .attr('height', h)
     // https://observablehq.com/@sarah37/snapping-range-slider-with-d3-brush
-    const slider = sliderSnap(svg, [1, startRange[1], startRange[0]], {x: padX, y: padY, width: w - padX*2, height: h - padY*2})
+    const slider = sliderSnap(svg, [1, initialRange[1], initialRange[0]], {x: padX, y: padY, width: w - padX*2, height: h - padY*2})
     d3.select('#slider-event-handler')
       .on('change', function(event) {
         setRange(slider.getRange())
       })
-  }, [startRange, setRange])
+  }, [initialRange, setRange])
 
   const sliderSnap = (svg, [min, max, start], {x, y, width, height}) => {
     const range = [min, max]
@@ -127,6 +129,10 @@ function NetworkSettings({startRange, setRange}) {
     setShow(!show)
   }
 
+  const handleDragChange = e => {
+    setDrag(e.target.checked)
+  }
+
   const renderTooltip = props => (
     <Tooltip id="button-tooltip" {...props}>
       Edge strength of X means that X people in common between 2 collabs becomes an edge.
@@ -137,15 +143,32 @@ function NetworkSettings({startRange, setRange}) {
     <>
       <Button variant="light" onClick={toggleShow}>{show ? 'Hide' : 'Show'} settings</Button>
       <div id="slider-event-handler" className="d-none"></div>
-      <div id="network-settings" size="sm" className={show ? '' : 'd-none'}>
-        <div className="d-flex flex-row align-items-center">
-          <OverlayTrigger overlay={renderTooltip}>
-            <Button variant="link"><MdInfo className="mt-n1" /></Button>
-          </OverlayTrigger>
-          <div><strong>Edge Strength:</strong></div>
-          <div id="slider"></div>
-        </div>
-      </div>
+      <Table id="network-settings" size="sm" className={show ? '' : 'd-none'} borderless>
+        <tbody>
+          <tr className="d-flex">
+            <td>
+              <OverlayTrigger overlay={renderTooltip}>
+                <Button variant="link"><MdInfo className="mt-n1" /></Button>
+              </OverlayTrigger>
+              <strong style={{position: 'relative', top: '2px'}}>Edge Strength:</strong>
+            </td>
+            <td>
+              <div id="slider"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Form.Check
+                className="ml-1"
+                type="switch"
+                id="drag-enabled"
+                label=<strong>Draggable nodes</strong>
+                onChange={handleDragChange}
+                defaultChecked={initialDrag} />
+            </td>
+          </tr>
+        </tbody>
+      </Table>
     </>
   )
 }

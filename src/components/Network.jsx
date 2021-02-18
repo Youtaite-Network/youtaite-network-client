@@ -4,10 +4,10 @@ import Spinner from 'react-bootstrap/Spinner'
 import './Network.css'
 import { getRangeGraphComponents, getCurrentGraphComponents } from '../utils/GraphUtils'
 
-function Network({datasetProp, rangeProp, loadMessage}) {
+function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
   const [removeSpinner, setRemoveSpinner] = useState(false)
   const [showSpinner, setShowSpinner] = useState(true)
-  const focusedNode = useRef(null)
+  const focusedNode = useRef()
   const rangeEdges = useRef()
   const rangeCollabs = useRef()
   const edges = useRef()
@@ -16,16 +16,24 @@ function Network({datasetProp, rangeProp, loadMessage}) {
   const dataset = useRef()
   const range = useRef()
   const network = useRef()
+  const drag = useRef(true)
 
   useEffect(() => {
     if (datasetProp && rangeProp) {
+      // console.log(dragEnabled)
+      drag.current = dragProp
       if (network.current) {
-        dataset.current = datasetProp
-        range.current = rangeProp
-        const graphComponents = getRangeGraphComponents(dataset.current, range.current)
-        rangeCollabs.current = graphComponents.collabs
-        rangeEdges.current = graphComponents.edges
-        network.current.update()
+        if (datasetProp !== dataset.current || rangeProp !== range.current) {
+          dataset.current = datasetProp
+          range.current = rangeProp
+          const graphComponents = getRangeGraphComponents(dataset.current, range.current)
+          rangeCollabs.current = graphComponents.collabs
+          rangeEdges.current = graphComponents.edges
+          network.current.update()
+        } else if (dragProp !== drag) {
+          drag.current = dragProp
+          network.current.setDrag(dragProp)
+        }
       } else {
         network.current = createNetwork()
         setTimeout(() => {
@@ -119,10 +127,10 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       }
       function dragEnded(e, d) {  
         if (!e.active) force.alphaTarget(0);
-        if (!focusedNode.current || (focusedNode.current && focusedNode.current.id !== d.id)) {
+        if (!focusedNode.current || focusedNode.current.id !== d.id) {
           d.fx = null;
           d.fy = null;
-        } else if (focusedNode.current && focusedNode.current.id === d.id) {
+        } else {
           simulation.force('center', d3.forceCenter().x(d.x).y(d.y))
         }
       }
@@ -208,7 +216,6 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                 }
                 network.current.update()
               })
-              .call(dragNode(simulation))
             enter.append('clipPath')
               .attr('id', d => `clip-path-${d.id}`)
               .classed('collab', true)
@@ -317,13 +324,25 @@ function Network({datasetProp, rangeProp, loadMessage}) {
         simulation.nodes(collabs.current.concat(people.current));
         simulation.force("link").links(edgesToSimulate);
         simulation.alpha(1).restart();
+        network.current.setDrag(drag.current)
+      },
+      setDrag: function(drag) {
+        if (drag) {
+          collab.call(dragNode(simulation))
+          person.call(dragNode(simulation))
+        } else {
+          collab.on('mousedown.drag', null)
+            .on('touchstart.drag', null)
+          person.on('mousedown.drag', null)
+            .on('touchstart.drag', null)
+        }
       }
     }
   }
 
   return (
     <>
-      <p className="mb-1">Cmd/ctrl-click to open the collab in a new tab. Click a collab to see collabs it is connected to. Zoom, pan, drag enabled.</p>
+      <p className="mb-1">Cmd/ctrl-click a node to open in a new tab. Click a collab to see collabs it is connected to. Zoom, pan, drag enabled.</p>
       <div id="network" className="d-flex justify-content-center align-items-top">
         {!removeSpinner && <div id="spinner" 
           className={'d-flex flex-column ' + (showSpinner ? 'spinning' : '')}>
