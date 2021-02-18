@@ -80,12 +80,12 @@ function Network({datasetProp, rangeProp, loadMessage}) {
       .on("tick", ticked)
 
     // create title label in top left
-    svg.append('text')
+    const titleText = svg.append('text')
       .attr('id', 'title-text')
       .attr('x', 15)
       .attr('y', 26)
-      .attr('font-size', 18)
-      .attr('font-weight', 'bold')
+      .style('font-size', '1.2em')
+      .style('font-weight', 'bold')
 
     // draw edges & nodes with correct placements at each tick
     function ticked() {
@@ -181,9 +181,18 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                     .style('stroke-width', 1)
                     .attr('transform', 'scale(1.5)')
                 })
-                svg.select('#title-text')
-                  .text(d.title)
+                titleText.text(d.title)
                   .style('opacity', 1)
+                // filteredNodeIds.forEach(nodeId => {
+                //   // don't list the hovered node
+                //   if (nodeId === d.id || !nodeId.toString().startsWith('p')) return
+                //   titleText.append('tspan')
+                //     .attr('x', 15)
+                //     .attr('dy', '1.2em')
+                //     .style('font-size', '.8em')
+                //     .style('font-weight', 'normal')
+                //     .text(people.current.find(person => person.id === nodeId).name)
+                // })
               })
               .on('mouseout', function(e, d) {
                 svg.selectAll('rect.collab')
@@ -195,14 +204,13 @@ function Network({datasetProp, rangeProp, loadMessage}) {
                   .style('stroke', 'lightgrey')
                 svg.selectAll('image.collab')
                   .attr('transform', 'scale(1)')
-                svg.select('#title-text')
-                  .style('opacity', 0)
                 svg.selectAll('image.person')
                   .attr('transform', 'scale(1)')
                 svg.selectAll('circle.person')
                   .style('stroke', 'lightgrey')
                   .style('stroke-width', .5)
                   .attr('transform', 'scale(1)')
+                titleText.style('opacity', 0)
               })
               .on('click', function(e, d) {
                 if (e.metaKey || e.ctrlKey) {
