@@ -6,7 +6,7 @@ import { MdClear } from 'react-icons/md'
 import './SelectedBox.css'
 
 class SelectedBox extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
     // PROPS
     // items
@@ -15,58 +15,61 @@ class SelectedBox extends React.Component {
     // removeRole
 
     // event handlers
-    this.removePerson = this.removePerson.bind(this)
-    this.removeRole = this.removeRole.bind(this)
+    this.handleRemovePerson = this.handleRemovePerson.bind(this)
+    this.handleRemoveRole = this.handleRemoveRole.bind(this)
   }
 
-  componentDidUpdate() {
-    localStorage.setItem('selected', JSON.stringify(this.props.items))
-    localStorage.setItem('currentMiscId', this.props.current)
+  componentDidUpdate () {
+    window.localStorage.setItem('selected', JSON.stringify(this.props.items))
+    window.localStorage.setItem('currentMiscId', this.props.current)
   }
 
-  removePerson(e) {
-    let id = e.target.id
-    let index = id.substring(id.lastIndexOf('-') + 1)
+  handleRemovePerson (e) {
+    const id = e.target.id
+    const index = id.substring(id.lastIndexOf('-') + 1)
     this.props.removePerson(this.props.items[index].misc_id)
   }
 
-  removeRole(e) {
-    let idSplit = e.target.id.split('-')
-    let personIndex = idSplit[3]
-    let role = idSplit[4]
+  handleRemoveRole (e) {
+    const idSplit = e.target.id.split('-')
+    const personIndex = idSplit[3]
+    const role = idSplit[4]
     this.props.removeRole(this.props.items[personIndex].misc_id, role)
   }
 
-  renderItems(items, current) {
-    let itemsArray = []
+  renderItems (items, current) {
+    const itemsArray = []
     items.forEach((item, i) => {
       let border = 'null'
       if (item.misc_id === current) {
         border = 'danger'
       }
       itemsArray.push(
-        <Card className="row flex-row align-items-center flex-nowrap m-1 pr-3" 
-          bg="light" text="dark" border={border} key={`selected-${i}`}>
+        <Card
+          className='row flex-row align-items-center flex-nowrap m-1 pr-3'
+          bg='light' text='dark' border={border} key={`selected-${i}`}
+        >
           <div>
-            <Image className="m-1" width="40px" height="40px" roundedCircle src={item.thumbnail} />
+            <Image className='m-1' width='40px' height='40px' roundedCircle src={item.thumbnail} />
           </div>
-          <div className="mx-1 d-flex flex-column text-truncate">
+          <div className='mx-1 d-flex flex-column text-truncate'>
             <strong>
-              {item.id_type === 'no_link' 
-              ? item.name
-              : <a href={(item.id_type === 'yt' && `https://youtube.com/channel/${item.misc_id}`) 
-                || (item.id_type === 'tw' && `https://twitter.com/i/user/${item.misc_id}`) 
-                || `https://${item.misc_id}`}>
-                {item.name}
-              </a>}
+              {item.id_type === 'no_link' ? item.name : 
+                <a href={(item.id_type === 'yt' && `https://youtube.com/channel/${item.misc_id}`) ||
+                  (item.id_type === 'tw' && `https://twitter.com/i/user/${item.misc_id}`) ||
+                  `https://${item.misc_id}`}>
+                  {item.name}
+                </a>}
             </strong>
-            <div className="d-flex">
+            <div className='d-flex'>
               {this.renderRoles(item.roles, i)}
             </div>
           </div>
-          <Button id={`rm-person-btn-${i}`} type="button" variant="outline-danger" 
-            className="rm-person-btn d-flex align-items-center p-0 h-100"
-            onClick={this.removePerson}>
+          <Button
+            id={`rm-person-btn-${i}`} type='button' variant='outline-danger'
+            className='rm-person-btn d-flex align-items-center p-0 h-100'
+            onClick={this.handleRemovePerson}
+          >
             <MdClear />
           </Button>
         </Card>
@@ -75,24 +78,26 @@ class SelectedBox extends React.Component {
     return itemsArray
   }
 
-  renderRoles(roles, personIndex) {
-    let rolesArray = []
+  renderRoles (roles, personIndex) {
+    const rolesArray = []
     if (roles && roles.length > 0) {
       roles.forEach((role, i) => {
         rolesArray.push(
-          <div className="role-card d-flex" key={`role-${personIndex}-${role}`}>
+          <div className='role-card d-flex' key={`role-${personIndex}-${role}`}>
             <i>{`${role},`}</i>
-            <Button id={`rm-role-btn-${personIndex}-${role}`} 
-              className="rm-role-btn m-0 p-0" variant="outline-danger" 
-              onClick={this.removeRole}>
-              <MdClear className="mt-n1" />
+            <Button
+              id={`rm-role-btn-${personIndex}-${role}`}
+              className='rm-role-btn m-0 p-0' variant='outline-danger'
+              onClick={this.handleRemoveRole}
+            >
+              <MdClear className='mt-n1' />
             </Button>
           </div>
         )
       })
     } else {
       rolesArray.push(
-        <div className="role-card d-flex" bg="light" key={`role-${personIndex}-none`}>
+        <div className='role-card d-flex' bg='light' key={`role-${personIndex}-none`}>
           <i>no roles.</i>
         </div>
       )
@@ -100,14 +105,14 @@ class SelectedBox extends React.Component {
     return rolesArray
   }
 
-  render() {
+  render () {
     const itemsArray = this.renderItems(this.props.items, this.props.current)
 
     return (
-      <Card bg="light" className={'mb-3 ' + (itemsArray.length > 0 ? '' : 'd-none')}>
+      <Card bg='light' className={'mb-3 ' + (itemsArray.length > 0 ? '' : 'd-none')}>
         <Card.Header>Selected people:</Card.Header>
         <Card.Body>
-          <div className="d-flex flex-wrap">
+          <div className='d-flex flex-wrap'>
             {itemsArray}
           </div>
         </Card.Body>

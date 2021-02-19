@@ -3,15 +3,15 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
 class EnterAlias extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor (props) {
+    super(props)
     // PROPS
     // show
     // channelLink
     // handleSubmit
     this.state = {
-      alias: '',
-    };
+      alias: ''
+    }
 
     // refs
     this.defaultButton = React.createRef()
@@ -22,54 +22,54 @@ class EnterAlias extends React.Component {
     this.handleKeyDown = this.handleKeyDown.bind(this)
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (!prevProps.show && this.props.show) {
       this.input.current.focus()
     }
   }
 
-  handleAliasChange(e) {
+  handleAliasChange (e) {
     this.setState({
-      alias: e.target.value,
+      alias: e.target.value
     })
   }
 
-  handleAdd(e) {
-    let person = {
+  handleAdd (e) {
+    const person = {
       name: this.state.alias,
       misc_id: this.props.channelLink,
       id_type: 'yt_link',
-      thumbnail: '#',
+      thumbnail: '#'
     }
     this.props.handleSubmit(person)
   }
 
-  handleKeyDown(e) {
+  handleKeyDown (e) {
     if (e.key === 'Enter') {
       this.defaultButton.current.click()
     }
   }
 
-  render() {
+  render () {
     return (
       <div className={this.props.show ? '' : 'd-none'}>
-        <hr/>
+        <hr />
         <Form.Group>
           <Form.Label>Enter alias</Form.Label>
           <Form.Control
-            type="alias"
-            placeholder="Alias"
+            type='alias'
+            placeholder='Alias'
             value={this.state.alias}
             onChange={this.handleAliasChange}
             onKeyDown={this.handleKeyDown}
             ref={this.input}
           />
         </Form.Group>
-        <Button ref={this.defaultButton} className="ml-1" variant="primary" disabled={this.state.alias.length === 0} onClick={this.handleAdd}>
+        <Button ref={this.defaultButton} className='ml-1' variant='primary' disabled={this.state.alias.length === 0} onClick={this.handleAdd}>
           Add
         </Button>
       </div>
-    );
+    )
   }
 }
 

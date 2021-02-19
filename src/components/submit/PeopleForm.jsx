@@ -9,8 +9,8 @@ import RoleAutosuggest from './RoleAutosuggest'
 import AddNewPersonDialog from './addnewperson/AddNewPersonDialog'
 
 class PeopleForm extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor (props) {
+    super(props)
     // PROPS
     // handleSubmit
     // onRoleSuggestionSelected
@@ -18,22 +18,22 @@ class PeopleForm extends React.Component {
     // currentPerson
     this.state = {
       people: [],
-      showAddNewPersonDialog: false,
+      showAddNewPersonDialog: false
     }
 
     // refs
     this.personInput = React.createRef()
     this.roleInput = this.props.roleInput
     // event handlers
-    this.onPersonSuggestionSelected = this.onPersonSuggestionSelected.bind(this)
+    this.handlePersonSuggestionSelected = this.handlePersonSuggestionSelected.bind(this)
     this.handlePersonKeyDown = this.handlePersonKeyDown.bind(this)
-    this.onRoleSuggestionSelected = this.onRoleSuggestionSelected.bind(this)
+    this.handleRoleSuggestionSelected = this.handleRoleSuggestionSelected.bind(this)
     this.handleRoleKeyDown = this.handleRoleKeyDown.bind(this)
     this.hideAddNewPersonDialog = this.hideAddNewPersonDialog.bind(this)
     this.addNewPerson = this.addNewPerson.bind(this)
   }
 
-  componentDidMount() {
+  componentDidMount () {
     axios('https://youtaite-network-api.herokuapp.com/people')
       .then(response => {
         this.setState({
@@ -44,7 +44,7 @@ class PeopleForm extends React.Component {
     this.personInput.current.focus()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (!prevProps.show && this.props.show) {
       this.personInput.current.focus()
     }
@@ -60,11 +60,11 @@ class PeopleForm extends React.Component {
   }
 
   // Autosuggest: what to do when person suggestion is selected
-  onPersonSuggestionSelected(e, { suggestion }) {
+  handlePersonSuggestionSelected (e, { suggestion }) {
     if (!e.metaKey) { // user meant to switch inputs, not enter suggestion
       if (suggestion.misc_id === 'add new') {
         this.setState({
-          showAddNewPersonDialog: true,
+          showAddNewPersonDialog: true
         })
       } else {
         this.props.addPersonToSelected(suggestion)
@@ -81,32 +81,32 @@ class PeopleForm extends React.Component {
     }
   }
 
-  onRoleSuggestionSelected(e, { suggestion }) {
+  handleRoleSuggestionSelected (e, { suggestion }) {
     if (!e.metaKey) { // user meant to switch inputs, not enter suggestion
       this.props.onRoleSuggestionSelected(suggestion)
     }
   }
 
   // event handler: switch to personInput when cmd/ctrl-enter is pressed in roleInput
-  handleRoleKeyDown(e) {
+  handleRoleKeyDown (e) {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       this.personInput.current.focus()
     }
   }
 
-  handlePersonKeyDown(e) {
+  handlePersonKeyDown (e) {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       this.roleInput.current.focus()
     }
   }
 
-  hideAddNewPersonDialog() {
+  hideAddNewPersonDialog () {
     this.setState({
-      showAddNewPersonDialog: false,
+      showAddNewPersonDialog: false
     })
   }
 
-  addNewPerson(newPerson) {
+  addNewPerson (newPerson) {
     this.setState(prevState => {
       let newPeople = prevState.people
       if (!prevState.people.find(person => person.misc_id === newPerson.misc_id)) {
@@ -114,13 +114,13 @@ class PeopleForm extends React.Component {
       }
       return {
         people: newPeople,
-        showAddNewPersonDialog: false,
+        showAddNewPersonDialog: false
       }
     })
     this.props.addPersonToSelected(newPerson)
   }
 
-  render() {
+  render () {
     let takenRoles = []
     let readOnly = true
     if (this.props.currentPerson) {
@@ -130,27 +130,29 @@ class PeopleForm extends React.Component {
 
     return (
       <>
-        <Card className="sticky-top mb-3" bg="light">
-          <Card.Header>{'Cmd/ctrl-enter to switch between the two inputs. Type "." to quickly bring up "Add new person" option.'}</Card.Header>
+        <Card className='sticky-top mb-3' bg='light'>
+          <Card.Header>Cmd/ctrl-enter to switch between the two inputs. Type "." to quickly bring up "Add new person" option.</Card.Header>
           <Card.Body>
             <Form.Row className='mb-2'>
               <Col>
                 <PersonAutosuggest
                   people={this.state.people}
-                  onSuggestionSelected={this.onPersonSuggestionSelected}
+                  onSuggestionSelected={this.handlePersonSuggestionSelected}
                   personInput={this.personInput}
-                  handleKeyDown={this.handlePersonKeyDown} />
+                  onKeyDown={this.handlePersonKeyDown}
+                />
               </Col>
               <Col>
                 <RoleAutosuggest
                   takenRoles={takenRoles}
                   readOnly={readOnly}
-                  onSuggestionSelected={this.onRoleSuggestionSelected}
+                  onSuggestionSelected={this.handleRoleSuggestionSelected}
                   roleInput={this.roleInput}
-                  handleKeyDown={this.handleRoleKeyDown} />
+                  onKeyDown={this.handleRoleKeyDown}
+                />
               </Col>
             </Form.Row>
-            <Button className="w-100" variant="primary" type="button" onClick={this.props.handleSubmit}>
+            <Button className='w-100' variant='primary' type='button' onClick={this.props.handleSubmit}>
               Submit all
             </Button>
           </Card.Body>
@@ -158,9 +160,10 @@ class PeopleForm extends React.Component {
         <AddNewPersonDialog
           show={this.state.showAddNewPersonDialog}
           handleClose={this.hideAddNewPersonDialog}
-          handleAddNewPerson={this.addNewPerson} />
+          handleAddNewPerson={this.addNewPerson}
+        />
       </>
-    );
+    )
   }
 }
 

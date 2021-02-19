@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
-function UseOtherSocial({show, handleSubmit}) {
+function UseOtherSocial ({ show, handleSubmit }) {
   // state/context
   const [alias, setAlias] = useState('')
   const [socialLink, setSocialLink] = useState('')
@@ -33,10 +33,10 @@ function UseOtherSocial({show, handleSubmit}) {
   const handleAdd = e => {
     let link = socialLink
     if (link.startsWith('http')) { // remove protocol
-      let url = new URL(link)
-      link = `${url.hostname}${url.pathname}` 
+      const url = new URL(link)
+      link = `${url.hostname}${url.pathname}`
     }
-    let person = {}
+    const person = {}
     person.thumbnail = '#'
     person.name = alias
     person.misc_id = link
@@ -60,65 +60,69 @@ function UseOtherSocial({show, handleSubmit}) {
 
   return (
     <div className={show ? '' : 'd-none'}>
-      <hr/>
+      <hr />
       <Form.Group>
         <Form.Label>Enter alias</Form.Label>
         <Form.Control
-          type="alias"
-          placeholder="Alias"
+          type='alias'
+          placeholder='Alias'
           value={alias}
           onChange={handleAliasChange}
-          ref={input} />
+          ref={input}
+        />
       </Form.Group>
       <Form.Group>
         <Form.Label>Enter another social link (blank if none)</Form.Label>
         <Form.Control
-          type="social_link"
-          placeholder="https://instagram.com/XXXXX"
+          type='social_link'
+          placeholder='https://instagram.com/XXXXX'
           value={socialLink}
-          onChange={handleSocialLinkChange} />
+          onChange={handleSocialLinkChange}
+        />
       </Form.Group>
       <Form.Group>
-        <Form.Check 
-          id="ig-radio"
-          type="radio"
-          label="instagram"
-          name="social-type"
+        <Form.Check
+          id='ig-radio'
+          type='radio'
+          label='instagram'
+          name='social-type'
           ref={igRadio}
         />
-        <Form.Check 
-          id="fb-radio"
-          type="radio"
-          label="facebook"
-          name="social-type"
+        <Form.Check
+          id='fb-radio'
+          type='radio'
+          label='facebook'
+          name='social-type'
           ref={fbRadio}
         />
-        <Form.Check 
-          id="sc-radio"
-          type="radio"
-          label="soundcloud"
-          name="social-type"
+        <Form.Check
+          id='sc-radio'
+          type='radio'
+          label='soundcloud'
+          name='social-type'
           ref={scRadio}
         />
-        <Form.Check 
-          id="tumblr-radio"
-          type="radio"
-          label="tumblr"
-          name="social-type"
+        <Form.Check
+          id='tumblr-radio'
+          type='radio'
+          label='tumblr'
+          name='social-type'
           ref={tumblrRadio}
         />
-        <Form.Check 
-          id="other-radio"
-          type="radio"
-          label="other/no link"
-          name="social-type"
-          defaultChecked={true}
+        <Form.Check
+          id='other-radio'
+          type='radio'
+          label='other/no link'
+          name='social-type'
+          defaultChecked
           ref={otherRadio}
         />
       </Form.Group>
-      <Button className="ml-1" variant="primary" 
+      <Button
+        className='ml-1' variant='primary'
         onClick={handleAdd}
-        disabled={alias.length === 0}>
+        disabled={alias.length === 0}
+      >
         Add
       </Button>
     </div>

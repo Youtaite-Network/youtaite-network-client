@@ -4,7 +4,7 @@ import Cookies from 'js-cookie'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
-function FindChannelByLink({handleNoYTChannel, handleSubmit, input}) {
+function FindChannelByLink ({ handleNoYTChannel, handleSubmit, input }) {
   const [channelLink, setChannelLink] = useState('')
   const defaultButton = useRef(null)
 
@@ -15,15 +15,15 @@ function FindChannelByLink({handleNoYTChannel, handleSubmit, input}) {
   const analyzeChannelLink = e => {
     let link = channelLink
     if (link.startsWith('http')) { // remove protocol
-      let url = new URL(link)
-      link = `${url.hostname}${url.pathname}` 
+      const url = new URL(link)
+      link = `${url.hostname}${url.pathname}`
     }
 
     axios(`https://youtaite-network-api.herokuapp.com/people/info_from_url/${link}`, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Cookies.get('access-token')}`
-      },
+        Authorization: `Bearer ${Cookies.get('access-token')}`
+      }
     })
       .then(response => {
         Cookies.set('access-token', response.headers['access-token'], {
@@ -46,23 +46,23 @@ function FindChannelByLink({handleNoYTChannel, handleSubmit, input}) {
     <Form.Group>
       <Form.Group>
         <Form.Label>Link (Youtube or Twitter)</Form.Label>
-        <Form.Control 
-          type="channel_link" 
-          placeholder="https://youtube.com/channel/XXXXXXXXX" 
-          value={channelLink} 
+        <Form.Control
+          type='channel_link'
+          placeholder='https://youtube.com/channel/XXXXXXXXX'
+          value={channelLink}
           onChange={handleChannelLinkChange}
           onKeyDown={handleKeyDown}
           ref={input}
         />
       </Form.Group>
-      <Button className="mr-1" variant="secondary" onClick={handleNoYTChannel}>
+      <Button className='mr-1' variant='secondary' onClick={handleNoYTChannel}>
         No YT or TW link available
       </Button>
-      <Button ref={defaultButton} className="ml-1" variant="primary" disabled={channelLink.length === 0} onClick={analyzeChannelLink}>
+      <Button ref={defaultButton} className='ml-1' variant='primary' disabled={channelLink.length === 0} onClick={analyzeChannelLink}>
         Analyze link
       </Button>
     </Form.Group>
-  );
+  )
 }
 
-export default FindChannelByLink;
+export default FindChannelByLink

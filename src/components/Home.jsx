@@ -3,7 +3,7 @@ import Network from './Network'
 import NetworkSettings from './NetworkSettings'
 import axios from 'axios'
 
-function Home(props) {
+function Home (props) {
   const [range, setRange] = useState(null)
   const [drag, setDrag] = useState(true)
   const [data, setData] = useState(null)
@@ -46,12 +46,12 @@ function Home(props) {
   }, [])
 
   return (
-    <div className="container mt-3">
+    <div className='container mt-3'>
       <h2>Youtaite Network</h2>
-      <NetworkSettings initialRange={initialRange.current} setRange={setRange} initialDrag={true} setDrag={setDrag} />
+      <NetworkSettings initialRange={initialRange.current} setRange={setRange} initialDrag setDrag={setDrag} />
       <Network rangeProp={range} datasetProp={data} dragProp={drag} loadMessage={loadMessage} />
     </div>
-  );
+  )
 }
 
 export default Home

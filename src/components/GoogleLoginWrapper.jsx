@@ -4,16 +4,16 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 import AlertContext from './AlertContext'
 
-function GoogleLoginWrapper() {
+function GoogleLoginWrapper () {
   const { setAlert } = useContext(AlertContext)
 
   const onSuccess = user => {
-    let idtoken = user.getAuthResponse().id_token
+    const idtoken = user.getAuthResponse().id_token
     const params = new URLSearchParams()
     params.append('idtoken', idtoken)
-    axios.post('https://youtaite-network-api.herokuapp.com/googlesignin', 
+    axios.post('https://youtaite-network-api.herokuapp.com/googlesignin',
       params, // data
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }}) // headers
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }) // headers
       .then(response => {
         Cookies.set('access-token', response.headers['access-token'], {
           expires: new Date(response.headers['access-token-expiry'])
@@ -35,14 +35,13 @@ function GoogleLoginWrapper() {
 
   return (
     <GoogleLogin
-      clientId="242592601877-1unlb9i5rj8ianutc3o8cfgeu84t83a8.apps.googleusercontent.com"
-      buttonText="Sign in"
+      clientId='242592601877-1unlb9i5rj8ianutc3o8cfgeu84t83a8.apps.googleusercontent.com'
+      buttonText='Sign in'
       onSuccess={onSuccess}
       onFailure={onFailure}
-      cookiePolicy={'single_host_origin'}
+      cookiePolicy='single_host_origin'
     />
   )
 }
 
 export default GoogleLoginWrapper
-

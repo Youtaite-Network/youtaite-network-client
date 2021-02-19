@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect } from 'react'
 import * as d3 from 'd3'
 import Spinner from 'react-bootstrap/Spinner'
 import './Network.css'
 import { getRangeGraphComponents, getCurrentGraphComponents } from '../utils/GraphUtils'
 
-function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
+function Network ({ datasetProp, rangeProp, dragProp, loadMessage }) {
   const [removeSpinner, setRemoveSpinner] = useState(false)
   const [showSpinner, setShowSpinner] = useState(true)
   const focusedNode = useRef()
@@ -23,9 +23,9 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
       // console.log(dragEnabled)
       drag.current = dragProp
       if (network.current) {
-        if (datasetProp !== dataset.current 
-          || rangeProp[0] !== range.current[0] 
-          || rangeProp[1] !== range.current[1]) {
+        if (datasetProp !== dataset.current ||
+          rangeProp[0] !== range.current[0] ||
+          rangeProp[1] !== range.current[1]) {
           dataset.current = datasetProp
           range.current = rangeProp
           const graphComponents = getRangeGraphComponents(dataset.current, range.current)
@@ -57,18 +57,18 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
     const personR = 20
 
     // create svg
-    const svg = d3.select("#network")
-      .append("svg")
-      .attr("width", w)
-      .attr("height", h)
+    const svg = d3.select('#network')
+      .append('svg')
+      .attr('width', w)
+      .attr('height', h)
 
     const graph = svg.append('g')
 
     // create edges
     let edge = graph.append('g')
-      .attr("stroke", "lightgrey")
-      .attr("stroke-width", .5)
-      .selectAll("line")
+      .attr('stroke', 'lightgrey')
+      .attr('stroke-width', 0.5)
+      .selectAll('line')
 
     // create people (image labels)
     let person = graph.append('g')
@@ -76,17 +76,17 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
 
     // create collab nodes
     let collab = graph.append('g')
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5)
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.5)
       .selectAll('g')
 
     const simulation = d3.forceSimulation()
-      .force("charge", d3.forceManyBody().strength(-600))
-      .force("link", d3.forceLink().id(d => d.id).distance(50))
-      .force("x", d3.forceX())
-      .force("y", d3.forceY())
-      .force("center", d3.forceCenter().x(w/2).y(h/2))
-      .on("tick", ticked)
+      .force('charge', d3.forceManyBody().strength(-600))
+      .force('link', d3.forceLink().id(d => d.id).distance(50))
+      .force('x', d3.forceX())
+      .force('y', d3.forceY())
+      .force('center', d3.forceCenter().x(w / 2).y(h / 2))
+      .on('tick', ticked)
 
     // create title label in top left
     const titleText = svg.append('text')
@@ -95,12 +95,12 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
       .attr('y', 26)
 
     // draw edges & nodes with correct placements at each tick
-    function ticked() {
-      edge.attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
-    
+    function ticked () {
+      edge.attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y)
+
       collab.attr('transform', d => `translate(${d.x},${d.y})`)
 
       person.attr('transform', d => `translate(${d.x},${d.y})`)
@@ -109,29 +109,29 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
     // define zoom function
     svg.call(d3.zoom()
       .extent([[0, 0], [w, h]])
-      .scaleExtent([.2, 5])
-      .on("zoom", zoomed));
+      .scaleExtent([0.2, 5])
+      .on('zoom', zoomed))
 
-    function zoomed({transform}) {
+    function zoomed ({ transform }) {
       graph.attr('transform', transform)
     }
 
     // define node drag function
-    function dragNode(force) {
-      function dragStarted(e, d) {
-        if (!e.active) force.alphaTarget(.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
+    function dragNode (force) {
+      function dragStarted (e, d) {
+        if (!e.active) force.alphaTarget(0.3).restart()
+        d.fx = d.x
+        d.fy = d.y
       }
-      function dragging(e, d) {
-        d.fx = e.x;
-        d.fy = e.y;
+      function dragging (e, d) {
+        d.fx = e.x
+        d.fy = e.y
       }
-      function dragEnded(e, d) {  
-        if (!e.active) force.alphaTarget(0);
+      function dragEnded (e, d) {
+        if (!e.active) force.alphaTarget(0)
         if (!focusedNode.current || focusedNode.current.id !== d.id) {
-          d.fx = null;
-          d.fy = null;
+          d.fx = null
+          d.fy = null
         } else {
           simulation.force('center', d3.forceCenter().x(d.x).y(d.y))
         }
@@ -144,16 +144,17 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
 
     // https://observablehq.com/@d3/modifying-a-force-directed-graph
     // NOTE: using refs to prevent stale props/state within event handlers
-    return {...svg.node(),
-      update: function() {
+    return {
+      ...svg.node(),
+      update: function () {
         if (!rangeCollabs.current || !rangeEdges.current) return
-        const old = new Map(collab.data().map(d => [d.id, d])); // change? must concat with people nodes
+        const old = new Map(collab.data().map(d => [d.id, d])) // change? must concat with people nodes
         const currentGraphComponents = getCurrentGraphComponents(dataset.current, rangeCollabs.current, rangeEdges.current, focusedNode.current)
-        collabs.current = currentGraphComponents.collabs.map(d => Object.assign(old.get(d.id) || {}, d));
-        people.current = currentGraphComponents.people.map(d => Object.assign(old.get(d.id) || {}, d));
-        edges.current = currentGraphComponents.edges;
+        collabs.current = currentGraphComponents.collabs.map(d => Object.assign(old.get(d.id) || {}, d))
+        people.current = currentGraphComponents.people.map(d => Object.assign(old.get(d.id) || {}, d))
+        edges.current = currentGraphComponents.edges
         // create new variable so that edges.current ALWAYS holds {source: nodeId, target: nodeId}
-        let edgesToSimulate = edges.current.map(d => Object.assign({}, d));
+        const edgesToSimulate = edges.current.map(d => Object.assign({}, d))
 
         collab = collab
           .data(collabs.current, d => d.id)
@@ -161,11 +162,11 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
             enter = enter.append('g')
               .classed('collab', true)
               .attr('id', d => `g-${d.id}`)
-              .on('mouseover', function(evt, d) {
+              .on('mouseover', function (evt, d) {
                 titleText.text(d.title)
                   .classed('active', true)
                 // find edges
-                const filteredEdges = edges.current.filter(function(e) {
+                const filteredEdges = edges.current.filter(function (e) {
                   return e.source === d.id || e.target === d.id
                 })
                 // find nodes
@@ -178,23 +179,23 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
                 })
                 filteredNodeIds.push(d.id)
                 // add class active to edges & nodes
-                filteredEdges.forEach(function(e) {
+                filteredEdges.forEach(function (e) {
                   svg.select(`#edge-${e.source}-${e.target}`)
                     .classed('active', true)
                 })
-                filteredNodeIds.forEach(function(nodeId) {
+                filteredNodeIds.forEach(function (nodeId) {
                   svg.select(`#g-${nodeId}`)
                     .classed('active', true)
                 })
               })
-              .on('mouseout', function(e, d) {
+              .on('mouseout', function (e, d) {
                 svg.selectAll('g.active') // nodes
                   .classed('active', false)
                 svg.selectAll('line.active') // edges
                   .classed('active', false)
                 titleText.classed('active', false) // title label
               })
-              .on('click', function(e, d) {
+              .on('click', function (e, d) {
                 if (e.metaKey || e.ctrlKey) {
                   window.open(`https://youtube.com/watch?v=${d.yt_id}`, d.id).focus()
                   return
@@ -206,7 +207,7 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
                   d.fx = null
                   d.fx = null
                   // change force center
-                  simulation.force('center', d3.forceCenter().x(w/2).y(h/2))
+                  simulation.force('center', d3.forceCenter().x(w / 2).y(h / 2))
                 } else {
                   if (focusedNode.current) {
                     console.log('change select')
@@ -231,8 +232,8 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
               .append('rect')
               .attr('width', collabW)
               .attr('height', collabH)
-              .attr('x', -collabW/2)
-              .attr('y', -collabH/2)
+              .attr('x', -collabW / 2)
+              .attr('y', -collabH / 2)
               .attr('rx', 5)
             enter.append('image')
               .classed('collab', true)
@@ -240,21 +241,21 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
               .attr('xlink:href', d => d.thumbnail)
               .attr('width', collabW)
               .attr('height', collabH)
-              .attr('x', -collabW/2)
-              .attr('y', -collabH/2)
+              .attr('x', -collabW / 2)
+              .attr('y', -collabH / 2)
             enter.append('rect')
               .classed('collab', true)
               .attr('width', collabW)
               .attr('height', collabH)
-              .attr('x', -collabW/2)
-              .attr('y', -collabH/2)
+              .attr('x', -collabW / 2)
+              .attr('y', -collabH / 2)
               .attr('rx', 5)
-            return enter;
+            return enter
           })
 
         edge = edge
           .data(edgesToSimulate, d => [d.source, d.target])
-          .join("line")
+          .join('line')
           .classed('edge', true)
           .attr('id', d => `edge-${d.source}-${d.target}`)
           .classed('edge', true)
@@ -265,11 +266,11 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
             enter = enter.append('g')
               .classed('person', true)
               .attr('id', d => `g-${d.id}`)
-              .on('mouseover', function(evt, d) {
+              .on('mouseover', function (evt, d) {
                 titleText.text(d.name)
                   .classed('active', true)
                 // find connected edges/nodes
-                const filteredEdges = edges.current.filter(e => 
+                const filteredEdges = edges.current.filter(e =>
                   e.source === d.id || e.target === d.id)
                 const filteredNodeIds = filteredEdges.map(e => {
                   if (e.source === d.id) {
@@ -289,14 +290,14 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
                     .classed('active', true)
                 })
               })
-              .on('mouseout', function(evt, d) {
+              .on('mouseout', function (evt, d) {
                 svg.selectAll('g.active')
                   .classed('active', false)
                 svg.selectAll('line.active')
                   .classed('active', false)
                 titleText.classed('active', false) // title label
               })
-              .on('click', function(e, d) {
+              .on('click', function (e, d) {
                 if (e.metaKey || e.ctrlKey) {
                   if (d.id_type === 'yt') {
                     window.open(`https://youtube.com/channel/${d.misc_id}`, d.id).focus()
@@ -311,31 +312,31 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
               .attr('id', d => `clip-path-${d.id}`)
               .classed('person', true)
               .append('circle')
-              .attr('r', personR/2)
-              .attr('x', -personR/2)
-              .attr('y', -personR/2)
+              .attr('r', personR / 2)
+              .attr('x', -personR / 2)
+              .attr('y', -personR / 2)
             enter.append('image')
               .classed('person', true)
               .attr('width', personR)
               .attr('height', personR)
-              .attr('x', -personR/2)
-              .attr('y', -personR/2)
+              .attr('x', -personR / 2)
+              .attr('y', -personR / 2)
               .attr('xlink:href', d => d.thumbnail)
               .attr('clip-path', d => `url(#clip-path-${d.id})`)
             enter.append('circle')
               .classed('person', true)
-              .attr('r', personR/2)
-              .attr('x', -personR/2)
-              .attr('y', -personR/2)
+              .attr('r', personR / 2)
+              .attr('x', -personR / 2)
+              .attr('y', -personR / 2)
             return enter
           })
 
-        simulation.nodes(collabs.current.concat(people.current));
-        simulation.force("link").links(edgesToSimulate);
-        simulation.alpha(1).restart();
+        simulation.nodes(collabs.current.concat(people.current))
+        simulation.force('link').links(edgesToSimulate)
+        simulation.alpha(1).restart()
         network.current.setDrag(drag.current)
       },
-      setDrag: function(drag) {
+      setDrag: function (drag) {
         if (drag) {
           collab.call(dragNode(simulation))
           person.call(dragNode(simulation))
@@ -351,18 +352,20 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
 
   return (
     <>
-      <p className="mb-1">Cmd/ctrl-click a node to open in a new tab. Click a collab to see collabs it is connected to. Zoom, pan, drag enabled.</p>
-      <div id="network" className="d-flex justify-content-center align-items-top">
-        {!removeSpinner && <div id="spinner" 
-          className={'d-flex flex-column ' + (showSpinner ? 'spinning' : '')}>
-          <Spinner animation="border" role="loading network">
-            <span className="sr-only">Loading network...</span>
-          </Spinner>
-          <span className="ml-3">{loadMessage}</span>
-        </div>}
+      <p className='mb-1'>Cmd/ctrl-click a node to open in a new tab. Click a collab to see collabs it is connected to. Zoom, pan, drag enabled.</p>
+      <div id='network' className='d-flex justify-content-center align-items-top'>
+        {!removeSpinner && 
+          <div
+            id='spinner'
+            className={'d-flex flex-column ' + (showSpinner ? 'spinning' : '')}>
+            <Spinner animation='border' role='status'>
+              <span className='sr-only'>Loading network...</span>
+            </Spinner>
+            <span className='ml-3'>{loadMessage}</span>
+          </div>}
       </div>
     </>
-  );
+  )
 }
 
-export default Network;
+export default Network

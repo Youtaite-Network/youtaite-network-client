@@ -8,7 +8,7 @@ import { MdCheck, MdAdd } from 'react-icons/md'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 
-function stripProtocol(link) {
+function stripProtocol (link) {
   if (link.startsWith('http')) {
     const url = new URL(link)
     return `${url.hostname}${url.pathname}`
@@ -16,25 +16,25 @@ function stripProtocol(link) {
   return link
 }
 
-function VideoDescription({description, byline, addPersonToSelected, selected}) {
-  let itemsArray = [<strong key={`byline`}>{byline}</strong>, <br key={`br-byline`}/>]
-  description.split("\n").forEach((line, i) => {
+function VideoDescription ({ description, byline, addPersonToSelected, selected }) {
+  const itemsArray = [<strong key='byline'>{byline}</strong>, <br key='br-byline' />]
+  description.split('\n').forEach((line, i) => {
     itemsArray.push(<span key={`span-${i.toString()}`}>{line}</span>)
-    itemsArray.push(<br key={`br-${i.toString()}`}/>)
+    itemsArray.push(<br key={`br-${i.toString()}`} />)
   })
 
-  function formatter(value, type) {
+  function formatter (value, type) {
     return <VideoDescriptionLink link={value} addPersonToSelected={addPersonToSelected} selected={selected} />
   }
 
   return (
-    <Linkify className="d-inline" options={{tagName: 'span', format: formatter}}>
+    <Linkify className='d-inline' options={{ tagName: 'span', format: formatter }}>
       {itemsArray}
     </Linkify>
   )
 }
 
-function VideoDescriptionLink({link, addPersonToSelected, selected}) {
+function VideoDescriptionLink ({ link, addPersonToSelected, selected }) {
   const [channelInfo, setChannelInfo] = useState({})
   const [added, setAdded] = useState(false)
 
@@ -43,8 +43,8 @@ function VideoDescriptionLink({link, addPersonToSelected, selected}) {
     axios(`https://youtaite-network-api.herokuapp.com/people/info_from_url/${linkWithoutProtocol}`, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Cookies.get('access-token')}`
-      },
+        Authorization: `Bearer ${Cookies.get('access-token')}`
+      }
     })
       .then(response => {
         Cookies.set('access-token', response.headers['access-token'], {
@@ -54,7 +54,7 @@ function VideoDescriptionLink({link, addPersonToSelected, selected}) {
           thumbnail: response.data.thumbnail,
           name: response.data.name,
           misc_id: response.data.misc_id,
-          id_type: response.data.id_type,
+          id_type: response.data.id_type
         })
       })
       .catch(error => {
@@ -78,9 +78,9 @@ function VideoDescriptionLink({link, addPersonToSelected, selected}) {
   }
 
   const popover = (
-    <Popover id={`popover-${link}`} style={{maxWidth: '250px'}}>
-      <Popover.Title className="text-truncate" as="h3">
-        <Image className="mr-2" width="40px" height="40px" roundedCircle src={channelInfo.thumbnail} />
+    <Popover id={`popover-${link}`} style={{ maxWidth: '250px' }}>
+      <Popover.Title className='text-truncate' as='h3'>
+        <Image className='mr-2' width='40px' height='40px' roundedCircle src={channelInfo.thumbnail} />
         <strong>{channelInfo.name}</strong>
       </Popover.Title>
       <Popover.Content>
@@ -93,11 +93,11 @@ function VideoDescriptionLink({link, addPersonToSelected, selected}) {
     <>
       <a href={link}>{link}</a>
       {channelInfo.name &&
-      <OverlayTrigger trigger="hover" placement="right" overlay={popover}>
-        <Button className="mx-2 mt-n1 p-0" variant={added ? 'success' : 'outline-info'} style={{lineHeight: '.5'}} onClick={handleClick}>
-          {added ? <MdCheck /> : <MdAdd />}
-        </Button>
-      </OverlayTrigger>}
+        <OverlayTrigger trigger='hover' placement='right' overlay={popover}>
+          <Button className='mx-2 mt-n1 p-0' variant={added ? 'success' : 'outline-info'} style={{ lineHeight: '.5' }} onClick={handleClick}>
+            {added ? <MdCheck /> : <MdAdd />}
+          </Button>
+        </OverlayTrigger>}
     </>
   )
 }

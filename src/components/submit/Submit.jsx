@@ -11,7 +11,7 @@ import PeopleForm from './PeopleForm'
 import Video from './Video'
 import AlertContext from '../AlertContext'
 
-function Submit(props) {
+function Submit (props) {
   // state/context
   const [ytId, setYtId] = useState('')
   const [showSubmitForm, setShowSubmitForm] = useState(false)
@@ -22,14 +22,14 @@ function Submit(props) {
   const [currentMiscId, setCurrentMiscId] = useState('')
   const [resetCollabLinkOnChange, setResetCollabLinkOnChange] = useState(false)
   const [random, setRandom] = useState(false)
-  const {setAlert} = useContext(AlertContext)
+  const { setAlert } = useContext(AlertContext)
 
   // refs
   const roleInput = useRef(null)
 
   useEffect(() => {
-    const storedSelected = localStorage.getItem('selected')
-    const storedCurrentMiscId = localStorage.getItem('currentMiscId')
+    const storedSelected = window.localStorage.getItem('selected')
+    const storedCurrentMiscId = window.localStorage.getItem('currentMiscId')
     if (storedSelected && Cookies.get('access-token')) {
       setSelected(JSON.parse(storedSelected))
       setCurrentMiscId(storedCurrentMiscId)
@@ -59,12 +59,12 @@ function Submit(props) {
     if (window.confirm('Submit all roles?')) {
       axios.post('https://youtaite-network-api.herokuapp.com/submit', {
         people: selected,
-        yt_id: ytId,
+        yt_id: ytId
       }, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Cookies.get('access-token')}`
-        },
+          Authorization: `Bearer ${Cookies.get('access-token')}`
+        }
       })
         .then(response => {
           Cookies.set('access-token', response.headers['access-token'], {
@@ -85,7 +85,7 @@ function Submit(props) {
         data: { yt_id: ytId },
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Cookies.get('access-token')}`
+          Authorization: `Bearer ${Cookies.get('access-token')}`
         }
       })
         .then(response => {
@@ -105,7 +105,7 @@ function Submit(props) {
   }
 
   const useSubmitForm = (newTitle, newByline, newDescription, newYtId) => {
-    if (localStorage.getItem('ytId') !== newYtId) {
+    if (window.localStorage.getItem('ytId') !== newYtId) {
       // if unchanged from localStorage, do not wipe selected
       setSelected([])
     }
@@ -114,7 +114,7 @@ function Submit(props) {
     setByline(newByline)
     setDescription(newDescription)
     setYtId(newYtId)
-    localStorage.setItem('ytId', newYtId)
+    window.localStorage.setItem('ytId', newYtId)
   }
 
   const addPersonToSelected = newPerson => {
@@ -133,7 +133,7 @@ function Submit(props) {
       roles = [...selected[index].roles]
     }
     roles.push(newRole)
-    const current = {...selected[index], roles}
+    const current = { ...selected[index], roles }
     setSelected(selected.slice(0, index)
       .concat([current])
       .concat(selected.slice(index + 1)))
@@ -159,7 +159,7 @@ function Submit(props) {
     const roleIndex = newRoles.findIndex(role => role === roleToRemove)
     newRoles = newRoles.slice(0, roleIndex).concat(newRoles.slice(roleIndex + 1))
     setSelected(selected.slice(0, personIndex)
-      .concat([{...selected[personIndex], roles: newRoles}])
+      .concat([{ ...selected[personIndex], roles: newRoles }])
       .concat(selected.slice(personIndex + 1)))
   }
 
@@ -170,13 +170,14 @@ function Submit(props) {
       <p>Hi there! This form is not quite complete :) but feel free to mess around anyway! You'll need to sign in with Google before you can do anything though.</p>
       <Form onSubmit={handleSubmit}>
         <CollabLink onSubmit={useSubmitForm} resetOnChange={resetCollabLinkOnChange} setRandom={setRandom} random={random} />
-        <div id="submit-form" className={showSubmitForm ? '' : 'd-none'}>
-          <hr/>
-          <SelectedBox 
-            items={selected} 
+        <div id='submit-form' className={showSubmitForm ? '' : 'd-none'}>
+          <hr />
+          <SelectedBox
+            items={selected}
             current={currentMiscId}
             removePerson={removePersonFromSelected}
-            removeRole={removeRoleFromSelected} />
+            removeRole={removeRoleFromSelected}
+          />
           <PeopleForm
             roleInput={roleInput}
             show={showSubmitForm}
@@ -184,14 +185,15 @@ function Submit(props) {
             removeCollab={removeCollab}
             onRoleSuggestionSelected={onRoleSuggestionSelected}
             currentPerson={currentPerson}
-            addPersonToSelected={addPersonToSelected} />
-          <hr/>
-          <Card className="clearfix" id="collab-info">
+            addPersonToSelected={addPersonToSelected}
+          />
+          <hr />
+          <Card className='clearfix' id='collab-info'>
             <Card.Header><a href={`https://youtube.com/watch?v=${ytId}`}>{title}</a></Card.Header>
             <Card.Body>
               <Video ytId={ytId} />
               <VideoDescription byline={byline} description={description} addPersonToSelected={addPersonToSelected} selected={selected} />
-              <Button className="w-100 mt-2" variant="secondary" type="button" onClick={removeCollab}>
+              <Button className='w-100 mt-2' variant='secondary' type='button' onClick={removeCollab}>
                 Not a collab
               </Button>
             </Card.Body>

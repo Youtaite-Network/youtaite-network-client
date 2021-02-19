@@ -7,7 +7,7 @@ import FindChannelByVideo from './FindChannelByVideo'
 import FindChannelByLink from './FindChannelByLink'
 import EnterAlias from './EnterAlias'
 
-function AddNewPersonDialog({show, handleAddNewPerson, handleClose}) {
+function AddNewPersonDialog ({ show, handleAddNewPerson, handleClose }) {
   // state
   const [showChannelResults, setShowChannelResults] = useState(false)
   const [showFindChannelByVideo, setShowFindChannelByVideo] = useState(false)
@@ -81,32 +81,37 @@ function AddNewPersonDialog({show, handleAddNewPerson, handleClose}) {
         <FindChannelByLink
           input={channelLinkInput}
           handleNoYTChannel={useOtherSocial}
-          handleSubmit={analyzeChannelData} />
-        <ChannelResults 
+          handleSubmit={analyzeChannelData}
+        />
+        <ChannelResults
           show={showChannelResults}
           data={channelResults}
           handleChannelFound={addNewPerson}
-          handleChannelNotFound={useFindChannelByVideo} />
+          handleChannelNotFound={useFindChannelByVideo}
+        />
         <FindChannelByVideo
           show={showFindChannelByVideo}
           channelLink={channelLink}
           handleNoYTVideo={handleNoYTVideo}
-          handleSubmit={addNewPerson} />
+          handleSubmit={addNewPerson}
+        />
         <OtherSocial
           show={showOtherSocial}
-          handleSubmit={addNewPerson} />
+          handleSubmit={addNewPerson}
+        />
         <EnterAlias
           show={showEnterAlias}
           channelLink={channelLink}
-          handleSubmit={addNewPerson} />
+          handleSubmit={addNewPerson}
+        />
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>
+        <Button variant='secondary' onClick={handleClose}>
           Cancel
         </Button>
       </Modal.Footer>
     </Modal>
-  );
+  )
 }
 
-export default AddNewPersonDialog;
+export default AddNewPersonDialog
