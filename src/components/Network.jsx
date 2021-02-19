@@ -23,7 +23,9 @@ function Network({datasetProp, rangeProp, dragProp, loadMessage}) {
       // console.log(dragEnabled)
       drag.current = dragProp
       if (network.current) {
-        if (datasetProp !== dataset.current || rangeProp !== range.current) {
+        if (datasetProp !== dataset.current 
+          || rangeProp[0] !== range.current[0] 
+          || rangeProp[1] !== range.current[1]) {
           dataset.current = datasetProp
           range.current = rangeProp
           const graphComponents = getRangeGraphComponents(dataset.current, range.current)

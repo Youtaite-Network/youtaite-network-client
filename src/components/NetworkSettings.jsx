@@ -14,7 +14,7 @@ function NetworkSettings({initialRange, setRange, initialDrag, setDrag}) {
   useEffect(() => {
     if (!initialRange) return
     // create slider
-    const w = 200
+    const w = 180
     const h = 40
     const padX = 15
     const padY = 5
@@ -138,7 +138,7 @@ function NetworkSettings({initialRange, setRange, initialDrag, setDrag}) {
 
   const renderTooltip = props => (
     <Tooltip id="button-tooltip" {...props}>
-      Edge strength of X means that X people in common between 2 collabs becomes an edge.
+      X mutual members means that X people in common between 2 collabs becomes a link.
     </Tooltip>
   )
 
@@ -153,7 +153,7 @@ function NetworkSettings({initialRange, setRange, initialDrag, setDrag}) {
               <OverlayTrigger overlay={renderTooltip}>
                 <Button variant="link"><MdInfo className="mt-n1" /></Button>
               </OverlayTrigger>
-              <strong style={{position: 'relative', top: '2px'}}>Edge Strength:</strong>
+              <strong style={{position: 'relative', top: '2px'}}>Mutual Members:</strong>
             </td>
             <td>
               <div id="slider"></div>
