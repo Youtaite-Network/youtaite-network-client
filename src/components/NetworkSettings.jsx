@@ -15,6 +15,28 @@ function NetworkSettings({
 }) {
   const [show, setShow] = useState(false);
 
+  // add brush handles (from https://bl.ocks.org/Fil/2d43867ba1f36a05459c7113c7f6f98a)
+  const brushResizePath = function (d, height) {
+    const e = +(d.type === 'e');
+    const xPath = e ? 1 : -1;
+    const yPath = height / 2;
+    return `M${0.5 * xPath},${yPath}A6,6 0 0 ${e} ${6.5 * xPath},${yPath + 6}V${2 * yPath - 6
+    }A6,6 0 0 ${e} ${0.5 * xPath},${2 * yPath}ZM${2.5 * xPath},${yPath + 8}V${2 * yPath - 8
+    }M${4.5 * xPath},${yPath + 8}V${2 * yPath - 8}`;
+  };
+
+  const handle = (g, selection, y, height) => g.selectAll('.handle--custom')
+    .data([{ type: 'w' }, { type: 'e' }])
+    .join((enter) => enter
+      .append('path')
+      .attr('class', 'handle--custom')
+      .attr('stroke', '#000')
+      .attr('fill', '#eee')
+      .attr('cursor', 'ew-resize')
+      .attr('d', (d) => brushResizePath(d, height)))
+    .attr('display', selection === null ? 'none' : null)
+    .attr('transform', selection === null ? null : (d, i) => `translate(${selection[i]},${y - height / 4})`);
+
   const sliderSnap = (svg, [min, max, start], {
     x, y, width, height,
   }) => {
@@ -55,29 +77,10 @@ function NetworkSettings({
       .attr('y', y + height + 4)
       .text(range[1]);
 
-    // add brush handles (from https://bl.ocks.org/Fil/2d43867ba1f36a05459c7113c7f6f98a)
-    const brushResizePath = function (d) {
-      const e = +(d.type === 'e');
-      const xPath = e ? 1 : -1;
-      const yPath = height / 2;
-      return `M${0.5 * xPath},${yPath}A6,6 0 0 ${e} ${6.5 * xPath},${yPath + 6}V${2 * yPath - 6
-      }A6,6 0 0 ${e} ${0.5 * xPath},${2 * yPath}ZM${2.5 * xPath},${yPath + 8}V${2 * yPath - 8
-      }M${4.5 * xPath},${yPath + 8}V${2 * yPath - 8}`;
-    };
-
-    const handle = g.selectAll('.handle--custom')
-      .data([{ type: 'w' }, { type: 'e' }])
-      .enter().append('path')
-      .attr('class', 'handle--custom')
-      .attr('stroke', '#000')
-      .attr('fill', '#eee')
-      .attr('cursor', 'ew-resize')
-      .attr('d', brushResizePath);
-
     // define brush
     const brush = d3.brushX()
       .extent([[x, y], [x + width, y + height]])
-      .on('brush', (event) => {
+      .on('brush', function (event) {
         if (event.sourceEvent && event.sourceEvent.type === 'brush') return;
         selection = event.selection;
         // update and move labels
@@ -85,9 +88,7 @@ function NetworkSettings({
           .text(Math.round(xScale.invert(selection[0])));
         labelR.attr('x', selection[1])
           .text(Math.round(xScale.invert(selection[1])));
-        // move brush handles
-        handle.attr('display', null)
-          .attr('transform', (d, i) => `translate(${[selection[i], y - height / 4]})`);
+        d3.select(this).call(handle, selection, y, height);
       })
       .on('end', function (event) {
         if (!event.sourceEvent) return;
