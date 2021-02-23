@@ -9,6 +9,7 @@ function About() {
       <h3>Report a bug, feature request, data correction, or more</h3>
       <p>
         Please use this
+        {' '}
         <a href="https://forms.gle/UGtsik9jtQW448bj8">Google Form</a>
         {' '}
         to report anything you find!
