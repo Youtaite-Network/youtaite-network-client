@@ -40,7 +40,7 @@ class PeopleForm extends React.Component {
           people: response.data.sort((a, b) => a.name.length - b.name.length),
         });
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
     this.personInput.current.focus();
   }
 

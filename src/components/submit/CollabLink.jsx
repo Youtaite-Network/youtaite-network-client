@@ -176,10 +176,10 @@ function CollabLink({
           ref={input}
         />
       </div>
-      <Button className="m-1" ref={defaultButton} variant="primary" onClick={handleClick}>
+      <Button className="m-1" type="button" ref={defaultButton} variant="primary" onClick={handleClick}>
         Analyze link
       </Button>
-      <Button className="m-1" ref={randomButton} variant="info" onClick={getRandom}>
+      <Button className="m-1" type="button" ref={randomButton} variant="info" onClick={getRandom}>
         I&apos;m feeling lucky
       </Button>
     </Form.Group>

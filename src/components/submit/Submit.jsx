@@ -172,50 +172,50 @@ function Submit() {
   return (
     <div className="container mt-3">
       <h2>Submit a Collab</h2>
-      <Form onSubmit={handleSubmit}>
-        <CollabLink
-          onSubmit={useSubmitForm}
-          resetOnChange={resetCollabLinkOnChange}
-          setRandom={setRandom}
-          random={random}
-        />
-        {showSubmitForm && (
-          <div id="submit-form">
-            <hr />
+      <CollabLink
+        onSubmit={useSubmitForm}
+        resetOnChange={resetCollabLinkOnChange}
+        setRandom={setRandom}
+        random={random}
+      />
+      {showSubmitForm && (
+        <div id="submit-form">
+          <hr />
+          <Form onSubmit={handleSubmit}>
             <SelectedBox
               items={selected}
               current={currentMiscId}
               removePerson={removePersonFromSelected}
               removeRole={removeRoleFromSelected}
             />
-            <PeopleForm
-              show={showSubmitForm}
-              roleInput={roleInput}
-              handleSubmit={handleSubmit}
-              removeCollab={removeCollab}
-              onRoleSuggestionSelected={onRoleSuggestionSelected}
-              currentPerson={currentPerson}
-              addPersonToSelected={addPersonToSelected}
-            />
-            <hr />
-            <Card className="clearfix" id="collab-info">
-              <Card.Header><a href={`https://youtube.com/watch?v=${ytId}`}>{title}</a></Card.Header>
-              <Card.Body>
-                <Video ytId={ytId} />
-                <VideoDescription
-                  byline={byline}
-                  description={description}
-                  addPersonToSelected={addPersonToSelected}
-                  selected={selected}
-                />
-                <Button className="w-100 mt-2" variant="secondary" type="button" onClick={removeCollab}>
-                  Not a collab
-                </Button>
-              </Card.Body>
-            </Card>
-          </div>
-        )}
-      </Form>
+          </Form>
+          <PeopleForm
+            show={showSubmitForm}
+            roleInput={roleInput}
+            handleSubmit={handleSubmit}
+            removeCollab={removeCollab}
+            onRoleSuggestionSelected={onRoleSuggestionSelected}
+            currentPerson={currentPerson}
+            addPersonToSelected={addPersonToSelected}
+          />
+          <hr />
+          <Card className="clearfix" id="collab-info">
+            <Card.Header><a href={`https://youtube.com/watch?v=${ytId}`}>{title}</a></Card.Header>
+            <Card.Body>
+              <Video ytId={ytId} />
+              <VideoDescription
+                byline={byline}
+                description={description}
+                addPersonToSelected={addPersonToSelected}
+                selected={selected}
+              />
+              <Button className="w-100 mt-2" variant="secondary" type="button" onClick={removeCollab}>
+                Not a collab
+              </Button>
+            </Card.Body>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
