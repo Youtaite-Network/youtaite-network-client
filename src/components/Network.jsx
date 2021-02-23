@@ -325,12 +325,9 @@ function Network({
 
       focusNode(node) {
         if (focusedNode.current) {
-          console.log('change select');
           // unfix currently selected node
           focusedNode.current.fx = null;
           focusedNode.current.fy = null;
-        } else {
-          console.log('new select');
         }
         // focus/fix clicked node
         focusedNode.current = node;
@@ -342,7 +339,6 @@ function Network({
       },
 
       unfocusNode(node) {
-        console.log('deselect');
         // defocus & unfix clicked node
         focusedNode.current = null;
         node.fx = null; // eslint-disable-line no-param-reassign

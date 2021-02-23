@@ -22,7 +22,7 @@ function GoogleLoginWrapper() {
       })
       .catch((error) => {
         setAlert(['sign-in', 'Sign in failed', 'danger']);
-        console.log(error);
+        console.error(error);
       });
   };
 
@@ -30,7 +30,7 @@ function GoogleLoginWrapper() {
     if (error.error === 'idpiframe_initialization_failed') {
       setAlert(['sign-in', 'Please enable 3rd party cookies to use this site in incognito.', 'danger']);
     }
-    console.log(error);
+    console.error(error);
   };
 
   return (

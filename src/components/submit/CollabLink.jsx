@@ -95,7 +95,6 @@ function CollabLink({
             Cookies.set('access-token', peopleInfoResponse.headers['access-token'], {
               expires: new Date(peopleInfoResponse.headers['access-token-expiry']),
             });
-            console.log(peopleInfoResponse.data);
             const { name } = peopleInfoResponse.data;
             const byline = `posted by ${name} https://youtube.com/channel/${channelId}`;
             onSubmit(title, byline, description, id);

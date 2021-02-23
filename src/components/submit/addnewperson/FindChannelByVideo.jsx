@@ -83,9 +83,9 @@ class FindChannelByVideo extends React.Component {
             const { handleSubmit } = this.props;
             handleSubmit(peopleInfoResponse.data);
           })
-          .catch((error) => console.log(error));
+          .catch((error) => console.error(error));
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
   }
 
   handleKeyDown(e) {
