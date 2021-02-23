@@ -1,5 +1,6 @@
 #network svg {
   border: 1px solid lightgrey;
+  border-radius: .25rem;
 }
 
 image.collab, rect.collab, image.person, circle.person, line.edge {
@@ -42,6 +43,11 @@ line.edge.active {
 
 #title-text.active {
   opacity: 1;
+}
+
+#title-text tspan {
+  font-weight: normal;
+  font-size: 1rem;
 }
 
 #network {

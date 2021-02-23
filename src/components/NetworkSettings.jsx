@@ -151,7 +151,7 @@ function NetworkSettings({
 
   return (
     <>
-      <Button variant="light" onClick={toggleShow}>
+      <Button variant="light" className="mb-2" onClick={toggleShow}>
         {show ? 'Hide' : 'Show'}
         {' '}
         settings

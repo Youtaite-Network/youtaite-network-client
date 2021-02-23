@@ -9,7 +9,7 @@ function Home() {
   const [data, setData] = useState(null);
   const [loadMessage, setLoadMessage] = useState('Initializing...');
   const initialRange = useRef(null);
-  const testing = false;
+  const testing = true;
 
   useEffect(() => {
     if (testing) {

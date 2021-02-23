@@ -2,14 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import Spinner from 'react-bootstrap/Spinner';
-import './Network.css';
+import CollabAutosuggest from './CollabAutosuggest';
 import { getRangeGraphComponents, getCurrentGraphComponents } from '../utils/GraphUtils';
+import './Network.css';
 
 function Network({
   datasetProp, rangeProp, dragProp, loadMessage,
 }) {
   const [removeSpinner, setRemoveSpinner] = useState(false);
   const [showSpinner, setShowSpinner] = useState(true);
+  const [currentCollabs, setCurrentCollabs] = useState();
   const focusedNode = useRef();
   const rangeEdges = useRef();
   const rangeCollabs = useRef();
@@ -141,7 +143,15 @@ function Network({
               .attr('id', (d) => `g-${d.id}`)
               .on('mouseover', (evt, d) => {
                 titleText.text(d.title)
-                  .classed('active', true);
+                  .classed('active', true)
+                  .append('tspan')
+                  .attr('x', 15)
+                  .attr('dy', '1.5em')
+                  .text('Cmd/ctrl-click to open in a new tab')
+                  .append('tspan')
+                  .attr('x', 15)
+                  .attr('dy', '1.2em')
+                  .text('Click to see connected people & collabs');
                 // find edges
                 const filteredEdges = edges.current
                   .filter((e) => e.source === d.id || e.target === d.id);
@@ -243,7 +253,11 @@ function Network({
               .attr('id', (d) => `g-${d.id}`)
               .on('mouseover', (evt, d) => {
                 titleText.text(d.name)
-                  .classed('active', true);
+                  .classed('active', true)
+                  .append('tspan')
+                  .attr('x', 15)
+                  .attr('dy', '1.5em')
+                  .text('Cmd/ctrl-click to open in a new tab');
                 // find connected edges/nodes
                 const filteredEdges = edges.current
                   .filter((e) => e.source === d.id || e.target === d.id);
@@ -309,6 +323,7 @@ function Network({
         simulation.force('link').links(edgesToSimulate);
         simulation.alpha(1).restart();
         network.current.setDrag(drag.current);
+        setCurrentCollabs(collabs.current);
       },
 
       setDrag(enabled) {
@@ -356,7 +371,10 @@ function Network({
 
   return (
     <>
-      <p className="mb-1">Cmd/ctrl-click a node to open in a new tab. Click a collab to see collabs it is connected to. Zoom, pan, drag enabled.</p>
+      <CollabAutosuggest
+        allCollabs={dataset.current ? dataset.current.nodes : []}
+        currentCollabs={currentCollabs || []}
+      />
       <div id="network" className="d-flex justify-content-center align-items-top">
         {!removeSpinner
           && (
