@@ -151,7 +151,12 @@ function Network({
                   .append('tspan')
                   .attr('x', 15)
                   .attr('dy', '1.2em')
-                  .text('Click to see connected people & collabs');
+                  .text(() => {
+                    if (focusedNode.current && focusedNode.current.id === d.id) {
+                      return 'Click to show entire graph';
+                    }
+                    return 'Click to see connected people & collabs';
+                  });
                 // find edges
                 const filteredEdges = edges.current
                   .filter((e) => e.source === d.id || e.target === d.id);
@@ -348,9 +353,10 @@ function Network({
       },
 
       centerTo({ x, y }) {
+        const currScale = d3.zoomTransform(graph.node()).k;
         const transform = d3.zoomIdentity
-          .scale(d3.zoomTransform(graph.node()).k)
-          .translate(-x + w / 2, -y + h / 2);
+          .scale(currScale)
+          .translate(-x + w / (2 * currScale), -y + h / (2 * currScale));
         svg.call(zoom.transform, transform);
       },
     };
@@ -386,8 +392,8 @@ function Network({
   });
 
   const handleSuggestionSelected = (e, { suggestion }) => {
-    const node = collabs.current.find((collab) => collab.id === suggestion.id);
-    console.log(node);
+    const node = collabs.current.find((collab) => collab.id === suggestion.id)
+      || { ...suggestion, x: 0, y: 0 };
     network.current.focusNode(node);
     network.current.centerTo({ x: node.x, y: node.y });
   };
