@@ -20,23 +20,37 @@ function Home() {
       }, 2000);
     } else {
       const newData = {};
-      setLoadMessage('Fetching edge data...');
+      // get edge data
+      setLoadMessage('Fetching link data...');
       axios('https://youtaite-network-api.herokuapp.com/edges')
         .then((edgesResponse) => {
           newData.freqToEdges = edgesResponse.data.freq_to_edges;
           newData.personEdges = edgesResponse.data.person_edges;
+          // get collab data
           setLoadMessage('Fetching collab data...');
           axios('https://youtaite-network-api.herokuapp.com/collabs')
             .then((collabsResponse) => {
-              newData.nodes = collabsResponse.data;
+              setLoadMessage('Analyzing collab data...');
+              // remove any collabs that have no people
+              let collabIds = [];
+              newData.personEdges.forEach((pe) => {
+                collabIds.push(pe.edge.source);
+                collabIds.push(pe.edge.target);
+              });
+              collabIds = [...new Set(collabIds)];
+              newData.nodes = collabsResponse.data
+                .filter((collab) => collabIds.includes(collab.id));
+              // calculate and set range
               const maxRange = Math.max(...Object.keys(newData.freqToEdges)) + 1;
               const minRange = maxRange >= 5 ? 3 : 1;
               initialRange.current = [minRange, maxRange];
               setRange(initialRange.current);
+              // get people data
               setLoadMessage('Fetching people data...');
               axios('https://youtaite-network-api.herokuapp.com/people')
                 .then((peopleResponse) => {
                   newData.people = peopleResponse.data;
+                  // set data/initialize network
                   setData(newData);
                   setLoadMessage('Drawing network...');
                 })
