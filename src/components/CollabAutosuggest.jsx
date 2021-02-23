@@ -9,41 +9,26 @@ const renderSuggestion = (suggestion) => (
     <div>
       <Image className="mr-1" width="71px" height="40px" rounded src={suggestion.thumbnail} />
     </div>
-    <div className="ml-1 text-truncate d-flex flex-column">
+    <div className="ml-1 text-truncate">
       {suggestion.title}
-      {suggestion.subtitle && (
-        <small style={{ color: 'grey' }}>{suggestion.subtitle}</small>
-      )}
     </div>
   </div>
 );
 
 const getSuggestionValue = (suggestion) => suggestion.title;
 
-function CollabAutosuggest({ allCollabs, currentCollabs }) {
+function CollabAutosuggest({ allCollabs, handleSuggestionSelected }) {
   const [suggestions, setSuggestions] = useState([]);
   const [inputValue, setInputValue] = useState('');
 
   const handleSuggestionsFetchRequested = ({ value }) => {
     const suggestValue = value.replace(/[ \t\n.]/g, '').toLowerCase();
-    let newSuggestions = suggestValue.length === 0 ? [] : allCollabs.filter((collab) => collab.title.replace(/[ \t\n.]/g, '').toLowerCase().includes(suggestValue));
-    newSuggestions = newSuggestions.slice(0, 20).map((s) => {
-      const current = currentCollabs.find((collab) => collab.id === s.id);
-      if (!current) {
-        return { ...s, subtitle: 'not found in current view' };
-      }
-      return s;
-    });
-    setSuggestions(newSuggestions);
+    const newSuggestions = suggestValue.length === 0 ? [] : allCollabs.filter((collab) => collab.title.replace(/[ \t\n.]/g, '').toLowerCase().includes(suggestValue));
+    setSuggestions(newSuggestions.slice(0, 20));
   };
 
   const handleSuggestionsClearRequested = () => {
     setSuggestions([]);
-  };
-
-  const handleSuggestionSelected = (...args) => {
-    console.log(currentCollabs);
-    console.log('handleSuggestionSelected', args);
   };
 
   const handleChange = (e, { newValue }) => {
@@ -76,9 +61,7 @@ CollabAutosuggest.propTypes = {
   allCollabs: PropTypes.arrayOf(PropTypes.shape({
     title: PropTypes.string.isRequired,
   })).isRequired,
-  currentCollabs: PropTypes.arrayOf(PropTypes.shape({
-    title: PropTypes.string.isRequired,
-  })).isRequired,
+  handleSuggestionSelected: PropTypes.func.isRequired,
 };
 
 export default CollabAutosuggest;

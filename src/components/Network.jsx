@@ -11,7 +11,6 @@ function Network({
 }) {
   const [removeSpinner, setRemoveSpinner] = useState(false);
   const [showSpinner, setShowSpinner] = useState(true);
-  const [currentCollabs, setCurrentCollabs] = useState();
   const focusedNode = useRef();
   const rangeEdges = useRef();
   const rangeCollabs = useRef();
@@ -112,10 +111,11 @@ function Network({
       .attr('x', 15)
       .attr('y', 26);
 
-    svg.call(d3.zoom()
+    const zoom = d3.zoom()
       .extent([[0, 0], [w, h]])
       .scaleExtent([0.2, 5])
-      .on('zoom', zoomed));
+      .on('zoom', zoomed);
+    svg.call(zoom);
 
     // https://observablehq.com/@d3/modifying-a-force-directed-graph
     // NOTE: using refs to prevent stale props/state within event handlers
@@ -186,28 +186,9 @@ function Network({
                   return;
                 }
                 if (focusedNode.current && focusedNode.current.id === d.id) {
-                  console.log('deselect');
-                  // defocus & unfix clicked node
-                  focusedNode.current = null;
-                  d.fx = null; // eslint-disable-line no-param-reassign
-                  d.fx = null; // eslint-disable-line no-param-reassign
-                  // change force center
-                  simulation.force('center', d3.forceCenter().x(w / 2).y(h / 2));
+                  network.current.unfocusNode(d);
                 } else {
-                  if (focusedNode.current) {
-                    console.log('change select');
-                    // unfix currently selected node
-                    focusedNode.current.fx = null;
-                    focusedNode.current.fy = null;
-                  } else {
-                    console.log('new select');
-                  }
-                  // focus/fix clicked node
-                  focusedNode.current = d;
-                  d.fx = d.x; // eslint-disable-line no-param-reassign
-                  d.fy = d.y; // eslint-disable-line no-param-reassign
-                  // change force center
-                  simulation.force('center', d3.forceCenter().x(d.fx).y(d.fy));
+                  network.current.focusNode(d);
                 }
                 network.current.update();
               });
@@ -323,7 +304,6 @@ function Network({
         simulation.force('link').links(edgesToSimulate);
         simulation.alpha(1).restart();
         network.current.setDrag(drag.current);
-        setCurrentCollabs(collabs.current);
       },
 
       setDrag(enabled) {
@@ -336,6 +316,42 @@ function Network({
           person.on('mousedown.drag', null)
             .on('touchstart.drag', null);
         }
+      },
+
+      focusNode(node) {
+        if (focusedNode.current) {
+          console.log('change select');
+          // unfix currently selected node
+          focusedNode.current.fx = null;
+          focusedNode.current.fy = null;
+        } else {
+          console.log('new select');
+        }
+        // focus/fix clicked node
+        focusedNode.current = node;
+        node.fx = node.x; // eslint-disable-line no-param-reassign
+        node.fy = node.y; // eslint-disable-line no-param-reassign
+        // change force center
+        simulation.force('center', d3.forceCenter().x(node.fx).y(node.fy));
+        network.current.update();
+      },
+
+      unfocusNode(node) {
+        console.log('deselect');
+        // defocus & unfix clicked node
+        focusedNode.current = null;
+        node.fx = null; // eslint-disable-line no-param-reassign
+        node.fx = null; // eslint-disable-line no-param-reassign
+        // change force center
+        simulation.force('center', d3.forceCenter().x(w / 2).y(h / 2));
+        network.current.update();
+      },
+
+      centerTo({ x, y }) {
+        const transform = d3.zoomIdentity
+          .scale(d3.zoomTransform(graph.node()).k)
+          .translate(-x + w / 2, -y + h / 2);
+        svg.call(zoom.transform, transform);
       },
     };
   };
@@ -369,11 +385,18 @@ function Network({
     }
   });
 
+  const handleSuggestionSelected = (e, { suggestion }) => {
+    const node = collabs.current.find((collab) => collab.id === suggestion.id);
+    console.log(node);
+    network.current.focusNode(node);
+    network.current.centerTo({ x: node.x, y: node.y });
+  };
+
   return (
     <>
       <CollabAutosuggest
         allCollabs={dataset.current ? dataset.current.nodes : []}
-        currentCollabs={currentCollabs || []}
+        handleSuggestionSelected={handleSuggestionSelected}
       />
       <div id="network" className="d-flex justify-content-center align-items-top">
         {!removeSpinner
