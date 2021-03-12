@@ -1,6 +1,8 @@
 ## Summary
 
-This is a project focused on a community of Youtube content creators who often collaborate with each other. I wanted to show how different collaborations are connected to each other through people - for example, if I am in two different collabs, those two collabs are connected through me. I hope to show the existence of different corners within the community, where groups of people collaborate with each other more often than with someone outside of their corner. I have a lot of other ideas for creatively displaying the data (once I have enough of it), such as organizing by the "strength" of a connection, restricting time ranges, and identifying closely-related clusters and "representative" collaborations of those clusters. The frontend website is written in React. The data visualization is created using d3. The backend API is written in Ruby on Rails. 
+Find the deployed website at [youtaite-network.netlify.app/](https://youtaite-network.netlify.app/).
+
+This is a project focused on a community of Youtube content creators who often collaborate with each other. I wanted to show how different collaborations are connected to each other through people - for example, if I am in two different collabs, those two collabs are connected through me. I hope to show the existence of different corners within the community, where groups of people collaborate with each other more often than with someone outside of their corner. I have a lot of other ideas for creatively displaying the data (once I have enough of it), such as organizing by the "strength" of a connection, restricting time ranges, and identifying closely-related clusters and "representative" collaborations of those clusters. The frontend website is written in [React.js](https://reactjs.org/), with [D3.js](https://d3js.org/) for the data visualization. The backend API is written in Ruby on Rails.
 
 ## Home page and data visualization
 
