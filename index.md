@@ -141,3 +141,7 @@ const suggestValue = value.replace(/[ \t\n.]/g, '').toLowerCase();
 const newSuggestions = suggestValue.length === 0 ? [] : allCollabs.filter((collab) => collab.title.replace(/[ \t\n.]/g, '').toLowerCase().includes(suggestValue));
 setSuggestions(newSuggestions.slice(0, 20));
 ```
+
+## Coming soon
+
+Descriptions of the submission form and back end API will be added soon.
