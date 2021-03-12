@@ -1,8 +1,8 @@
-# Youtaite Network
+## Summary
 
-The front end of the website is written using [React.js](https://reactjs.org/), with [D3.js](https://d3js.org/) for the data visualization.
+This is a project focused on a community of Youtube content creators who often collaborate with each other. I wanted to show how different collaborations are connected to each other through people - for example, if I am in two different collabs, those two collabs are connected through me. I hope to show the existence of different corners within the community, where groups of people collaborate with each other more often than with someone outside of their corner. I have a lot of other ideas for creatively displaying the data (once I have enough of it), such as organizing by the "strength" of a connection, restricting time ranges, and identifying closely-related clusters and "representative" collaborations of those clusters. The frontend website is written in React. The data visualization is created using d3. The backend API is written in Ruby on Rails. 
 
-## Data visualization
+## Home page and data visualization
 
 ### Components
 
@@ -50,7 +50,7 @@ const brush = d3.brushX()
   });
 ```
 
-When the `brush` event is triggered, we set the `selection` variable, which is the current range that has been selected (defined in pixels). When the `end` event is triggered, we convert this selection into the actual range using a linear [scale](https://github.com/d3/d3-scale). Then we round the lower and upper bounds and call the `move` event on the brush with the new rounded values. Finally, we dispatch a custom event, which is handled by calling the `setRange` function, which passed down from the `Home` component (as described above).
+When the `brush` event is triggered, we set the `selection` variable, which is the current range that has been selected (defined in pixels). When the `end` event is triggered, we convert this selection into the actual range using a linear [scale](https://github.com/d3/d3-scale). Then we round the lower and upper bounds and call the `move` event on the brush with the new rounded values. Finally, we dispatch a custom event, which is handled by calling the `setRange` function, passed down from the `Home` component (as described above).
 
 ```js
 // NetworkSettings.jsx
@@ -64,7 +64,7 @@ d3.select('#slider-event-handler')
 
 ![Network demo](figures/Network.gif)
 
-Network is a hook component that uses D3's [force directed layout](https://github.com/d3/d3-force) to display the graph. It contains two types of nodes: one represents videos, or collabs; the other represents people. Collab nodes are represented as rectangles, while person nodes are represented as circles. In the initial view of the network, no person nodes are visible. However, when a collab node is clicked, a "closeup" view of that node is provided that shows the people who are directly connected to that node.
+Network is a hook component that uses D3's [force-directed layout](https://github.com/d3/d3-force) to display the graph. 
 
 ```js
 // Network.jsx
@@ -76,6 +76,8 @@ const simulation = d3.forceSimulation()
   .force('center', d3.forceCenter().x(w / 2).y(h / 2))
   .on('tick', ticked);
 ```
+
+The graph contains two types of nodes: one represents videos, or collabs; the other represents people. Collab nodes are represented as rectangles, while person nodes are represented as circles. In the initial view of the network, no person nodes are visible. However, when a collab node is clicked, a "closeup" view of that node is provided that shows the people who are directly connected to that node.
 
 When the network is created, first, the svg is attached to the DOM. Then, empty groups are created for edges, person nodes, and collab nodes. We define a `ticked` function which handles node and edge movement over time; a `zoomed` function that handles user interaction through zooming and panning; and a `dragNode` function that handles user interaction through dragging nodes.
 
