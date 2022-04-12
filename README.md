@@ -15,3 +15,6 @@ See the [GitHub pages website](https://eberleant.github.io/youtaite-network-clie
 To run the app in development mode, run `yarn start`.
 
 To build the app for production, run `yarn build`.
+
+## License
+This project is licensed under the terms of the MIT license.
