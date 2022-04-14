@@ -8,7 +8,7 @@ This project is focused on a community of Youtube content creators who often col
 
 ## Technical Description
 
-See the [GitHub pages website](https://eberleant.github.io/youtaite-network-client) for a detailed technical description.
+See the [GitHub pages website](https://youtaite-network.github.io/youtaite-network-client) for a detailed technical description.
 
 ## Run and Build
 
