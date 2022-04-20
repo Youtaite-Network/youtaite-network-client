@@ -49,7 +49,7 @@ function VideoDescriptionLink({ link, addPersonToSelected, selected }) {
 
   useEffect(() => {
     const linkWithoutProtocol = stripProtocol(link);
-    axios(`https://youtaite-network-api.herokuapp.com/people/info_from_url/${linkWithoutProtocol}`, {
+    axios(`${process.env.REACT_APP_API_URL}/people/info_from_url/${linkWithoutProtocol}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Cookies.get('access-token')}`,

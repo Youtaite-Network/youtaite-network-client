@@ -11,7 +11,7 @@ function GoogleLoginWrapper() {
     const idtoken = user.getAuthResponse().id_token;
     const params = new URLSearchParams();
     params.append('idtoken', idtoken);
-    axios.post('https://youtaite-network-api.herokuapp.com/googlesignin',
+    axios.post(`${process.env.REACT_APP_API_URL}/googlesignin`,
       params, // data
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }) // headers
       .then((response) => {
@@ -35,7 +35,7 @@ function GoogleLoginWrapper() {
 
   return (
     <GoogleLogin
-      clientId="242592601877-1unlb9i5rj8ianutc3o8cfgeu84t83a8.apps.googleusercontent.com"
+      clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
       buttonText="Sign in"
       onSuccess={onSuccess}
       onFailure={onFailure}

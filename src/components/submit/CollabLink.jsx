@@ -70,8 +70,8 @@ function CollabLink({
       console.error('Could not parse URL. Make sure it is a valid Youtube URL and not a shortened/redirect URL (eg, bitly)');
       return;
     }
-    // call youtaite-network-api.herokuapp.com to get title & description from ID
-    axios(`https://youtaite-network-api.herokuapp.com/collabs/info/${id}`, {
+    // call API to get title & description from ID
+    axios(`${process.env.REACT_APP_API_URL}/collabs/info/${id}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Cookies.get('access-token')}`,
@@ -84,7 +84,7 @@ function CollabLink({
         });
         const { title, description, channel_id: channelId } = collabInfoResponse.data;
         // get info about channel that posted collab
-        axios(`https://youtaite-network-api.herokuapp.com/people/info/${channelId}`, {
+        axios(`${process.env.REACT_APP_API_URL}/people/info/${channelId}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${Cookies.get('access-token')}`,
@@ -112,8 +112,8 @@ function CollabLink({
   const getRandom = () => {
     setRandom(true);
     setAlert(['remove-collab']);
-    // call youtaite-network-api.herokuapp.com to get title & description from ID
-    axios('https://youtaite-network-api.herokuapp.com/collabs/new_random', {
+    // call API to get title & description from ID
+    axios(`${process.env.REACT_APP_API_URL}/collabs/new_random`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Cookies.get('access-token')}`,
@@ -128,7 +128,7 @@ function CollabLink({
           yt_id: ytId, title, description, channel_id: channelId,
         } = randomCollabResponse.data;
         // get info about channel that posted collab
-        axios(`https://youtaite-network-api.herokuapp.com/people/info/${channelId}`, {
+        axios(`${process.env.REACT_APP_API_URL}/people/info/${channelId}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${Cookies.get('access-token')}`,

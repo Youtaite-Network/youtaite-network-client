@@ -20,7 +20,7 @@ function FindChannelByLink({ handleNoYTChannel, handleSubmit, input }) {
       link = `${url.hostname}${url.pathname}`;
     }
 
-    axios(`https://youtaite-network-api.herokuapp.com/people/info_from_url/${link}`, {
+    axios(`${process.env.REACT_APP_API_URL}/people/info_from_url/${link}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Cookies.get('access-token')}`,

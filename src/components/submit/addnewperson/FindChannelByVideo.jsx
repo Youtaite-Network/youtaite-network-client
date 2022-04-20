@@ -56,7 +56,7 @@ class FindChannelByVideo extends React.Component {
       return;
     }
     // call API to get channel ID from video ID
-    axios(`https://youtaite-network-api.herokuapp.com/collabs/info/${id}`, {
+    axios(`${process.env.REACT_APP_API_URL}/collabs/info/${id}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Cookies.get('access-token')}`,
@@ -69,7 +69,7 @@ class FindChannelByVideo extends React.Component {
         });
         const { channel_id: channelId } = collabInfoResponse.data;
         // call API to get channel info from channel ID
-        axios(`https://youtaite-network-api.herokuapp.com/people/info/${channelId}`, {
+        axios(`${process.env.REACT_APP_API_URL}/people/info/${channelId}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${Cookies.get('access-token')}`,

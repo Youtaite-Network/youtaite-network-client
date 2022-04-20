@@ -1,5 +1,5 @@
 .eslintcache
-.env
+.env.local
 
 # Created by https://www.toptal.com/developers/gitignore/api/yarn,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=yarn,react

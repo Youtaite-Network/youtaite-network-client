@@ -59,7 +59,7 @@ function Submit() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (window.confirm('Submit all roles?')) {
-      axios.post('https://youtaite-network-api.herokuapp.com/submit', {
+      axios.post(`${process.env.REACT_APP_API_URL}/submit`, {
         people: selected,
         yt_id: ytId,
       }, {
@@ -86,7 +86,7 @@ function Submit() {
 
   const removeCollab = () => {
     if (window.confirm('Are you sure? A collab is any video that involves the work of more than one youtaite.')) {
-      axios.delete('https://youtaite-network-api.herokuapp.com/collabs', {
+      axios.delete(`${process.env.REACT_APP_API_URL}/collabs`, {
         data: { yt_id: ytId },
         headers: {
           'Content-Type': 'application/json',

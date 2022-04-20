@@ -34,7 +34,7 @@ class PeopleForm extends React.Component {
   }
 
   componentDidMount() {
-    axios('https://youtaite-network-api.herokuapp.com/people')
+    axios(`${process.env.REACT_APP_API_URL}/people`)
       .then((response) => {
         this.setState({
           people: response.data.sort((a, b) => a.name.length - b.name.length),

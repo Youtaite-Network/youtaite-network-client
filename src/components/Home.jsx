@@ -22,13 +22,13 @@ function Home() {
       const newData = {};
       // get edge data
       setLoadMessage('Fetching link data...');
-      axios('https://youtaite-network-api.herokuapp.com/edges')
+      axios(`${process.env.REACT_APP_API_URL}/edges`)
         .then((edgesResponse) => {
           newData.freqToEdges = edgesResponse.data.freq_to_edges;
           newData.personEdges = edgesResponse.data.person_edges;
           // get collab data
           setLoadMessage('Fetching collab data...');
-          axios('https://youtaite-network-api.herokuapp.com/collabs')
+          axios(`${process.env.REACT_APP_API_URL}/collabs`)
             .then((collabsResponse) => {
               setLoadMessage('Analyzing collab data...');
               // remove any collabs that have no people
@@ -47,7 +47,7 @@ function Home() {
               setRange(initialRange.current);
               // get people data
               setLoadMessage('Fetching people data...');
-              axios('https://youtaite-network-api.herokuapp.com/people')
+              axios(`${process.env.REACT_APP_API_URL}/people`)
                 .then((peopleResponse) => {
                   newData.people = peopleResponse.data;
                   // set data/initialize network
