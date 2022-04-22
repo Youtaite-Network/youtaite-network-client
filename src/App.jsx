@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -15,7 +15,7 @@ import AlertContext from './components/AlertContext';
 
 function App() {
   const [alerts, setAlerts] = useState([]);
-  const alertContext = {
+  const alertContext = useMemo(() => ({
     setAlert(...args) {
       const newAlerts = [...alerts];
       args.forEach(([id, message, variant]) => {
@@ -29,7 +29,7 @@ function App() {
       });
       setAlerts(newAlerts);
     },
-  };
+  }), [alerts]);
 
   return (
     <AlertContext.Provider value={alertContext}>

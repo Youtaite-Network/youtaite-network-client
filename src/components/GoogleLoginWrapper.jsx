@@ -11,9 +11,11 @@ function GoogleLoginWrapper() {
     const idtoken = user.getAuthResponse().id_token;
     const params = new URLSearchParams();
     params.append('idtoken', idtoken);
-    axios.post(`${process.env.REACT_APP_API_URL}/googlesignin`,
+    axios.post(
+      `${process.env.REACT_APP_API_URL}/googlesignin`,
       params, // data
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }) // headers
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+    ) // headers
       .then((response) => {
         Cookies.set('access-token', response.headers['access-token'], {
           expires: new Date(response.headers['access-token-expiry']),
