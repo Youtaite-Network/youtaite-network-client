@@ -35,7 +35,11 @@
     "extends": [
       "react-app",
       "airbnb"
-    ]
+    ],
+    "rules": {
+      "no-console": "off",
+      "no-alert": "off"
+    }
   },
   "browserslist": {
     "production": [
