@@ -93,7 +93,7 @@ class SelectedBox extends React.Component {
   renderRoles(roles, personIndex) {
     const rolesArray = [];
     if (roles && roles.length > 0) {
-      roles.forEach((role, i) => {
+      roles.forEach((role) => {
         rolesArray.push(
           <div className="role-card d-flex" key={`role-${personIndex}-${role}`}>
             <i>{`${role},`}</i>
