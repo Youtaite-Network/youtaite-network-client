@@ -19,9 +19,7 @@ See the [GitHub pages website](https://youtaite-network.github.io/youtaite-netwo
 - Install dependencies: `yarn install`
 - Copy `.env.local.example` to `.env.local`: `cp .env.local.example .env.local`
 - Replace REACT_APP_GOOGLE_CLIENT_ID with a Google client ID. See [generating environment variables](https://github.com/youtaite-network/youtaite-network-api/blob/main/generating_environment_variables.md) for instructions.
-  - If you've already generated a Google client ID for the API, *use the same value here*.
-- If you want it to run on a different port, edit the PORT variable in .env
-  - Make sure the "Authorized JavaScript origins" for the Google client ID uses the specified port
+  - If you've already generated a Google client ID for the API, **use the same value here**.
 - Start the server: `yarn start`
 
 ## Run and Build
