@@ -125,7 +125,10 @@ function Network({
         if (!rangeCollabs.current || !rangeEdges.current) return;
         const old = new Map(collab.data().concat(person.data()).map((d) => [d.id, d]));
         const currentGraphComponents = getCurrentGraphComponents(
-          dataset.current, rangeCollabs.current, rangeEdges.current, focusedNode.current,
+          dataset.current,
+          rangeCollabs.current,
+          rangeEdges.current,
+          focusedNode.current,
         );
         collabs.current = currentGraphComponents.collabs
           .map((d) => Object.assign(old.get(d.id) || {}, d));
