@@ -9,9 +9,9 @@ function Home() {
   const [data, setData] = useState(null);
   const [loadMessage, setLoadMessage] = useState('Initializing...');
   const initialRange = useRef(null);
-  const testing = false;
 
   useEffect(() => {
+    const testing = false;
     if (testing) {
       setTimeout(() => {
         setData(require('../data/large.json')); // eslint-disable-line global-require
