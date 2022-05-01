@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project is focused on the youtaite community, a group of Youtube content creators who often collaborate with each other. We use a network data visualization to show how different collaborations are connected to each other through people - for example, if you are in two different collabs, those two collabs are connected through you. We hope to show the existence of different subgroups within the community, where people collaborate with each other more often than with someone outside of their subgroup. The frontend website is written in React. The data visualization is created using d3. The backend API is written in Ruby on Rails.
+This project is focused on the youtaite community, a group of Youtube content creators who often collaborate with each other. The website features a network data visualization to show how different collaborations are connected to each other through people - for example, if you are in two different collabs, those two collabs are connected through you. We hope to show the existence of different subgroups within the community, where people collaborate with each other more often than with someone outside of their subgroup. The frontend website is written in React. The data visualization is created using d3. The backend API is written in Ruby on Rails.
 
 ## Technical Description
 
@@ -12,10 +12,12 @@ See the [GitHub pages website](https://youtaite-network.github.io/youtaite-netwo
 
 ## Initial setup
 
-- Clone the GitHub repository: `git clone git@github.com:Youtaite-Network/youtaite-network-client.git`
+- [Fork the repository](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+- Clone your fork of the repository: `git clone git@github.com:<username>/youtaite-network-client.git`
   - You may have to [set up a GitHub SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
-- [Install yarn](https://classic.yarnpkg.com/en/docs/install) if you don't have it.
 - Go into the repository directory: `cd youtaite-network-client`
+- Configure the original repository as the upstream remote: `git remote add upstream https://github.com/youtaite-network/youtaite-network-client.git`
+- [Install yarn](https://classic.yarnpkg.com/en/docs/install) if you don't have it.
 - Install dependencies: `yarn install`
 - Copy `.env.local.example` to `.env.local`: `cp .env.local.example .env.local`
 - Replace REACT_APP_GOOGLE_CLIENT_ID with a Google client ID. See [generating environment variables](https://github.com/youtaite-network/youtaite-network-api/blob/main/generating_environment_variables.md) for instructions.
