@@ -30,5 +30,9 @@ To run the app in development mode, run `yarn start`.
 
 To build the app for production, run `yarn build`.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 This project is licensed under the terms of the MIT license.
