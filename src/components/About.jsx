@@ -11,7 +11,7 @@ function About() {
       <p>
         A detailed technical description of the website can be found
         {' '}
-        <a href="https://eberleant.github.io/youtaite-network-client">here</a>
+        <a href="https://youtaite-network.github.io/youtaite-network-client">here</a>
         .
       </p>
       <h3>Report a bug, feature request, data correction, or more</h3>
