@@ -12,7 +12,7 @@ Thanks so much for wanting to contribute! Feel free to email (lyn.youtaite@gmail
 6. Write the code. Any commit messages should contain the issue number and a description of what was done (eg, `#29 Add filtering/sorting to collabs route`).
 7. When you're finished, [make a pull request to the original repository's main branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
 8. I'll review the code. After the pull request is approved, merge it.
-9. If it's a change to the API, the changes will be automatically visible in the [API staging app](https://youtaite-network-api-staging.herokuapp.com). If it's a change to the client, the changes will be visible in the [client staging app](https://youtaite-network-staging.netlify.com).
+9. If it's a change to the API, the changes will be automatically visible in the [API staging app](https://youtaite-network-api-staging.fly.dev). If it's a change to the client, the changes will be visible in the [client staging app](https://youtaite-network-staging.netlify.com).
 10. I'll deploy the changes to the production apps when I feel like it :)
 
 ## Creating issues
