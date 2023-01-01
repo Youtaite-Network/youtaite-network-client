@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import Network from './Network';
 import NetworkSettings from './NetworkSettings';
+import networkApi from '../utils/YoutaiteNetworkApi';
 
 function Home() {
   const [range, setRange] = useState(null);
@@ -22,14 +22,14 @@ function Home() {
       const newData = {};
       // get edge data
       setLoadMessage('Fetching link data...');
-      axios(`${process.env.REACT_APP_API_URL}/edges`)
-        .then((edgesResponse) => {
-          newData.freqToEdges = edgesResponse.data.freq_to_edges;
-          newData.personEdges = edgesResponse.data.person_edges;
+      networkApi('edges')
+        .then(({ data: edgeData }) => {
+          newData.freqToEdges = edgeData.freq_to_edges;
+          newData.personEdges = edgeData.person_edges;
           // get collab data
           setLoadMessage('Fetching collab data...');
-          axios(`${process.env.REACT_APP_API_URL}/collabs`)
-            .then((collabsResponse) => {
+          networkApi('collabs')
+            .then(({ data: nodes }) => {
               setLoadMessage('Analyzing collab data...');
               // remove any collabs that have no people
               let collabIds = [];
@@ -38,7 +38,7 @@ function Home() {
                 collabIds.push(pe.edge.target);
               });
               collabIds = [...new Set(collabIds)];
-              newData.nodes = collabsResponse.data
+              newData.nodes = nodes
                 .filter((collab) => collabIds.includes(collab.id));
               // calculate and set range
               const maxRange = Math.max(...Object.keys(newData.freqToEdges)) + 1;
@@ -47,9 +47,9 @@ function Home() {
               setRange(initialRange.current);
               // get people data
               setLoadMessage('Fetching people data...');
-              axios(`${process.env.REACT_APP_API_URL}/people`)
-                .then((peopleResponse) => {
-                  newData.people = peopleResponse.data;
+              networkApi('people')
+                .then(({ data: people }) => {
+                  newData.people = people;
                   // set data/initialize network
                   setData(newData);
                   setLoadMessage('Drawing network...');

@@ -4,7 +4,6 @@ import React, {
 import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
-import axios from 'axios';
 import Cookies from 'js-cookie';
 import VideoDescription from './VideoDescription';
 import SelectedBox from './SelectedBox';
@@ -12,6 +11,7 @@ import CollabLink from './CollabLink';
 import PeopleForm from './PeopleForm';
 import Video from './Video';
 import AlertContext from '../AlertContext';
+import networkApi from '../../utils/YoutaiteNetworkApi';
 
 function Submit() {
   // state/context
@@ -59,23 +59,12 @@ function Submit() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (window.confirm('Submit all roles?')) {
-      axios.post(`${process.env.REACT_APP_API_URL}/submit`, {
+      networkApi.post('submit', {
         people: selected,
         yt_id: ytId,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${Cookies.get('access-token')}`,
-        },
       })
-        .then((response) => {
-          Cookies.set('access-token', response.headers['access-token'], {
-            expires: new Date(response.headers['access-token-expiry']),
-          });
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+        .then((response) => networkApi.setAccessTokenCookie(response))
+        .catch((error) => console.error(error));
       setAlert(['remove-collab']);
       window.localStorage.removeItem('selected');
       window.localStorage.removeItem('currentMiscId');
@@ -86,17 +75,11 @@ function Submit() {
 
   const removeCollab = () => {
     if (window.confirm('Are you sure? A collab is any video that involves the work of more than one youtaite.')) {
-      axios.delete(`${process.env.REACT_APP_API_URL}/collabs`, {
+      networkApi.delete('collabs', {
         data: { yt_id: ytId },
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${Cookies.get('access-token')}`,
-        },
       })
         .then((response) => {
-          Cookies.set('access-token', response.headers['access-token'], {
-            expires: new Date(response.headers['access-token-expiry']),
-          });
+          networkApi.setAccessTokenCookie(response);
           setAlert(['remove-collab', 'Removed collab', 'info']);
         })
         .catch((error) => {

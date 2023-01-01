@@ -5,8 +5,7 @@ import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import getVideoId from 'get-video-id';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import networkApi from '../../utils/YoutaiteNetworkApi';
 import AlertContext from '../AlertContext';
 
 function CollabLink({
@@ -71,37 +70,20 @@ function CollabLink({
       return;
     }
     // call API to get title & description from ID
-    axios(`${process.env.REACT_APP_API_URL}/collabs/info/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${Cookies.get('access-token')}`,
-      },
-    })
-      .then((collabInfoResponse) => {
-        // set cookies
-        Cookies.set('access-token', collabInfoResponse.headers['access-token'], {
-          expires: new Date(collabInfoResponse.headers['access-token-expiry']),
-        });
-        const { title, description, channel_id: channelId } = collabInfoResponse.data;
+    networkApi(`collabs/info/${id}`)
+      .then(({ config: collabConfig, data: collabData, headers: collabHeaders }) => {
+        networkApi.setAccessTokenCookie({ config: collabConfig, headers: collabHeaders });
+        const { title, description, channel_id: channelId } = collabData;
         // get info about channel that posted collab
-        axios(`${process.env.REACT_APP_API_URL}/people/info/${channelId}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${Cookies.get('access-token')}`,
-          },
-        })
-          .then((peopleInfoResponse) => {
-            // set cookies
-            Cookies.set('access-token', peopleInfoResponse.headers['access-token'], {
-              expires: new Date(peopleInfoResponse.headers['access-token-expiry']),
-            });
-            const { name } = peopleInfoResponse.data;
+        networkApi(`people/info/${channelId}`)
+          .then(({ config: peopleConfig, data: { name }, headers: peopleHeaders }) => {
+            networkApi.setAccessTokenCookie({ config: peopleConfig, headers: peopleHeaders });
             const byline = `posted by ${name} https://youtube.com/channel/${channelId}`;
             onSubmit(title, byline, description, id);
-          }).catch((error) => {
-            console.error(error);
-          });
-      }).catch((error) => {
+          })
+          .catch((error) => console.error(error));
+      })
+      .catch((error) => {
         console.error(error);
         if (error.response && error.response.status === 403) {
           setAlert(['sign-in', 'Please sign in', 'danger']);
@@ -113,33 +95,16 @@ function CollabLink({
     setRandom(true);
     setAlert(['remove-collab']);
     // call API to get title & description from ID
-    axios(`${process.env.REACT_APP_API_URL}/collabs/new_random`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${Cookies.get('access-token')}`,
-      },
-    })
-      .then((randomCollabResponse) => {
-        // set cookies
-        Cookies.set('access-token', randomCollabResponse.headers['access-token'], {
-          expires: new Date(randomCollabResponse.headers['access-token-expiry']),
-        });
+    networkApi('collabs/new_random')
+      .then(({ config: collabConfig, data: collabData, headers: collabHeaders }) => {
+        networkApi.setAccessTokenCookie({ config: collabConfig, headers: collabHeaders });
         const {
           yt_id: ytId, title, description, channel_id: channelId,
-        } = randomCollabResponse.data;
+        } = collabData;
         // get info about channel that posted collab
-        axios(`${process.env.REACT_APP_API_URL}/people/info/${channelId}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${Cookies.get('access-token')}`,
-          },
-        })
-          .then((peopleInfoResponse) => {
-            // set cookies
-            Cookies.set('access-token', peopleInfoResponse.headers['access-token'], {
-              expires: new Date(peopleInfoResponse.headers['access-token-expiry']),
-            });
-            const { name } = peopleInfoResponse.data;
+        networkApi(`people/info/${channelId}`)
+          .then(({ config: peopleConfig, data: { name }, headers: peopleHeaders }) => {
+            networkApi.setAccessTokenCookie({ config: peopleConfig, headers: peopleHeaders });
             const byline = `posted by ${name} (https://youtube.com/channel/${channelId})`;
             onSubmit(title, byline, description, ytId);
             setAlert(['enter-video']);

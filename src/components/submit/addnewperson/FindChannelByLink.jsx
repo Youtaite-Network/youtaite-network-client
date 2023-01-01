@@ -1,9 +1,8 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import networkApi from '../../../utils/YoutaiteNetworkApi';
 
 function FindChannelByLink({ handleNoYTChannel, handleSubmit, input }) {
   const [channelLink, setChannelLink] = useState('');
@@ -14,27 +13,12 @@ function FindChannelByLink({ handleNoYTChannel, handleSubmit, input }) {
   };
 
   const analyzeChannelLink = () => {
-    let link = channelLink;
-    if (link.startsWith('http')) { // remove protocol
-      const url = new URL(link);
-      link = `${url.hostname}${url.pathname}`;
-    }
-
-    axios(`${process.env.REACT_APP_API_URL}/people/info_from_url/${link}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${Cookies.get('access-token')}`,
-      },
-    })
+    networkApi(`people/info_from_url/${encodeURIComponent(channelLink)}`)
       .then((response) => {
-        Cookies.set('access-token', response.headers['access-token'], {
-          expires: new Date(response.headers['access-token-expiry']),
-        });
+        networkApi.setAccessTokenCookie(response);
         handleSubmit(channelLink, response.data);
       })
-      .catch((response) => {
-        console.error(response);
-      });
+      .catch((response) => console.error(response));
   };
 
   const handleKeyDown = (e) => {
