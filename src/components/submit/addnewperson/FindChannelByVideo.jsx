@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import getVideoId from 'get-video-id';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import getUrl from '../../../utils/ApiUtils';
+import { getUrl } from '../../../utils/UrlUtils';
+import networkApi from '../../../utils/YoutaiteNetworkApi';
 
 class FindChannelByVideo extends React.Component {
   constructor(props) {
@@ -56,32 +55,16 @@ class FindChannelByVideo extends React.Component {
       return;
     }
     // call API to get channel ID from video ID
-    axios(`${process.env.REACT_APP_API_URL}/collabs/info/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${Cookies.get('access-token')}`,
-      },
-    })
-      .then((collabInfoResponse) => {
-        // set cookies
-        Cookies.set('access-token', collabInfoResponse.headers['access-token'], {
-          expires: new Date(collabInfoResponse.headers['access-token-expiry']),
-        });
-        const { channel_id: channelId } = collabInfoResponse.data;
+    networkApi(`collabs/info/${id}`)
+      .then(({ config: collabConfig, data: collabData, headers: collabHeaders }) => {
+        networkApi.setAccessTokenCookie({ config: collabConfig, headers: collabHeaders });
+        const { channel_id: channelId } = collabData;
         // call API to get channel info from channel ID
-        axios(`${process.env.REACT_APP_API_URL}/people/info/${channelId}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${Cookies.get('access-token')}`,
-          },
-        })
-          .then((peopleInfoResponse) => {
-            // set cookies
-            Cookies.set('access-token', peopleInfoResponse.headers['access-token'], {
-              expires: new Date(peopleInfoResponse.headers['access-token-expiry']),
-            });
+        networkApi(`people/info/${channelId}`)
+          .then(({ config: peopleConfig, data: peopleData, headers: peopleHeaders }) => {
+            networkApi.setAccessTokenCookie({ config: peopleConfig, headers: peopleHeaders });
             const { handleSubmit } = this.props;
-            handleSubmit(peopleInfoResponse.data);
+            handleSubmit(peopleData);
           })
           .catch((error) => console.error(error));
       })
@@ -95,21 +78,28 @@ class FindChannelByVideo extends React.Component {
   }
 
   setChannelVideosLink() {
+    // get URL object from channel link
     const { channelLink } = this.props;
-    const url = getUrl(channelLink);
-    if (url) {
-      let path = '';
-      // remove any parts of the URL path after channel name
-      const pathParts = url.pathname.split('/');
-      if (['user', 'channel', 'c'].includes(pathParts[1])) {
-        path = pathParts.slice(0, 3).join('/');
-      } else {
-        path = pathParts.slice(0, 2).join('/');
-      }
-      this.setState({
-        channelVideosLink: `${url.protocol}//${url.hostname}${path}/videos`,
-      });
+    let url;
+    try {
+      url = getUrl(channelLink);
+    } catch (e) {
+      console.error(`Could not get URL from channel link: ${channelLink}`, e);
+      return;
     }
+
+    // remove any parts of the URL path after channel name
+    let path = '';
+    const pathParts = url.pathname.split('/');
+    if (['user', 'channel', 'c'].includes(pathParts[1])) {
+      path = pathParts.slice(0, 3).join('/');
+    } else {
+      path = pathParts.slice(0, 2).join('/');
+    }
+
+    this.setState({
+      channelVideosLink: `${url.protocol}//${url.hostname}${path}/videos`,
+    });
   }
 
   render() {

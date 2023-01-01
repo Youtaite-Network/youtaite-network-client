@@ -7,12 +7,7 @@ function addProtocolIfNeeded(url) {
 
 function getUrl(urlString) {
   const urlWithProtocol = addProtocolIfNeeded(urlString);
-  try {
-    return new URL(urlWithProtocol);
-  } catch (e) {
-    console.error(`Could not parse url: ${urlString}`, e);
-    return null;
-  }
+  return new URL(urlWithProtocol);
 }
 
-export default getUrl;
+export { getUrl }; // eslint-disable-line import/prefer-default-export

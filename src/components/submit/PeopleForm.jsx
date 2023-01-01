@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
@@ -8,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 import PersonAutosuggest from './PersonAutosuggest';
 import RoleAutosuggest from './RoleAutosuggest';
 import AddNewPersonDialog from './addnewperson/AddNewPersonDialog';
+import networkApi from '../../utils/YoutaiteNetworkApi';
 
 class PeopleForm extends React.Component {
   constructor(props) {
@@ -34,7 +34,7 @@ class PeopleForm extends React.Component {
   }
 
   componentDidMount() {
-    axios(`${process.env.REACT_APP_API_URL}/people`)
+    networkApi('people')
       .then((response) => {
         this.setState({
           people: response.data.sort((a, b) => a.name.length - b.name.length),

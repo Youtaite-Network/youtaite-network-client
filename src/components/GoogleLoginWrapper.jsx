@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import GoogleLogin from 'react-google-login';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import networkApi from '../utils/YoutaiteNetworkApi';
 import AlertContext from './AlertContext';
 
 function GoogleLoginWrapper() {
@@ -9,17 +8,14 @@ function GoogleLoginWrapper() {
 
   const onSuccess = (user) => {
     const idtoken = user.getAuthResponse().id_token;
-    const params = new URLSearchParams();
-    params.append('idtoken', idtoken);
-    axios.post(
-      `${process.env.REACT_APP_API_URL}/googlesignin`,
-      params, // data
+    const params = new URLSearchParams({ idtoken });
+    networkApi.post(
+      'googlesignin',
+      params,
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-    ) // headers
+    )
       .then((response) => {
-        Cookies.set('access-token', response.headers['access-token'], {
-          expires: new Date(response.headers['access-token-expiry']),
-        });
+        networkApi.setAccessTokenCookie(response);
         setAlert(['sign-in']);
       })
       .catch((error) => {

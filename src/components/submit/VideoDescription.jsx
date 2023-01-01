@@ -6,16 +6,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Image from 'react-bootstrap/Image';
 import Linkify from 'linkifyjs/react';
 import { MdCheck, MdAdd } from 'react-icons/md';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-
-function stripProtocol(link) {
-  if (link.startsWith('http')) {
-    const url = new URL(link);
-    return `${url.hostname}${url.pathname}`;
-  }
-  return link;
-}
+import networkApi from '../../utils/YoutaiteNetworkApi';
 
 function VideoDescription({
   description, byline, addPersonToSelected, selected,
@@ -48,22 +39,14 @@ function VideoDescriptionLink({ link, addPersonToSelected, selected }) {
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
-    const linkWithoutProtocol = stripProtocol(link);
-    axios(`${process.env.REACT_APP_API_URL}/people/info_from_url/${linkWithoutProtocol}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${Cookies.get('access-token')}`,
-      },
-    })
-      .then((response) => {
-        Cookies.set('access-token', response.headers['access-token'], {
-          expires: new Date(response.headers['access-token-expiry']),
-        });
+    networkApi(`people/info_from_url/${encodeURIComponent(link)}`)
+      .then(({ config, data, headers }) => {
+        networkApi.setAccessTokenCookie({ config, headers });
         setChannelInfo({
-          thumbnail: response.data.thumbnail,
-          name: response.data.name,
-          misc_id: response.data.misc_id,
-          id_type: response.data.id_type,
+          thumbnail: data.thumbnail,
+          name: data.name,
+          misc_id: data.misc_id,
+          id_type: data.id_type,
         });
       })
       .catch((error) => {
